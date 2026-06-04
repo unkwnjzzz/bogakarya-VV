@@ -140,6 +140,14 @@
             </div>
         </div>
 
+        <div class="flex flex-wrap gap-2 mt-4 border-t border-slate-800 pt-4">
+             <span class="text-[10px] font-bold text-slate-500 uppercase self-center">Filter Status:</span>
+            <button onclick="updateFilterStatus('ALL')" class="px-3 py-1 bg-slate-800 rounded text-xs text-slate-300 hover:bg-slate-700">SEMUA</button>
+            <button onclick="updateFilterStatus('READY')" class="px-3 py-1 bg-emerald-900/30 border border-emerald-800 rounded text-xs text-emerald-400">READY</button>
+            <button onclick="updateFilterStatus('PAID')" class="px-3 py-1 bg-sky-900/30 border border-sky-800 rounded text-xs text-sky-400">PAID</button>
+            <button onclick="updateFilterStatus('WAITING')" class="px-3 py-1 bg-amber-900/30 border border-amber-800 rounded text-xs text-amber-400">WAITING</button>
+    </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-slate-900 rounded-xl border border-slate-800 shadow-lg overflow-hidden lg:col-span-2">
                 <div class="p-3 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
@@ -228,6 +236,7 @@
         let currentPage = 1; const rowsPerPage = 5; 
         let myChart = null; let trendChart = null;
         let varianAktif = "ALL"; let kataKunciCari = "";
+        let statusAktif = "ALL"; // Tambahin ini di deretan let di atas
 
         document.addEventListener("DOMContentLoaded", fetchData);
 
@@ -276,6 +285,10 @@
             });
         }
 
+        function updateFilterStatus(status) {
+    statusAktif = status;
+    aplikasikanFilter();
+}
         function hitungDashboard() {
             let totalOwnerSemua = 0; let totalInvestorSemua = 0;
             let ownerReady = 0; let ownerPaid = 0; let ownerWaiting = 0;
@@ -358,26 +371,25 @@
         }
 
         function aplikasikanFilter() {
-            if (varianAktif === "ALL") {
-                filteredData = [...masterData];
-                document.getElementById("rekap-filter-info").innerText = "Semua Produk";
-            } else if (varianAktif === "SEARCH") {
-                document.getElementById("rekap-filter-info").innerText = `Pencarian: "${kataKunciCari}"`;
-                filteredData = masterData.filter(item => {
-                    let nama = String(item.namaProduk || "").toLowerCase();
-                    let id = String(item.idPesanan || "").toLowerCase();
-                    return nama.includes(kataKunciCari) || id.includes(kataKunciCari);
-                });
-            } else {
-                document.getElementById("rekap-filter-info").innerText = varianAktif;
-                filteredData = masterData.filter(item => {
-                    let namaSheet = String(item.namaProduk || "").trim().toUpperCase();
-                    return namaSheet === varianAktif;
-                });
-            }
-            currentPage = 1; renderTabel();
+    filteredData = masterData.filter(item => {
+        // Cek Nama/ID Produk
+        let cocokNama = true;
+        if (varianAktif === "SEARCH") {
+            cocokNama = String(item.namaProduk || "").toLowerCase().includes(kataKunciCari) || 
+                        String(item.idPesanan || "").toLowerCase().includes(kataKunciCari);
+        } else if (varianAktif !== "ALL") {
+            cocokNama = String(item.namaProduk || "").trim().toUpperCase() === varianAktif;
         }
 
+        // Cek Status (Filter Baru)
+        let cocokStatus = (statusAktif === "ALL") ? true : (String(item.status || "WAITING").toUpperCase() === statusAktif);
+
+        return cocokNama && cocokStatus;
+    });
+
+    currentPage = 1;
+    renderTabel();
+}
         function renderTabel() {
             const tbody = document.getElementById("tabel-body"); tbody.innerHTML = "";
             if (filteredData.length === 0) {
