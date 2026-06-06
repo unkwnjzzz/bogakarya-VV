@@ -14,11 +14,9 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
         .modal.active { display: flex; align-items: center; justify-content: center; }
         
-        /* Print Styles khusus Laporan Formal */
         @media print {
             body { background: white !important; color: black !important; margin: 0; padding: 0; }
             .no-print { display: none !important; }
@@ -32,7 +30,6 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-6 font-sans antialiased relative">
 
-    <!-- LAYAR UTAMA APLIKASI (NON-PRINT) -->
     <div id="app-layar" class="no-print">
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 max-w-7xl mx-auto border-b border-slate-800 pb-4">
             <div>
@@ -40,16 +37,21 @@
                 <p class="text-xs text-slate-400 mt-0.5">Sistem Monitoring Penjualan & Pembagian Hasil Transparan</p>
             </div>
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                <button onclick="prosesCetakClosingFormal()" class="bg-yellow-600 hover:bg-yellow-500 text-slate-900 border border-yellow-500 font-bold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(234,179,8,0.3)] cursor-pointer">
+                
+                <select id="filter-bulan" onchange="ubahFilterBulan()" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-xs px-3 py-2.5 rounded-lg transition cursor-pointer shadow-md focus:outline-none focus:border-yellow-500">
+                    <option value="ALL">Loading Bulan...</option>
+                </select>
+
+                <button onclick="prosesCetakClosingFormal()" class="bg-yellow-600 hover:bg-yellow-500 text-slate-900 border border-yellow-500 font-bold text-xs px-3 py-2.5 rounded-lg transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(234,179,8,0.3)] cursor-pointer">
                     Cetak Closing
                 </button>
-                <button onclick="exportKeCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                <button onclick="exportKeCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs px-3 py-2.5 rounded-lg transition flex items-center gap-1.5 shadow-md cursor-pointer">
                     Export CSV
                 </button>
-                <button onclick="salinLaporanWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                <button onclick="salinLaporanWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2.5 rounded-lg transition flex items-center gap-1.5 shadow-md cursor-pointer">
                     Share WA
                 </button>
-                <div id="sync-status" class="text-xs bg-slate-900 text-emerald-400 px-3 py-2 rounded-lg border border-slate-800 flex items-center gap-1.5">
+                <div id="sync-status" class="text-xs bg-slate-900 text-emerald-400 px-3 py-2.5 rounded-lg border border-slate-800 flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Terhubung
                 </div>
             </div>
@@ -64,12 +66,14 @@
                 <button onclick="switchTab('logs', event)" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition cursor-pointer">Audit Log</button>
             </div>
 
-            <!-- DASHBOARD -->
             <div id="dashboard" class="tab-content active space-y-6">
                 <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg flex flex-col gap-2 relative overflow-hidden">
                     <div class="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10">
                         <span class="flex items-center gap-2">Target Penjualan Bulan Ini</span>
-                        <span id="target-text" class="text-yellow-500 font-mono text-sm">0 / 300 Pcs</span>
+                        <span class="flex items-center gap-2">
+                            <span id="target-text" class="text-yellow-500 font-mono text-sm">0 / 300 Pcs</span>
+                            <button onclick="editTargetBulanan()" class="text-slate-500 hover:text-yellow-400 transition cursor-pointer bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700" title="Edit Target">✎</button>
+                        </span>
                     </div>
                     <div class="w-full bg-slate-950 rounded-full h-3.5 border border-slate-800 overflow-hidden relative z-10">
                         <div id="progress-bar" class="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(234,179,8,0.5)]" style="width: 0%"></div>
@@ -167,7 +171,6 @@
                 </div>
             </div>
 
-            <!-- TRANSAKSI -->
             <div id="transactions" class="tab-content space-y-6">
                 <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg space-y-3">
                     <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
@@ -175,7 +178,7 @@
                         <div class="flex gap-1 flex-wrap" id="filter-container"></div>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="input-cari" placeholder="Cari ID Pesanan / Nama Produk..." onkeyup="cariKetikProduk()" class="flex-1 bg-slate-950 border border-slate-800 text-slate-200 text-xs px-3 py-2 rounded placeholder-slate-600 focus:outline-none focus:border-yellow-500">
+                        <input type="text" id="input-cari" placeholder="Cari ID Pesanan / Nama Produk..." onkeyup="cariKetikProduk()" class="flex-1 bg-slate-950 border border-slate-800 text-slate-200 text-xs px-3 py-2 rounded focus:outline-none focus:border-yellow-500">
                         <div class="flex gap-1 flex-wrap">
                             <span id="btn-status-ALL" onclick="updateFilterStatus('ALL')" class="px-3 py-1 bg-slate-800 text-slate-100 rounded text-xs transition font-semibold cursor-pointer btn-status-aktif">Semua</span>
                             <span id="btn-status-WAITING" onclick="updateFilterStatus('WAITING')" class="px-3 py-1 bg-slate-900 border border-amber-800/40 rounded text-xs text-amber-400/80 transition cursor-pointer">Waiting</span>
@@ -215,7 +218,6 @@
                 </div>
             </div>
 
-            <!-- AUDIT LOG -->
             <div id="logs" class="tab-content space-y-6">
                 <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg">
                     <h3 class="text-sm font-bold text-slate-300 mb-3">Audit Trail & Riwayat Perubahan</h3>
@@ -230,8 +232,6 @@
             </div>
         </main>
     </div>
-
-    <!-- AREA KHUSUS PRINT CLOSING FORMAL (TERSEMBUNYI DI LAYAR) -->
     <div id="print-area-closing" class="hidden print-only bg-white text-black max-w-4xl mx-auto p-8">
         <div class="text-center border-b-2 border-black pb-4 mb-6">
             <h1 class="text-xl font-bold uppercase">Laporan Closingan Final & Kinerja Keuangan</h1>
@@ -329,7 +329,6 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL TRANSAKSI (POP-UP) -->
     <div id="modal-transaksi" class="modal no-print">
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-xl w-11/12 max-w-md shadow-2xl relative">
             <button onclick="tutupModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-xl">&times;</button>
@@ -353,7 +352,14 @@
                     <div class="flex justify-between text-xs"><span class="text-slate-400">Jatah Investor (20%):</span><span id="modal-invs" class="font-bold text-violet-400"></span></div>
                 </div>
             </div>
-            <button onclick="tutupModal()" class="w-full mt-6 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 rounded-lg transition">Tutup</button>
+
+            <div id="modal-btn-wa-container" class="mt-4 hidden">
+                <button onclick="followUpWA()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-2 rounded-lg transition flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                    📱 Follow Up Ekspedisi (WA)
+                </button>
+            </div>
+            
+            <button onclick="tutupModal()" class="w-full mt-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 rounded-lg transition cursor-pointer">Tutup</button>
         </div>
     </div>
     <script>
@@ -362,15 +368,24 @@
         let masterData = [];
         let filteredData = [];
         let DAFTAR_VARIAN_DINAMIS = [];
+        let DAFTAR_BULAN = []; // Untuk Filter Bulan
+        
         let currentPage = 1;
         const rowsPerPage = 5;
         let myChart = null;
         let trendChart = null;
+        
         let varianAktif = "ALL";
         let kataKunciCari = "";
         let statusAktif = "ALL";
+        let bulanAktif = "ALL"; // Untuk Filter Bulan
+        
+        let targetBulanan = parseInt(localStorage.getItem("target_BogaKarya86")) || 300; // Target Dinamis
         let auditLog = [];
         let systemAlerts = [];
+
+        // Variabel untuk modal WA
+        let currentModalItem = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             fetchData();
@@ -379,7 +394,7 @@
             setPeriodeLaporan();
         });
 
-        setInterval(fetchData, 600000); // Auto-refresh tiap 10 menit
+        setInterval(fetchData, 600000);
 
         function setPeriodeLaporan() {
             const bulan = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
@@ -393,27 +408,33 @@
             
             try {
                 const response = await fetch(API_URL);
-                masterData = await response.json();
-                masterData = masterData.filter(item => (item.tanggal && String(item.tanggal).trim() !== "") || (item.idPesanan && String(item.idPesanan).trim() !== ""));
+                let rawData = await response.json();
+                masterData = rawData.filter(item => (item.tanggal && String(item.tanggal).trim() !== "") || (item.idPesanan && String(item.idPesanan).trim() !== ""));
                 
                 let setVarian = new Set();
+                let setBulan = new Set(); // Set untuk filter bulan
+                
                 masterData.forEach(item => {
                     if (item.namaProduk && String(item.namaProduk).trim() !== "") {
                         setVarian.add(String(item.namaProduk).trim().toUpperCase());
                     }
+                    
+                    // Ambil YYYY-MM untuk filter
+                    if (item.tanggal) {
+                        let tglStr = String(item.tanggal).includes("T") ? item.tanggal.split("T")[0] : String(item.tanggal);
+                        if (tglStr.length >= 7) {
+                            setBulan.add(tglStr.substring(0, 7));
+                        }
+                    }
                 });
-                DAFTAR_VARIAN_DINAMIS = Array.from(setVarian).sort();
                 
+                DAFTAR_VARIAN_DINAMIS = Array.from(setVarian).sort();
+                DAFTAR_BULAN = Array.from(setBulan).sort().reverse(); // Terbaru di atas
+                
+                buatDropdownBulan();
                 buatTombolFilterDinamis();
                 aplikasikanFilter();
-                hitungDashboard();
-                renderRekapVarian();
-                cariProdukTerlaris();
-                buildTrendChart();
-                checkSystemAlerts();
-                renderAuditLog();
-                hitungClosingFormal(); // Render tabel rahasia untuk print
-
+                
                 if(syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Diperbarui: ${new Date().toLocaleTimeString('id-ID')}`;
             } catch (error) {
                 console.error("Fetch error:", error);
@@ -423,6 +444,29 @@
             }
         }
 
+        // ================= FITUR BARU 1: FILTER BULAN =================
+        function buatDropdownBulan() {
+            const selectBulan = document.getElementById("filter-bulan");
+            selectBulan.innerHTML = `<option value="ALL">Semua Waktu</option>`;
+            
+            const namaBulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+            
+            DAFTAR_BULAN.forEach(b => {
+                let parts = b.split("-");
+                if(parts.length === 2) {
+                    let label = `${namaBulan[parseInt(parts[1])-1]} ${parts[0]}`;
+                    selectBulan.innerHTML += `<option value="${b}">${label}</option>`;
+                }
+            });
+            selectBulan.value = bulanAktif;
+        }
+
+        function terapkanFilterBulan() {
+            bulanAktif = document.getElementById("filter-bulan").value;
+            aplikasikanFilter();
+        }
+
+        // ================= TAB SWITCHING =================
         function switchTab(tabName, event) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'border-yellow-500', 'text-yellow-500'));
@@ -430,7 +474,18 @@
             if (event) event.currentTarget.classList.add('active', 'border-yellow-500', 'text-yellow-500');
         }
 
-        // ================= FILTER TRANSAKSI =================
+        // ================= FITUR BARU 2: EDIT TARGET =================
+        function editTargetBulanan() {
+            let input = prompt("Masukkan jumlah target penjualan bulanan (Pcs):", targetBulanan);
+            if(input !== null && !isNaN(parseInt(input)) && parseInt(input) > 0) {
+                targetBulanan = parseInt(input);
+                localStorage.setItem("target_BogaKarya86", targetBulanan);
+                hitungDashboard(); // Update tampilan
+                addAuditLog("UPDATE_TARGET", `Target diubah menjadi ${targetBulanan} Pcs`, "info");
+            }
+        }
+
+        // ================= FILTER TRANSAKSI & PENCARIAN =================
         function buatTombolFilterDinamis() {
             const container = document.getElementById("filter-container");
             container.innerHTML = `<button onclick="filterProduk('ALL', event)" class="btn-filter active border border-slate-800 bg-slate-900 text-slate-300 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">Semua Produk</button>`;
@@ -493,6 +548,7 @@
 
         function aplikasikanFilter() {
             filteredData = masterData.filter(item => {
+                // Filter Teks & Varian
                 let cocokNama = true;
                 if (varianAktif === "SEARCH") {
                     cocokNama = String(item.namaProduk || "").toLowerCase().includes(kataKunciCari) || 
@@ -500,12 +556,31 @@
                 } else if (varianAktif !== "ALL") {
                     cocokNama = String(item.namaProduk || "").trim().toUpperCase() === varianAktif;
                 }
+                
+                // Filter Status
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
                 let cocokStatus = (statusAktif === "ALL" || statusUpper === statusAktif);
-                return cocokNama && cocokStatus;
+                
+                // Filter Bulan
+                let cocokBulan = true;
+                if (bulanAktif !== "ALL" && item.tanggal) {
+                    let tglStr = String(item.tanggal).includes("T") ? item.tanggal.split("T")[0] : String(item.tanggal);
+                    cocokBulan = tglStr.startsWith(bulanAktif);
+                }
+
+                return cocokNama && cocokStatus && cocokBulan;
             });
+            
             currentPage = 1;
             renderTabel();
+            
+            // Re-render semua grafik & dashboard berdasarkan data yang difilter!
+            hitungDashboard();
+            renderRekapVarian();
+            cariProdukTerlaris();
+            buildTrendChart();
+            checkSystemAlerts();
+            hitungClosingFormal();
         }
 
         function renderTabel() {
@@ -537,7 +612,7 @@
 
                 let tr = document.createElement("tr");
                 tr.className = "hover:bg-slate-900/60 cursor-pointer transition text-slate-300 border-b border-slate-800/50";
-                tr.setAttribute("onclick", `bukaModal(${start + index})`); // Aksi Klik Modal Pop Up
+                tr.setAttribute("onclick", `bukaModal(${start + index})`);
                 tr.innerHTML = `<td class="p-3">${displayTanggal}</td><td class="p-3 font-mono text-slate-500 text-[11px]">${displayID}</td><td class="p-3 font-semibold text-yellow-500/90">${namaProdukValid}</td><td class="p-3 text-center font-bold text-slate-200">${item.qty || 0}</td><td class="p-3 text-right font-semibold text-emerald-400">${labaTampil}</td><td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold tracking-wider ${statusClass}">${statusUpper}</span></td>`;
                 tbody.appendChild(tr);
             });
@@ -551,6 +626,8 @@
         function bukaModal(index) {
             let item = filteredData[index];
             if(!item) return;
+
+            currentModalItem = item; // Simpan untuk dipakai Follow Up WA
 
             let statusUpper = String(item.status || "WAITING").toUpperCase();
             let qty = Number(item.qty || 0);
@@ -575,10 +652,34 @@
             let elStatus = document.getElementById("modal-status");
             elStatus.className = "font-bold " + (statusUpper === "READY" ? "text-emerald-400" : (statusUpper.match(/CANCELED|RETUR|FAILED/) ? "text-rose-400" : "text-amber-400"));
 
+            // Tampilkan/Sembunyikan Tombol WA Ekspedisi
+            let waContainer = document.getElementById("modal-btn-wa-container");
+            if(statusUpper === "RETUR" || statusUpper === "FAILED") {
+                waContainer.classList.remove("hidden");
+            } else {
+                waContainer.classList.add("hidden");
+            }
+
             document.getElementById("modal-transaksi").classList.add('active');
         }
 
-        function tutupModal() { document.getElementById("modal-transaksi").classList.remove('active'); }
+        function tutupModal() { 
+            document.getElementById("modal-transaksi").classList.remove('active'); 
+            currentModalItem = null;
+        }
+
+        // ================= FITUR BARU 3: AUTO WA EKSPEDISI =================
+        function followUpWA() {
+            if(!currentModalItem) return;
+            let idResi = currentModalItem.idPesanan || "[Tidak ada ID/Resi]";
+            let produk = currentModalItem.namaProduk || "";
+            
+            let pesan = `Halo CS Ekspedisi,\n\nMohon bantu pengecekan untuk pesanan yang berstatus RETUR/GAGAL ANTAR berikut:\n\n*ID / RESI:* ${idResi}\n*Produk:* ${produk}\n\nMohon info detail hambatannya dan tolong segera dikoordinasikan pengembaliannya agar barang kami tidak tertahan. Terima kasih.`;
+            
+            let url = `https://wa.me/?text=${encodeURIComponent(pesan)}`;
+            window.open(url, '_blank');
+            addAuditLog("FOLLOW_UP", `Follow up kurir via WA untuk ID ${idResi}`, "info");
+        }
 
         // ================= DASHBOARD PERHITUNGAN =================
         function hitungDashboard() {
@@ -587,7 +688,8 @@
             let rekapTotalSettlement = 0, rekapTotalHPP = 0, rekapTotalLabaKotor = 0, totalBiayaBankRiil = 0;
             let danaReadyGross = 0, danaPaidGross = 0, danaWaitingGross = 0;
 
-            masterData.forEach(item => {
+            // PENTING: Hitung berdasarkan filteredData agar match dengan Filter Bulan
+            filteredData.forEach(item => {
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
                 let qtyValid = Number(item.qty || 0);
                 let nilaiSettlement = Number(item.settlement || 0) * qtyValid;
@@ -618,8 +720,10 @@
                 totalInvestorSemua += jInvsMentah;
             });
 
-            document.getElementById("progress-bar").style.width = Math.min((rekapTotalQty / 300) * 100, 100) + "%";
-            document.getElementById("target-text").innerText = `${rekapTotalQty} / 300 Pcs`;
+            // Implementasi Target Bulanan Dinamis
+            let pct = targetBulanan > 0 ? (rekapTotalQty / targetBulanan) * 100 : 0;
+            document.getElementById("progress-bar").style.width = Math.min(pct, 100) + "%";
+            document.getElementById("target-text").innerText = `${rekapTotalQty} / ${targetBulanan} Pcs`;
             
             document.getElementById("total-owner").innerText = formatRupiah(totalOwnerSemua);
             document.getElementById("owner-ready").innerText = formatRupiah(ownerReady);
@@ -645,10 +749,9 @@
             updateChart(rekapTotalHPP, totalOwnerSemua, totalInvestorSemua, totalBiayaBankRiil);
         }
 
-        // ================= CHART & VISUAL =================
         function buildTrendChart() {
             let rekapHarian = {};
-            masterData.forEach(item => {
+            filteredData.forEach(item => {
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
                 if (statusUpper === "FAILED" || statusUpper === "RETUR" || statusUpper === "CANCELED") return;
                 let tgl = item.tanggal ? (String(item.tanggal).includes("T") ? item.tanggal.split("T")[0] : item.tanggal) : "Tanpa Tanggal";
@@ -676,7 +779,7 @@
         function renderRekapVarian() {
             let rekap = {};
             DAFTAR_VARIAN_DINAMIS.forEach(v => rekap[v] = { qty: 0, laba: 0 });
-            masterData.forEach(item => {
+            filteredData.forEach(item => {
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
                 if (statusUpper === "FAILED" || statusUpper === "RETUR" || statusUpper === "CANCELED") return;
                 let prod = item.namaProduk ? String(item.namaProduk).trim().toUpperCase() : "";
@@ -701,7 +804,7 @@
 
         function cariProdukTerlaris() {
             let rekap = {};
-            masterData.forEach(item => {
+            filteredData.forEach(item => {
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
                 if (statusUpper !== "FAILED" && statusUpper !== "RETUR" && statusUpper !== "CANCELED" && item.namaProduk) {
                     let namaKey = String(item.namaProduk).trim().toUpperCase();
@@ -736,11 +839,11 @@
 
         function checkSystemAlerts() {
             systemAlerts = [];
-            let failedCount = masterData.filter(i => String(i.status || "WAITING").toUpperCase() === "RETUR" || String(i.status || "WAITING").toUpperCase() === "FAILED").length;
-            if (failedCount > 0) addSystemAlert("warning", `Ada ${failedCount} transaksi RETUR/FAILED yang perlu ditinjau!`);
-            let canceledCount = masterData.filter(i => String(i.status || "WAITING").toUpperCase() === "CANCELED").length;
+            let failedCount = filteredData.filter(i => String(i.status || "WAITING").toUpperCase() === "RETUR" || String(i.status || "WAITING").toUpperCase() === "FAILED").length;
+            if (failedCount > 0) addSystemAlert("warning", `Ada ${failedCount} transaksi RETUR/FAILED pada filter ini!`);
+            let canceledCount = filteredData.filter(i => String(i.status || "WAITING").toUpperCase() === "CANCELED").length;
             if (canceledCount > 0) addSystemAlert("info", `Ada ${canceledCount} transaksi CANCELED`);
-            let waitingCount = masterData.filter(i => String(i.status || "WAITING").toUpperCase() === "WAITING").length;
+            let waitingCount = filteredData.filter(i => String(i.status || "WAITING").toUpperCase() === "WAITING").length;
             if (waitingCount > 10) addSystemAlert("warning", `Ada ${waitingCount} transaksi WAITING untuk di-settle!`);
             renderSystemAlerts();
         }
@@ -790,7 +893,8 @@
             let rekapUtama = { READY: { vol: 0, settle: 0, hpp: 0, laba: 0, invs: 0, owner: 0 }, WAITING: { vol: 0, settle: 0, hpp: 0, laba: 0, invs: 0, owner: 0 }, GAGAL: { vol: 0, settle: 0, hpp: 0, laba: 0, invs: 0, owner: 0 } };
             let rincianReady = {}, rincianWaiting = {}, analisisMargin = {};
 
-            masterData.forEach(item => {
+            // Dihitung berdasarkan FilteredData agar sesuai dengan Filter Bulan
+            filteredData.forEach(item => {
                 let statusRaw = String(item.status || "WAITING").toUpperCase();
                 let prod = item.namaProduk ? String(item.namaProduk).trim() : "TIDAK DIKETAHUI";
                 let qty = Number(item.qty || 0), hpp = Number(item.hpp || 0);
@@ -819,7 +923,6 @@
                     rincianWaiting[prod].vol += qty; rincianWaiting[prod].settle += settle; rincianWaiting[prod].laba += laba; rincianWaiting[prod].invs += invs; rincianWaiting[prod].owner += owner;
                 }
                 
-                // Tambahan perhitungan HPP per produk untuk Tabel 4
                 if(!analisisMargin[prod]) analisisMargin[prod] = { vol: 0, settle: 0, hpp: 0, laba: 0 };
                 analisisMargin[prod].vol += qty; analisisMargin[prod].settle += settle; analisisMargin[prod].hpp += hpp; analisisMargin[prod].laba += laba;
             });
@@ -865,9 +968,8 @@
             let totalLaba = 0;
             let totalGagal = 0;
             let totalVolAktif = 0;
-            const TARGET_BULANAN = 300; // Target bisa disesuaikan di sini
 
-            masterData.forEach(item => {
+            filteredData.forEach(item => {
                 let status = String(item.status || "WAITING").toUpperCase();
                 let qty = Number(item.qty || 0);
                 
@@ -881,13 +983,17 @@
             });
 
             let marginAvg = totalSettle > 0 ? ((totalLaba / totalSettle) * 100).toFixed(1) : 0;
-            let persentaseTarget = ((totalVolAktif / TARGET_BULANAN) * 100).toFixed(1);
+            let persentaseTarget = targetBulanan > 0 ? ((totalVolAktif / targetBulanan) * 100).toFixed(1) : 0;
             
             let rajaProdukElement = document.getElementById("the-king-product").innerText;
             let namaRaja = rajaProdukElement !== "-" ? rajaProdukElement.split(" (")[0] : "Belum Ada";
 
+            // Teks laporannya ngikutin bulan apa yang difilter!
+            let labelBulan = document.getElementById("filter-bulan").options[document.getElementById("filter-bulan").selectedIndex].text;
+            document.getElementById("laporan-periode").innerText = labelBulan.toUpperCase();
+
             // Menyusun Draf Narasi Pintar
-            let drafEvaluasi = `Bulan ini, total volume penjualan aktif mencapai ${totalVolAktif} unit, yang berarti menyentuh ${persentaseTarget}% dari target bulanan kita (${TARGET_BULANAN} unit). \n\nSecara performa, operasional berjalan stabil dengan rata-rata margin keuntungan di angka ${marginAvg}%. Penjualan didominasi oleh varian ${namaRaja} yang menunjukkan minat pasar yang sangat baik. `;
+            let drafEvaluasi = `Periode ${labelBulan}, total volume penjualan aktif mencapai ${totalVolAktif} unit, yang berarti menyentuh ${persentaseTarget}% dari target kita (${targetBulanan} unit). \n\nSecara performa, operasional berjalan stabil dengan rata-rata margin keuntungan di angka ${marginAvg}%. Penjualan didominasi oleh varian ${namaRaja} yang menunjukkan minat pasar yang sangat baik. `;
             
             if (totalGagal > 0) {
                 drafEvaluasi += `Namun, menjadi catatan penting bahwa terdapat ${totalGagal} unit pesanan yang mengalami Retur/Gagal Antar. Management perlu segera meninjau ulang SOP packing dan berkoordinasi dengan pihak ekspedisi untuk meminimalisir HPP yang tertahan pada bulan depan. `;
@@ -895,7 +1001,7 @@
                 drafEvaluasi += `Luar biasanya, tidak ada kendala Retur atau Gagal Antar yang signifikan pada periode ini, menandakan proses logistik berjalan maksimal. `;
             }
 
-            drafEvaluasi += `Seluruh dana tertahan (Waiting) akan dipantau ketat proses pencairannya agar bisa masuk ke buku kas periode berikutnya.`;
+            drafEvaluasi += `Seluruh dana tertahan (Waiting) akan dipantau ketat proses pencairannya agar bisa masuk ke buku kas.`;
 
             // Prompt Draf untuk diedit User
             let evalText = prompt("Sistem telah membuat Draf Evaluasi. Silakan edit jika perlu, lalu tekan OK untuk mencetak:", drafEvaluasi);
