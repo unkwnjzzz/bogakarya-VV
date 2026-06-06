@@ -3,248 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boga Karya86 To The Moon</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Data Laporan - Boga Karya86</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        .btn-filter.active {
-            background-color: #eab308 !important;
-            color: #0f172a !important;
-            border-color: #eab308 !important;
-        }
+        .btn-filter.active { background-color: #eab308 !important; color: #0f172a !important; border-color: #eab308 !important; }
+        .btn-status-aktif { box-shadow: 0 0 12px rgba(234, 179, 8, 0.35); font-weight: 700 !important; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        
+        /* Print Styles khusus Laporan Formal */
+        @media print {
+            body { background: white !important; color: black !important; margin: 0; padding: 0; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { border: 1px solid #000 !important; padding: 8px !important; color: black !important; font-size: 11px; }
+            th { background-color: #f3f4f6 !important; font-weight: bold; }
+            .page-break { page-break-before: always; }
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-6 font-sans antialiased">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-6 font-sans antialiased relative">
 
-    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 max-w-7xl mx-auto border-b border-slate-800 pb-4">
-        <div>
-            <h1 class="text-xl md:text-2xl font-bold text-yellow-500 tracking-wide">Capital & Operational Status Overview</h1>
-            <p class="text-xs text-slate-400 mt-0.5">Sistem Monitoring Penjualan & Pembagian Hasil Transparan</p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-            <button onclick="exportKeCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-md">
-                📥 Download Data (Excel/CSV)
-            </button>
-            <button onclick="salinLaporanWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-md">
-                📊 Bagikan ke WA
-            </button>
-            <button onclick="bukaModalClosing()" class="bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold text-xs px-3 py-2 rounded-lg transition shadow-md">
-    🚀 Tutup Buku (Closing)
-</button>
-            <div id="sync-status" class="text-xs bg-slate-900 text-emerald-400 px-3 py-2 rounded-lg border border-slate-800 flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Terhubung
+    <!-- LAYAR UTAMA APLIKASI (NON-PRINT) -->
+    <div id="app-layar" class="no-print">
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 max-w-7xl mx-auto border-b border-slate-800 pb-4">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold text-yellow-500 tracking-wide">Capital & Operational Status Overview</h1>
+                <p class="text-xs text-slate-400 mt-0.5">Sistem Monitoring Penjualan & Pembagian Hasil Transparan</p>
             </div>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto space-y-6">
-        
-        <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg flex flex-col gap-2 relative overflow-hidden">
-            <div class="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10">
-                <span class="flex items-center gap-2">🎯 Target Penjualan Bulan Ini</span>
-                <span id="target-text" class="text-yellow-500 font-mono text-sm">0 / 300 Pcs</span>
-            </div>
-            <div class="w-full bg-slate-950 rounded-full h-3.5 border border-slate-800 overflow-hidden relative z-10">
-                <div id="progress-bar" class="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(234,179,8,0.5)]" style="width: 0%"></div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-gradient-to-br from-yellow-500 to-amber-600 p-4 rounded-xl shadow-lg text-slate-950 flex flex-col justify-between space-y-3">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider opacity-80 block">Hak Pengelola / Owner (80%)</span>
-                    <h2 id="total-owner" class="text-2xl font-bold mt-0.5 font-mono">Rp 0</h2>
-                </div>
-                <div class="bg-slate-950/10 p-2 rounded-lg border border-slate-950/10 space-y-1 text-xs font-medium">
-                    <div class="flex justify-between items-center text-slate-900"><span>💰 Saldo READY:</span><span id="owner-ready" class="font-bold">Rp 0</span></div>
-                    <div class="flex justify-between items-center text-emerald-950"><span>✅ Sudah PAID:</span><span id="owner-paid" class="font-bold">Rp 0</span></div>
-                    <div class="flex justify-between items-center opacity-70"><span>⏳ WAITING:</span><span id="owner-waiting" class="font-bold">Rp 0</span></div>
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                <button onclick="prosesCetakClosingFormal()" class="bg-yellow-600 hover:bg-yellow-500 text-slate-900 border border-yellow-500 font-bold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(234,179,8,0.3)] cursor-pointer">
+                    Cetak Closing
+                </button>
+                <button onclick="exportKeCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                    Export CSV
+                </button>
+                <button onclick="salinLaporanWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-md cursor-pointer">
+                    Share WA
+                </button>
+                <div id="sync-status" class="text-xs bg-slate-900 text-emerald-400 px-3 py-2 rounded-lg border border-slate-800 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Terhubung
                 </div>
             </div>
+        </header>
 
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col justify-between space-y-3">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Hak Mitra Investor (20%)</span>
-                    <h2 id="total-investor" class="text-2xl font-bold text-violet-400 mt-0.5 font-mono">Rp 0</h2>
-                </div>
-                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 space-y-1 text-xs">
-                    <div class="flex justify-between items-center text-emerald-400 font-medium"><span>💰 Saldo READY:</span><span id="investor-ready" class="font-bold">Rp 0</span></div>
-                    <div class="flex justify-between items-center text-sky-400 font-medium"><span>✅ Sudah PAID:</span><span id="investor-paid" class="font-bold">Rp 0</span></div>
-                    <div class="flex justify-between items-center text-amber-400/80"><span>⏳ WAITING:</span><span id="investor-waiting" class="font-bold">Rp 0</span></div>
-                    
-                </div>
+        <div id="alert-container" class="max-w-7xl mx-auto mb-4 space-y-2"></div>
+
+        <main class="max-w-7xl mx-auto space-y-6">
+            <div class="flex gap-2 border-b border-slate-800 overflow-x-auto">
+                <button onclick="switchTab('dashboard', event)" class="tab-btn active px-4 py-2 text-sm font-semibold border-b-2 border-yellow-500 text-yellow-500 transition cursor-pointer">Dashboard</button>
+                <button onclick="switchTab('transactions', event)" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition cursor-pointer">Transaksi</button>
+                <button onclick="switchTab('logs', event)" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition cursor-pointer">Audit Log</button>
             </div>
 
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col justify-between space-y-2">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400 block">Neraca Perputaran Modal (HPP)</span>
-                    <h2 id="total-hpp" class="text-xl font-bold text-slate-100 mt-0.5 font-mono">Rp 0</h2>
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="tab-content active space-y-6">
+                <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg flex flex-col gap-2 relative overflow-hidden">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10">
+                        <span class="flex items-center gap-2">Target Penjualan Bulan Ini</span>
+                        <span id="target-text" class="text-yellow-500 font-mono text-sm">0 / 300 Pcs</span>
+                    </div>
+                    <div class="w-full bg-slate-950 rounded-full h-3.5 border border-slate-800 overflow-hidden relative z-10">
+                        <div id="progress-bar" class="bg-gradient-to-r from-yellow-600 to-yellow-400 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(234,179,8,0.5)]" style="width: 0%"></div>
+                    </div>
                 </div>
-                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 space-y-1 text-[11px]">
-                    <div class="flex justify-between items-center text-slate-400"><span>📦 Total Qty:</span><span id="hpp-total-qty" class="font-bold text-slate-200">0 Pcs</span></div>
-                    <div class="flex justify-between items-center text-blue-400 border-t border-slate-800 pt-1 mt-1"><span>💼 Settlement:</span><span id="hpp-total-settlement" class="font-bold">Rp 0</span></div>
-                    <div class="flex justify-between items-center text-emerald-400 font-semibold border-t border-slate-800 pt-1"><span>✨ Laba Kotor:</span><span id="hpp-total-laba" class="font-bold">Rp 0</span></div>
-                </div>
-            </div>
 
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col justify-between">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Akumulasi Biaya Transfer</span>
-                    <h2 id="total-biaya-bank" class="text-2xl font-bold text-sky-400 mt-1 font-mono">Rp 0</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-gradient-to-br from-yellow-500 to-amber-600 p-4 rounded-xl shadow-lg text-slate-950 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider opacity-80 block">Hak Pengelola / Owner (80%)</span>
+                            <h2 id="total-owner" class="text-2xl font-bold mt-0.5 font-mono">Rp 0</h2>
+                        </div>
+                        <div class="bg-slate-950/10 p-2 rounded-lg border border-slate-950/10 space-y-1 text-xs font-medium">
+                            <div class="flex justify-between items-center text-slate-900"><span>READY:</span><span id="owner-ready" class="font-bold">Rp 0</span></div>
+                            <div class="flex justify-between items-center text-emerald-950"><span>PAID:</span><span id="owner-paid" class="font-bold">Rp 0</span></div>
+                            <div class="flex justify-between items-center opacity-70"><span>WAITING:</span><span id="owner-waiting" class="font-bold">Rp 0</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Hak Mitra Investor (20%)</span>
+                            <h2 id="total-investor" class="text-2xl font-bold text-violet-400 mt-0.5 font-mono">Rp 0</h2>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 space-y-1 text-xs">
+                            <div class="flex justify-between items-center text-emerald-400 font-medium"><span>READY:</span><span id="investor-ready" class="font-bold">Rp 0</span></div>
+                            <div class="flex justify-between items-center text-sky-400 font-medium"><span>PAID:</span><span id="investor-paid" class="font-bold">Rp 0</span></div>
+                            <div class="flex justify-between items-center text-amber-400/80"><span>WAITING:</span><span id="investor-waiting" class="font-bold">Rp 0</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col justify-between space-y-2">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400 block">Neraca Perputaran Modal (HPP)</span>
+                            <h2 id="total-hpp" class="text-xl font-bold text-slate-100 mt-0.5 font-mono">Rp 0</h2>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 space-y-1 text-[11px]">
+                            <div class="flex justify-between items-center text-slate-400"><span>Total Qty:</span><span id="hpp-total-qty" class="font-bold text-slate-200">0 Pcs</span></div>
+                            <div class="flex justify-between items-center text-blue-400 border-t border-slate-800 pt-1 mt-1"><span>Settlement:</span><span id="hpp-total-settlement" class="font-bold">Rp 0</span></div>
+                            <div class="flex justify-between items-center text-emerald-400 font-semibold border-t border-slate-800 pt-1"><span>Laba Kotor:</span><span id="hpp-total-laba" class="font-bold">Rp 0</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Akumulasi Biaya Transfer</span>
+                            <h2 id="total-biaya-bank" class="text-2xl font-bold text-sky-400 mt-1 font-mono">Rp 0</h2>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 mt-2">
+                            <div class="flex justify-between items-center text-[10px] text-rose-400 font-medium"><span>Retur/Gagal:</span><span id="hpp-failed-qty" class="font-bold">0 Pcs</span></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 mt-2">
-                    <div class="flex justify-between items-center text-[10px] text-rose-400 font-medium"><span>⚠️ Retur/Gagal:</span><span id="hpp-failed-qty" class="font-bold">0 Pcs</span></div>
-                </div>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg space-y-3">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Arus Kas Riil</h3>
-                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
-                    <div><span class="text-[10px] text-green-400 font-semibold block">Selesai Beres (READY)</span><h4 id="dana-ready" class="text-sm font-bold mt-0.5 font-mono">Rp 0</h4></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg space-y-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Arus Kas Riil</h3>
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <div><span class="text-[10px] text-green-400 font-semibold block">READY</span><h4 id="dana-ready" class="text-sm font-bold mt-0.5 font-mono">Rp 0</h4></div>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <div><span class="text-[10px] text-sky-400 font-semibold block">PAID</span><h4 id="dana-paid" class="text-sm font-bold mt-0.5 font-mono">Rp 0</h4></div>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <div><span class="text-[10px] text-amber-400 font-semibold block">WAITING</span><h4 id="dana-waiting" class="text-sm font-bold mt-0.5 font-mono">Rp 0</h4></div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col items-center justify-center">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 w-full text-center">Proporsi Pendapatan</h3>
+                        <div class="w-36 h-36 relative"><canvas id="chartDuit"></canvas></div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 w-full text-center">Tren Penjualan Harian</h3>
+                        <div class="flex-1 w-full h-36 relative"><canvas id="chartTrenHarian"></canvas></div>
+                    </div>
                 </div>
-                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
-                    <div><span class="text-[10px] text-sky-400 font-semibold block">Tercairkan (PAID)</span><h4 id="dana-paid" class="text-sm font-bold mt-0.5 font-mono">Rp 0</h4></div>
-                </div>
-                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
-                    <div><span class="text-[10px] text-amber-400 font-semibold block">Dalam Proses (WAITING)</span><h4 id="dana-waiting" class="text-sm font-bold mt-0.5 font-mono">Rp 0</h4></div>
-                </div>
-            </div>
 
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col items-center justify-center">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 w-full text-center">Proporsi Pendapatan</h3>
-                <div class="w-36 h-36 relative">
-                    <canvas id="chartDuit"></canvas>
-                </div>
-            </div>
-
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-lg flex flex-col">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 w-full text-center">Tren Penjualan</h3>
-                <div class="flex-1 w-full h-36 relative">
-                    <canvas id="chartTrenHarian"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800 space-y-3 mt-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div class="flex items-center gap-2">
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Filter Berdasarkan Data Asli Sheet:</span>
-                    <span id="rekap-filter-info" class="text-[10px] bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded border border-yellow-500/20 font-semibold">Semua Produk</span>
-                </div>
-                <input type="text" id="input-cari" oninput="cariKetikProduk()" placeholder="🔍 Cari nama / ID pesanan..." class="bg-slate-950 border border-slate-800 text-slate-200 text-xs px-3 py-1.5 rounded-lg w-full sm:w-64 focus:outline-none focus:border-yellow-500 transition shadow-inner">
-            </div>
-            
-            <div id="filter-container" class="flex flex-wrap gap-1.5">
-                <button onclick="filterProduk('ALL', event)" class="btn-filter active border border-slate-800 bg-slate-900 text-slate-300 px-3 py-1 rounded-lg text-xs font-semibold transition">Semua</button>
-                <span class="text-slate-500 text-xs py-1 animate-pulse">Memuat varian dari Google Sheets...</span>
-            </div>
-        </div>
-
-        <div class="flex flex-wrap gap-2 mt-4 border-t border-slate-800 pt-4">
-    <span class="text-[10px] font-bold text-slate-500 uppercase self-center">Filter Status:</span>
-    <button onclick="updateFilterStatus('ALL')" class="px-3 py-1 bg-slate-800 rounded text-xs text-slate-300">SEMUA</button>
-    <button onclick="updateFilterStatus('WAITING')" class="px-3 py-1 bg-amber-900/30 border border-amber-800 rounded text-xs text-amber-400">WAITING</button>
-    <button onclick="updateFilterStatus('READY')" class="px-3 py-1 bg-emerald-900/30 border border-emerald-800 rounded text-xs text-emerald-400">READY</button>
-    <button onclick="updateFilterStatus('PAID')" class="px-3 py-1 bg-sky-900/30 border border-sky-800 rounded text-xs text-sky-400">PAID</button>
-    <button onclick="updateFilterStatus('CANCELED')" class="px-3 py-1 bg-rose-900/30 border border-rose-800 rounded text-xs text-rose-400">CANCELED</button>
-    <button onclick="updateFilterStatus('RETUR')" class="px-3 py-1 bg-red-900/30 border border-red-800 rounded text-xs text-red-400">RETUR</button>
-</div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-slate-900 rounded-xl border border-slate-800 shadow-lg overflow-hidden lg:col-span-2">
-                <div class="p-3 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Buku Jurnal Transaksi Penjualan</h3>
-                    <span class="text-[10px] text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20 font-medium">💡 Klik baris data untuk detail</span>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-800 text-[10px] font-bold uppercase tracking-wide">
-                                <th class="p-3">Tanggal</th>
-                                <th class="p-3">ID Pesanan</th>
-                                <th class="p-3">Nama di Sheet</th>
-                                <th class="p-3 text-center">Qty</th>
-                                <th class="p-3 text-right text-emerald-400">Laba Bersama</th>
-                                <th class="p-3 text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-body" class="divide-y divide-slate-800/50">
-                            <tr><td colspan="6" class="p-6 text-center text-slate-500 animate-pulse">Sedang mengambil data dari Google Sheets...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="bg-slate-950 px-4 py-3 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
-                    <span id="page-info">Menampilkan data...</span>
-                    <div class="flex gap-1">
-                        <button onclick="prevPage()" id="btn-prev" class="bg-slate-800 hover:bg-slate-700 disabled:opacity-20 text-slate-200 px-2.5 py-1 rounded-md transition">Sebelumnya</button>
-                        <button onclick="nextPage()" id="btn-next" class="bg-slate-800 hover:bg-slate-700 disabled:opacity-20 text-slate-200 px-2.5 py-1 rounded-md transition">Berikutnya</button>
+                <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg">
+                    <h3 class="text-sm font-bold text-slate-300 mb-3">Ringkasan Per Produk</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead class="border-b border-slate-700">
+                                <tr class="text-slate-400">
+                                    <th class="text-left p-2">Produk</th>
+                                    <th class="text-center p-2">Qty Terjual</th>
+                                    <th class="text-right p-2">Total Laba</th>
+                                    <th class="text-center p-2">Persentase</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-rekap-varian" class="text-slate-300">
+                                <tr><td colspan="4" class="p-3 text-center text-slate-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3 p-3 bg-slate-950 rounded border border-slate-800">
+                        <p class="text-xs"><span class="text-slate-400">Produk Terlaris:</span> <span id="the-king-product" class="font-bold text-yellow-500">-</span></p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-slate-900 rounded-xl border border-slate-800 shadow-lg overflow-hidden flex flex-col">
-                <div class="p-3 bg-slate-950 border-b border-slate-800">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Rekap Kinerja Sesuai Sheet</h3>
+            <!-- TRANSAKSI -->
+            <div id="transactions" class="tab-content space-y-6">
+                <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg space-y-3">
+                    <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Filter Transaksi</h3>
+                        <div class="flex gap-1 flex-wrap" id="filter-container"></div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="input-cari" placeholder="Cari ID Pesanan / Nama Produk..." onkeyup="cariKetikProduk()" class="flex-1 bg-slate-950 border border-slate-800 text-slate-200 text-xs px-3 py-2 rounded placeholder-slate-600 focus:outline-none focus:border-yellow-500">
+                        <div class="flex gap-1 flex-wrap">
+                            <span id="btn-status-ALL" onclick="updateFilterStatus('ALL')" class="px-3 py-1 bg-slate-800 text-slate-100 rounded text-xs transition font-semibold cursor-pointer btn-status-aktif">Semua</span>
+                            <span id="btn-status-WAITING" onclick="updateFilterStatus('WAITING')" class="px-3 py-1 bg-slate-900 border border-amber-800/40 rounded text-xs text-amber-400/80 transition cursor-pointer">Waiting</span>
+                            <span id="btn-status-READY" onclick="updateFilterStatus('READY')" class="px-3 py-1 bg-slate-900 border border-emerald-800/40 rounded text-xs text-emerald-400/80 transition cursor-pointer">Ready</span>
+                            <span id="btn-status-PAID" onclick="updateFilterStatus('PAID')" class="px-3 py-1 bg-slate-900 border border-sky-800/40 rounded text-xs text-sky-400/80 transition cursor-pointer">Paid</span>
+                            <span id="btn-status-CANCELED" onclick="updateFilterStatus('CANCELED')" class="px-3 py-1 bg-slate-900 border border-slate-600/40 rounded text-xs text-slate-400/80 transition cursor-pointer">Canceled</span>
+                            <span id="btn-status-RETUR" onclick="updateFilterStatus('RETUR')" class="px-3 py-1 bg-slate-900 border border-red-800/40 rounded text-xs text-red-400/80 transition cursor-pointer">Retur</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-slate-950/60 p-2.5 border-b border-slate-800 flex justify-between items-center">
-                    <span class="text-[10px] text-slate-400 font-semibold block">Terlaris Saat Ini:</span>
-                    <h4 id="the-king-product" class="text-xs font-bold text-yellow-500">Menganalisis...</h4>
+
+                <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-lg">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs border-collapse">
+                            <thead class="bg-slate-950 border-b border-slate-800">
+                                <tr class="text-slate-400 font-semibold">
+                                    <th class="text-left p-3">Tanggal</th>
+                                    <th class="text-left p-3">ID Pesanan</th>
+                                    <th class="text-left p-3">Produk</th>
+                                    <th class="text-center p-3">Qty</th>
+                                    <th class="text-right p-3">Laba Kotor</th>
+                                    <th class="text-center p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-body">
+                                <tr><td colspan="6" class="p-6 text-center text-slate-500 font-medium">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-slate-950 px-3 py-2 flex justify-between items-center text-xs text-slate-400 border-t border-slate-800">
+                        <span id="page-info">Halaman 1</span>
+                        <div class="flex gap-2">
+                            <button id="btn-prev" onclick="prevPage()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded transition cursor-pointer disabled:opacity-50">Sebelumnya</button>
+                            <button id="btn-next" onclick="nextPage()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded transition cursor-pointer disabled:opacity-50">Selanjutnya</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="overflow-y-auto flex-1 max-h-[310px]">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-800 text-[10px] font-bold uppercase tracking-wide">
-                                <th class="p-3">Nama di Sheet</th>
-                                <th class="p-3 text-center">Terjual</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-rekap-varian" class="divide-y divide-slate-800/50"></tbody>
-                    </table>
+            </div>
+
+            <!-- AUDIT LOG -->
+            <div id="logs" class="tab-content space-y-6">
+                <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg">
+                    <h3 class="text-sm font-bold text-slate-300 mb-3">Audit Trail & Riwayat Perubahan</h3>
+                    <div class="space-y-2 max-h-96 overflow-y-auto">
+                        <div id="audit-log-container" class="space-y-2"></div>
+                    </div>
                 </div>
+                <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg">
+                    <h3 class="text-sm font-bold text-slate-300 mb-3">Sistem Alert</h3>
+                    <div id="system-alerts-container" class="space-y-2"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- AREA KHUSUS PRINT CLOSING FORMAL (TERSEMBUNYI DI LAYAR) -->
+    <div id="print-area-closing" class="hidden print-only bg-white text-black max-w-4xl mx-auto p-8">
+        <div class="text-center border-b-2 border-black pb-4 mb-6">
+            <h1 class="text-xl font-bold uppercase">Laporan Closingan Final & Kinerja Keuangan</h1>
+            <h2 class="text-lg font-bold">BOGA KARYA 86</h2>
+            <div class="mt-2 text-xs space-y-1">
+                <p>PERIODE: <span id="laporan-periode" class="font-semibold">-</span></p>
+                <p>PENYUSUN: MANAGEMENT BOGA KARYA 86</p>
+                <p>PERUNTUKAN: LAPORAN FORMAL INVESTOR</p>
             </div>
         </div>
-    </main>
 
-    <div id="modal-audit" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div id="modal-card" class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-xl p-5 shadow-2xl space-y-4 relative overflow-hidden">
-            <div id="m-watermark" class="absolute -right-8 -bottom-4 text-rose-500/10 text-7xl font-black uppercase tracking-wider select-none rotate-12 hidden">RETUR</div>
-            <div class="flex justify-between items-start border-b border-slate-800 pb-2 relative z-10">
-                <div>
-                    <h4 id="m-nama-produk" class="text-sm font-bold text-yellow-500">NAMA PRODUK</h4>
-                    <p id="m-id-pesanan" class="text-[10px] font-mono text-slate-500 mt-0.5">ID: -</p>
-                </div>
-                <button onclick="tutupModal()" class="text-slate-400 hover:text-white font-bold text-sm bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded transition">✕</button>
+        <div class="mb-6">
+            <h3 class="text-sm font-bold mb-2">1. REKAPITULASI KEUANGAN UTAMA</h3>
+            <table class="w-full text-[11px] border border-black text-black">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="border border-black p-2 text-left">STATUS PESANAN</th>
+                        <th class="border border-black p-2 text-center">VOLUME (UNIT)</th>
+                        <th class="border border-black p-2 text-right">SETTLEMENT (RP)</th>
+                        <th class="border border-black p-2 text-right">MODAL/HPP (RP)</th>
+                        <th class="border border-black p-2 text-right">LABA BERSIH (RP)</th>
+                        <th class="border border-black p-2 text-right">JATAH INVESTOR (20%)</th>
+                        <th class="border border-black p-2 text-right">JATAH OWNER (80%)</th>
+                    </tr>
+                </thead>
+                <tbody id="table-rekap-utama"></tbody>
+            </table>
+        </div>
+
+        <div class="mb-6 page-break">
+            <h3 class="text-sm font-bold mb-2">2. RINCIAN PROFIT DISTRIBUSI (READY / SIAP CAIR)</h3>
+            <table class="w-full text-[11px] border border-black text-black">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="border border-black p-2 text-left">NAMA PRODUK</th>
+                        <th class="border border-black p-2 text-center">VOLUME</th>
+                        <th class="border border-black p-2 text-right">SETTLEMENT</th>
+                        <th class="border border-black p-2 text-right">LABA KOTOR</th>
+                        <th class="border border-black p-2 text-right">INVESTOR (20%)</th>
+                        <th class="border border-black p-2 text-right">OWNER (80%)</th>
+                    </tr>
+                </thead>
+                <tbody id="table-rincian-ready"></tbody>
+            </table>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="text-sm font-bold mb-2">3. RINCIAN POTENSI OMSET (WAITING / DANA BERJALAN)</h3>
+            <table class="w-full text-[11px] border border-black text-black">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="border border-black p-2 text-left">NAMA PRODUK</th>
+                        <th class="border border-black p-2 text-center">VOLUME</th>
+                        <th class="border border-black p-2 text-right">SETTLEMENT</th>
+                        <th class="border border-black p-2 text-right">LABA KOTOR</th>
+                        <th class="border border-black p-2 text-right">INVESTOR (20%)</th>
+                        <th class="border border-black p-2 text-right">OWNER (80%)</th>
+                    </tr>
+                </thead>
+                <tbody id="table-rincian-waiting"></tbody>
+            </table>
+        </div>
+
+        <div class="mb-6 page-break">
+            <h3 class="text-sm font-bold mb-2">4. ANALISIS STRATEGIS PERFORMA PRODUK & MARGIN</h3>
+            <table class="w-full text-[11px] border border-black text-black">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="border border-black p-2 text-left">NAMA PRODUK</th>
+                        <th class="border border-black p-2 text-center">TOTAL VOLUME</th>
+                        <th class="border border-black p-2 text-right">MODAL / HPP (RP)</th>
+                        <th class="border border-black p-2 text-right">SETTLEMENT GROSS</th>
+                        <th class="border border-black p-2 text-right">LABA KOTOR TOTAL</th>
+                        <th class="border border-black p-2 text-center">MARGIN (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="table-analisis-margin"></tbody>
+            </table>
+        </div>
+
+        <div class="mb-10">
+            <h3 class="text-sm font-bold mb-2">5. EVALUASI OPERASIONAL & CATATAN</h3>
+            <div id="print-catatan" class="text-xs whitespace-pre-wrap border border-gray-300 p-4 min-h-[100px] leading-relaxed"></div>
+        </div>
+
+        <div class="flex justify-between items-end mt-12 pt-8">
+            <div class="text-center w-48">
+                <p class="text-xs mb-16">Mengetahui, Mitra Investor</p>
+                <p class="text-xs font-bold border-b border-black pb-1">( ........................................ )</p>
             </div>
-            
-            <div class="space-y-2 text-xs relative z-10">
-                <div class="flex justify-between p-2 bg-slate-950 rounded border border-slate-800/40"><span class="text-slate-400">Nilai Settlement (Satuan)</span><span id="m-settlement" class="font-semibold text-slate-200">Rp 0</span></div>
-                <div class="flex justify-between p-2 bg-slate-950 rounded border border-slate-800/40"><span class="text-slate-400">Volume Penjualan (Qty)</span><span id="m-qty" class="font-bold text-slate-200">0 Pcs</span></div>
-                <div class="flex justify-between p-2 bg-slate-950/80 border-b border-dashed border-slate-800"><span class="text-slate-400 font-medium">Total Pendapatan Kotor</span><span id="m-total-pendapatan" class="font-bold text-blue-400">Rp 0</span></div>
-                <div class="flex justify-between p-2 bg-slate-950 rounded border border-slate-800/40"><span class="text-rose-400/90 font-medium">Potongan Modal (HPP)</span><span id="m-hpp" class="font-bold text-rose-400">-Rp 0</span></div>
-                <div class="flex justify-between p-2 bg-emerald-500/5 rounded border border-emerald-500/10"><span class="text-emerald-400 font-bold">= Laba Kotor Bersama</span><span id="m-laba-kotor" class="font-bold text-emerald-400">Rp 0</span></div>
-                <div id="m-box-bagihasil" class="border-t border-slate-800 my-2 pt-2 space-y-1.5">
-                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Nilai Pembagian Bersih:</span>
-                    <div class="flex justify-between p-2 bg-slate-950 rounded border border-slate-800/40"><span class="text-slate-400">Jatah Bersih Investor</span><span id="m-jatah-investor" class="font-bold text-violet-400">Rp 0</span></div>
-                    <div class="flex justify-between p-2 bg-slate-950 rounded border border-slate-800/40"><span class="text-slate-400">Jatah Bersih Owner</span><span id="m-jatah-owner" class="font-bold text-amber-500">Rp 0</span></div>
-                </div>
+            <div class="text-center w-48">
+                <p class="text-xs mb-16">Dibuat Oleh, Management</p>
+                <p class="text-xs font-bold border-b border-black pb-1">( ........................................ )</p>
             </div>
         </div>
     </div>
 
+    <!-- MODAL DETAIL TRANSAKSI (POP-UP) -->
+    <div id="modal-transaksi" class="modal no-print">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-xl w-11/12 max-w-md shadow-2xl relative">
+            <button onclick="tutupModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-xl">&times;</button>
+            <h2 class="text-lg font-bold text-yellow-500 mb-1">Detail Transaksi</h2>
+            <p id="modal-id" class="text-xs font-mono text-slate-400 mb-4 border-b border-slate-800 pb-2"></p>
+            
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-slate-400">Tanggal:</span><span id="modal-tgl" class="font-semibold text-slate-200"></span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Produk:</span><span id="modal-produk" class="font-bold text-yellow-400"></span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Status:</span><span id="modal-status" class="font-bold"></span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Volume (Qty):</span><span id="modal-qty" class="font-semibold text-slate-200"></span></div>
+                
+                <div class="border-t border-slate-800 my-2 pt-2 space-y-2">
+                    <div class="flex justify-between"><span class="text-slate-400">Total Settle:</span><span id="modal-settle" class="font-semibold text-sky-400"></span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Total HPP:</span><span id="modal-hpp" class="font-semibold text-rose-400"></span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Laba Kotor:</span><span id="modal-laba" class="font-bold text-emerald-400"></span></div>
+                </div>
+
+                <div class="bg-slate-950 p-3 rounded border border-slate-800 mt-3 space-y-1">
+                    <div class="flex justify-between text-xs"><span class="text-slate-400">Jatah Owner (80%):</span><span id="modal-owner" class="font-bold text-yellow-500"></span></div>
+                    <div class="flex justify-between text-xs"><span class="text-slate-400">Jatah Investor (20%):</span><span id="modal-invs" class="font-bold text-violet-400"></span></div>
+                </div>
+            </div>
+            <button onclick="tutupModal()" class="w-full mt-6 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 rounded-lg transition">Tutup</button>
+        </div>
+    </div>
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwNi7pxlgSd2TJKR03B7_yPudvXGoi81Gwo5IYhWWA6HzsO5PX-keih2PcBt2Lg0B9O/exec";
+        
+        let masterData = [];
+        let filteredData = [];
+        let DAFTAR_VARIAN_DINAMIS = [];
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        let myChart = null;
+        let trendChart = null;
+        let varianAktif = "ALL";
+        let kataKunciCari = "";
+        let statusAktif = "ALL";
+        let auditLog = [];
+        let systemAlerts = [];
 
-        let masterData = []; let filteredData = []; let DAFTAR_VARIAN_DINAMIS = []; 
-        let currentPage = 1; const rowsPerPage = 5; 
-        let myChart = null; let trendChart = null;
-        let varianAktif = "ALL"; let kataKunciCari = "";
-        let statusAktif = "ALL"; // Tambahin ini di deretan let di atas
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchData();
+            initAuditLog();
+            renderAuditLog();
+            setPeriodeLaporan();
+        });
 
-        document.addEventListener("DOMContentLoaded", fetchData);
+        setInterval(fetchData, 600000); // Auto-refresh tiap 10 menit
+
+        function setPeriodeLaporan() {
+            const bulan = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+            const tgl = new Date();
+            document.getElementById("laporan-periode").innerText = `${bulan[tgl.getMonth()]} ${tgl.getFullYear()}`;
+        }
 
         async function fetchData() {
             const syncStatus = document.getElementById("sync-status");
@@ -253,7 +394,6 @@
             try {
                 const response = await fetch(API_URL);
                 masterData = await response.json();
-                
                 masterData = masterData.filter(item => (item.tanggal && String(item.tanggal).trim() !== "") || (item.idPesanan && String(item.idPesanan).trim() !== ""));
                 
                 let setVarian = new Set();
@@ -266,101 +406,49 @@
                 
                 buatTombolFilterDinamis();
                 aplikasikanFilter();
-                hitungDashboard(); renderRekapVarian(); cariProdukTerlaris(); buildTrendChart();
+                hitungDashboard();
+                renderRekapVarian();
+                cariProdukTerlaris();
+                buildTrendChart();
+                checkSystemAlerts();
+                renderAuditLog();
+                hitungClosingFormal(); // Render tabel rahasia untuk print
 
                 if(syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Diperbarui: ${new Date().toLocaleTimeString('id-ID')}`;
             } catch (error) {
                 console.error("Fetch error:", error);
-                document.getElementById("tabel-body").innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-semibold">Gagal memuat data (Koneksi error). Pastikan URL Web App Google Script sudah benar.</td></tr>`;
+                document.getElementById("tabel-body").innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-semibold">Gagal memuat data dari API. Periksa URL koneksi.</td></tr>`;
                 if(syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Terputus`;
+                addSystemAlert("danger", "Koneksi API gagal! Periksa URL Google Apps Script.");
             }
         }
 
-        setInterval(fetchData, 600000); 
+        function switchTab(tabName, event) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'border-yellow-500', 'text-yellow-500'));
+            document.getElementById(tabName).classList.add('active');
+            if (event) event.currentTarget.classList.add('active', 'border-yellow-500', 'text-yellow-500');
+        }
 
+        // ================= FILTER TRANSAKSI =================
         function buatTombolFilterDinamis() {
             const container = document.getElementById("filter-container");
-            container.innerHTML = `<button onclick="filterProduk('ALL', event)" class="btn-filter active border border-slate-800 bg-slate-900 text-slate-300 px-3 py-1 rounded-lg text-xs font-semibold transition">Semua Produk</button>`;
-            
+            container.innerHTML = `<button onclick="filterProduk('ALL', event)" class="btn-filter active border border-slate-800 bg-slate-900 text-slate-300 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">Semua Produk</button>`;
             DAFTAR_VARIAN_DINAMIS.forEach(varian => {
                 let btn = document.createElement("button");
-                btn.className = "btn-filter border border-slate-800 bg-slate-900 text-slate-300 px-3 py-1 rounded-lg text-xs font-semibold transition";
+                btn.className = "btn-filter border border-slate-800 bg-slate-900 text-slate-300 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer";
                 btn.innerText = varian;
                 btn.onclick = (e) => filterProduk(varian, e);
                 container.appendChild(btn);
             });
         }
 
-        function updateFilterStatus(status) {
-    statusAktif = status;
-    aplikasikanFilter();
-}
-        function hitungDashboard() {
-            let totalOwnerSemua = 0; let totalInvestorSemua = 0;
-            let ownerReady = 0; let ownerPaid = 0; let ownerWaiting = 0;
-            let investorReady = 0; let investorPaid = 0; let investorWaiting = 0;
-            let rekapTotalQty = 0; let rekapFailedQty = 0; let rekapTotalSettlement = 0; 
-            let rekapTotalHPP = 0; let rekapTotalLabaKotor = 0; let totalBiayaBankRiil = 0; 
-            let danaReadyGross = 0; let danaPaidGross = 0; let danaWaitingGross = 0;
-
-            masterData.forEach(item => {
-                let statusUpper = String(item.status || "WAITING").toUpperCase();
-                let qtyValid = Number(item.qty || 0);
-                let nilaiSettlement = Number(item.settlement || 0) * qtyValid;
-                let hppBaris = Number(item.hpp || 0);
-
-                if (statusUpper === "FAILED" || statusUpper === "RETUR") { rekapFailedQty += qtyValid; rekapTotalQty += qtyValid; return; }
-
-                let jOwnerMentah = Number(item.jatahOwner || 0); let jInvsMentah = Number(item.jatahInvs || 0);
-                rekapTotalQty += qtyValid; rekapTotalSettlement += nilaiSettlement;
-                rekapTotalHPP += hppBaris; rekapTotalLabaKotor += Number(item.labaKotor || 0);
-
-                if (statusUpper === "READY") {
-                    danaReadyGross += nilaiSettlement; ownerReady += jOwnerMentah; investorReady += jInvsMentah;
-                    if (item.idPesanan && String(item.idPesanan).trim() !== "") totalBiayaBankRiil += 5500;
-                } else if (statusUpper === "PAID") {
-                    danaPaidGross += nilaiSettlement; ownerPaid += jOwnerMentah; investorPaid += jInvsMentah;
-                    if (item.idPesanan && String(item.idPesanan).trim() !== "") totalBiayaBankRiil += 5500;
-                } else {
-                    danaWaitingGross += nilaiSettlement; ownerWaiting += jOwnerMentah; investorWaiting += jInvsMentah;
-                }
-
-                totalOwnerSemua += jOwnerMentah; totalInvestorSemua += jInvsMentah;
-            });
-
-            let progress = (rekapTotalQty / 300) * 100;
-            document.getElementById("progress-bar").style.width = Math.min(progress, 100) + "%";
-            document.getElementById("target-text").innerText = `${rekapTotalQty} / 300 Pcs`;
-
-            document.getElementById("total-owner").innerText = formatRupiah(totalOwnerSemua);
-            document.getElementById("owner-ready").innerText = formatRupiah(ownerReady);
-            document.getElementById("owner-paid").innerText = formatRupiah(ownerPaid);
-            document.getElementById("owner-waiting").innerText = formatRupiah(ownerWaiting);
-
-            document.getElementById("total-investor").innerText = formatRupiah(totalInvestorSemua);
-            document.getElementById("investor-ready").innerText = formatRupiah(investorReady);
-            document.getElementById("investor-paid").innerText = formatRupiah(investorPaid);
-            document.getElementById("investor-waiting").innerText = formatRupiah(investorWaiting);
-
-            document.getElementById("total-hpp").innerText = formatRupiah(rekapTotalHPP);
-            document.getElementById("hpp-total-qty").innerText = `${rekapTotalQty} Pcs`;
-            document.getElementById("hpp-failed-qty").innerText = `${rekapFailedQty} Pcs`;
-            document.getElementById("hpp-total-settlement").innerText = formatRupiah(rekapTotalSettlement);
-            document.getElementById("hpp-total-laba").innerText = formatRupiah(rekapTotalLabaKotor || (rekapTotalSettlement - rekapTotalHPP));
-            document.getElementById("total-biaya-bank").innerText = formatRupiah(totalBiayaBankRiil);
-            document.getElementById("dana-ready").innerText = formatRupiah(danaReadyGross);
-            document.getElementById("dana-paid").innerText = formatRupiah(danaPaidGross);
-            document.getElementById("dana-waiting").innerText = formatRupiah(danaWaitingGross);
-
-            updateChart(rekapTotalHPP, totalOwnerSemua, totalInvestorSemua, totalBiayaBankRiil);
-        }
-
         function filterProduk(varian, event) {
             document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
             if(event) event.target.classList.add('active');
-            
             varianAktif = varian;
-            document.getElementById("input-cari").value = ""; kataKunciCari = "";
+            document.getElementById("input-cari").value = "";
+            kataKunciCari = "";
             aplikasikanFilter();
         }
 
@@ -376,59 +464,61 @@
             aplikasikanFilter();
         }
 
-        function bukaModalClosing() {
-    // Ambil nilai dari dashboard
-    let owner = document.getElementById("total-owner").innerText;
-    let invs = document.getElementById("total-investor").innerText;
-    let hpp = document.getElementById("total-hpp").innerText;
-    let bank = document.getElementById("total-biaya-bank").innerText;
-
-    alert(`--- RINGKASAN CLOSING BULAN INI ---
-    1. Total Modal Diputar: ${hpp}
-    2. Total Biaya Transfer: ${bank}
-    ---------------------------------
-    3. HAK OWNER (80%): ${owner}
-    4. HAK MITRA (20%): ${invs}
-    
-    *Catatan: Pastikan semua status WAITING sudah di-update ke READY/PAID sebelum klik OK.`);
-}
-    function aplikasikanFilter() {
-    filteredData = masterData.filter(item => {
-        // 1. Logika Nama Produk / Pencarian
-        let cocokNama = true;
-        if (varianAktif === "SEARCH") {
-            cocokNama = String(item.namaProduk || "").toLowerCase().includes(kataKunciCari) || 
-                        String(item.idPesanan || "").toLowerCase().includes(kataKunciCari);
-        } else if (varianAktif !== "ALL") {
-            cocokNama = String(item.namaProduk || "").trim().toUpperCase() === varianAktif;
+        function updateFilterStatus(status) {
+            statusAktif = status;
+            const daftarStatus = ['ALL', 'WAITING', 'READY', 'PAID', 'CANCELED', 'RETUR'];
+            daftarStatus.forEach(s => {
+                const btn = document.getElementById(`btn-status-${s}`);
+                if (!btn) return;
+                if (s === status) {
+                    btn.classList.add('btn-status-aktif');
+                    if(s === 'ALL') btn.className = "px-3 py-1 bg-slate-800 text-slate-100 rounded text-xs transition font-semibold btn-status-aktif cursor-pointer";
+                    else if(s === 'WAITING') btn.className = "px-3 py-1 bg-amber-900/40 border border-amber-500 text-amber-400 rounded text-xs transition font-bold btn-status-aktif cursor-pointer";
+                    else if(s === 'READY') btn.className = "px-3 py-1 bg-emerald-900/40 border border-emerald-500 text-emerald-400 rounded text-xs transition font-bold btn-status-aktif cursor-pointer";
+                    else if(s === 'PAID') btn.className = "px-3 py-1 bg-sky-900/40 border border-sky-500 text-sky-400 rounded text-xs transition font-bold btn-status-aktif cursor-pointer";
+                    else if(s === 'CANCELED') btn.className = "px-3 py-1 bg-slate-800/40 border border-slate-600 text-slate-300 rounded text-xs transition font-bold btn-status-aktif cursor-pointer";
+                    else if(s === 'RETUR') btn.className = "px-3 py-1 bg-red-900/40 border border-red-500 text-red-400 rounded text-xs transition font-bold btn-status-aktif cursor-pointer";
+                } else {
+                    btn.classList.remove('btn-status-aktif');
+                    if(s === 'ALL') btn.className = "px-3 py-1 bg-slate-900 text-slate-400 rounded text-xs transition hover:bg-slate-800 cursor-pointer";
+                    else if(s === 'WAITING') btn.className = "px-3 py-1 bg-slate-900 border border-amber-800/40 rounded text-xs text-amber-400/80 transition hover:bg-amber-900/20 cursor-pointer";
+                    else if(s === 'READY') btn.className = "px-3 py-1 bg-slate-900 border border-emerald-800/40 rounded text-xs text-emerald-400/80 transition hover:bg-emerald-900/20 cursor-pointer";
+                    else if(s === 'PAID') btn.className = "px-3 py-1 bg-slate-900 border border-sky-800/40 rounded text-xs text-sky-400/80 transition hover:bg-sky-900/20 cursor-pointer";
+                    else if(s === 'CANCELED') btn.className = "px-3 py-1 bg-slate-900 border border-slate-800/40 rounded text-xs text-slate-400/80 transition hover:bg-slate-800/20 cursor-pointer";
+                    else if(s === 'RETUR') btn.className = "px-3 py-1 bg-slate-900 border border-red-800/40 rounded text-xs text-red-400/80 transition hover:bg-red-900/20 cursor-pointer";
+                }
+            });
+            aplikasikanFilter();
         }
 
-        // 2. Logika Status (DIPISAH TEGAS)
-        let statusUpper = String(item.status || "WAITING").toUpperCase();
-        let cocokStatus = false;
-
-        if (statusAktif === "ALL") {
-            cocokStatus = true;
-        } else {
-            // Status harus persis sama dengan yang diklik
-            cocokStatus = (statusUpper === statusAktif);
+        function aplikasikanFilter() {
+            filteredData = masterData.filter(item => {
+                let cocokNama = true;
+                if (varianAktif === "SEARCH") {
+                    cocokNama = String(item.namaProduk || "").toLowerCase().includes(kataKunciCari) || 
+                                String(item.idPesanan || "").toLowerCase().includes(kataKunciCari);
+                } else if (varianAktif !== "ALL") {
+                    cocokNama = String(item.namaProduk || "").trim().toUpperCase() === varianAktif;
+                }
+                let statusUpper = String(item.status || "WAITING").toUpperCase();
+                let cocokStatus = (statusAktif === "ALL" || statusUpper === statusAktif);
+                return cocokNama && cocokStatus;
+            });
+            currentPage = 1;
+            renderTabel();
         }
 
-        return cocokNama && cocokStatus;
-    });
-
-    currentPage = 1;
-    renderTabel();
-    // Opsional: hitungDashboard(); // Uncomment jika lo mau angka dashboard ikutan berubah tiap difilter
-}
         function renderTabel() {
-            const tbody = document.getElementById("tabel-body"); tbody.innerHTML = "";
+            const tbody = document.getElementById("tabel-body");
+            tbody.innerHTML = "";
             if (filteredData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-medium">Belum ada catatan transaksi.</td></tr>`;
-                document.getElementById("page-info").innerText = "Menampilkan 0 Catatan"; return;
+                document.getElementById("page-info").innerText = "Menampilkan 0 Catatan";
+                return;
             }
 
-            let start = (currentPage - 1) * rowsPerPage; let end = start + rowsPerPage;
+            let start = (currentPage - 1) * rowsPerPage;
+            let end = start + rowsPerPage;
             let pageItems = filteredData.slice(start, end);
 
             pageItems.forEach((item, index) => {
@@ -438,151 +528,383 @@
 
                 if(statusUpper === "READY") statusClass = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
                 else if(statusUpper === "PAID") statusClass = "bg-sky-500/10 text-sky-400 border border-sky-500/20";
-                else if(statusUpper === "FAILED" || statusUpper === "RETUR") { statusClass = "bg-rose-500/20 text-rose-400 border border-rose-500/30"; labaTampil = "Rp 0 (Retur)"; }
-
-                let alarmBadge = ""; let qty = Number(item.qty || 0); let settlementTotal = Number(item.settlement || 0) * qty;
-                
-                if (Number(item.jatahOwner || 0) < 0 && statusUpper !== "FAILED" && statusUpper !== "RETUR") alarmBadge += `<span class="block bg-rose-600/20 text-rose-400 text-[8px] font-bold px-1 py-0.5 rounded border border-rose-500/20 mt-0.5 w-fit ml-auto">HPP TERTANAM</span>`;
+                else if(statusUpper === "CANCELED") { statusClass = "bg-slate-500/10 text-slate-400 border border-slate-500/20"; labaTampil = "Rp 0"; }
+                else if(statusUpper === "RETUR" || statusUpper === "FAILED") { statusClass = "bg-rose-500/20 text-rose-400 border border-rose-500/30"; labaTampil = "Rp 0"; }
 
                 let displayTanggal = item.tanggal ? (String(item.tanggal).includes("T") ? item.tanggal.split("T")[0] : item.tanggal) : "-";
-                let displayID = (item.idPesanan && String(item.idPesanan).trim() !== "") ? item.idPesanan : "[ Antrean Cargo ]";
-                let namaProdukValid = item.namaProduk ? String(item.namaProduk).trim() : "<span class='text-rose-500 font-bold'>[NAMA KOSONG]</span>";
+                let displayID = (item.idPesanan && String(item.idPesanan).trim() !== "") ? item.idPesanan : "[ Antrean ]";
+                let namaProdukValid = item.namaProduk ? String(item.namaProduk).trim() : "<span class='text-rose-500 font-bold'>[KOSONG]</span>";
 
                 let tr = document.createElement("tr");
                 tr.className = "hover:bg-slate-900/60 cursor-pointer transition text-slate-300 border-b border-slate-800/50";
-
-                tr.addEventListener("click", () => bukaModalAudit(start + index));
-                tr.innerHTML = `<td class="p-3">${displayTanggal}</td><td class="p-3 font-mono text-slate-500 text-[11px]">${displayID}</td><td class="p-3 font-semibold text-yellow-500/90">${namaProdukValid}</td><td class="p-3 text-center font-bold text-slate-200">${qty}</td><td class="p-3 text-right font-semibold text-emerald-400">${labaTampil}${alarmBadge}</td><td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold tracking-wider ${statusClass}">${statusUpper}</span></td>`;
+                tr.setAttribute("onclick", `bukaModal(${start + index})`); // Aksi Klik Modal Pop Up
+                tr.innerHTML = `<td class="p-3">${displayTanggal}</td><td class="p-3 font-mono text-slate-500 text-[11px]">${displayID}</td><td class="p-3 font-semibold text-yellow-500/90">${namaProdukValid}</td><td class="p-3 text-center font-bold text-slate-200">${item.qty || 0}</td><td class="p-3 text-right font-semibold text-emerald-400">${labaTampil}</td><td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold tracking-wider ${statusClass}">${statusUpper}</span></td>`;
                 tbody.appendChild(tr);
             });
+
             document.getElementById("page-info").innerText = `Menampilkan ${start + 1}-${Math.min(end, filteredData.length)} dari ${filteredData.length}`;
-            document.getElementById("btn-prev").disabled = currentPage === 1; document.getElementById("btn-next").disabled = end >= filteredData.length;
+            document.getElementById("btn-prev").disabled = currentPage === 1;
+            document.getElementById("btn-next").disabled = end >= filteredData.length;
         }
 
+        // ================= FUNGSI POP-UP MODAL TRANSAKSI =================
+        function bukaModal(index) {
+            let item = filteredData[index];
+            if(!item) return;
+
+            let statusUpper = String(item.status || "WAITING").toUpperCase();
+            let qty = Number(item.qty || 0);
+            let settle = statusUpper.match(/CANCELED|RETUR|FAILED/) ? 0 : (Number(item.settlement || 0) * qty);
+            let hpp = Number(item.hpp || 0);
+            let laba = statusUpper.match(/CANCELED|RETUR|FAILED/) ? 0 : Number(item.labaKotor || 0);
+            let owner = statusUpper.match(/CANCELED|RETUR|FAILED/) ? 0 : Number(item.jatahOwner || 0);
+            let invs = statusUpper.match(/CANCELED|RETUR|FAILED/) ? 0 : Number(item.jatahInvs || 0);
+            let displayTanggal = item.tanggal ? (String(item.tanggal).includes("T") ? item.tanggal.split("T")[0] : item.tanggal) : "-";
+
+            document.getElementById("modal-id").innerText = "ID: " + (item.idPesanan || "[ Antrean ]");
+            document.getElementById("modal-tgl").innerText = displayTanggal;
+            document.getElementById("modal-produk").innerText = item.namaProduk || "[ KOSONG ]";
+            document.getElementById("modal-status").innerText = statusUpper;
+            document.getElementById("modal-qty").innerText = `${qty} Unit`;
+            document.getElementById("modal-settle").innerText = formatRupiah(settle);
+            document.getElementById("modal-hpp").innerText = formatRupiah(hpp);
+            document.getElementById("modal-laba").innerText = formatRupiah(laba);
+            document.getElementById("modal-owner").innerText = formatRupiah(owner);
+            document.getElementById("modal-invs").innerText = formatRupiah(invs);
+
+            let elStatus = document.getElementById("modal-status");
+            elStatus.className = "font-bold " + (statusUpper === "READY" ? "text-emerald-400" : (statusUpper.match(/CANCELED|RETUR|FAILED/) ? "text-rose-400" : "text-amber-400"));
+
+            document.getElementById("modal-transaksi").classList.add('active');
+        }
+
+        function tutupModal() { document.getElementById("modal-transaksi").classList.remove('active'); }
+
+        // ================= DASHBOARD PERHITUNGAN =================
+        function hitungDashboard() {
+            let totalOwnerSemua = 0, totalInvestorSemua = 0, ownerReady = 0, ownerPaid = 0, ownerWaiting = 0;
+            let investorReady = 0, investorPaid = 0, investorWaiting = 0, rekapTotalQty = 0, rekapFailedQty = 0;
+            let rekapTotalSettlement = 0, rekapTotalHPP = 0, rekapTotalLabaKotor = 0, totalBiayaBankRiil = 0;
+            let danaReadyGross = 0, danaPaidGross = 0, danaWaitingGross = 0;
+
+            masterData.forEach(item => {
+                let statusUpper = String(item.status || "WAITING").toUpperCase();
+                let qtyValid = Number(item.qty || 0);
+                let nilaiSettlement = Number(item.settlement || 0) * qtyValid;
+                let hppBaris = Number(item.hpp || 0);
+
+                if (statusUpper === "FAILED" || statusUpper === "RETUR" || statusUpper === "CANCELED") {
+                    rekapFailedQty += qtyValid; rekapTotalQty += qtyValid; return;
+                }
+
+                let jOwnerMentah = Number(item.jatahOwner || 0);
+                let jInvsMentah = Number(item.jatahInvs || 0);
+                rekapTotalQty += qtyValid;
+                rekapTotalSettlement += nilaiSettlement;
+                rekapTotalHPP += hppBaris;
+                rekapTotalLabaKotor += Number(item.labaKotor || 0);
+
+                if (statusUpper === "READY") {
+                    danaReadyGross += nilaiSettlement; ownerReady += jOwnerMentah; investorReady += jInvsMentah;
+                    if (item.idPesanan && String(item.idPesanan).trim() !== "") totalBiayaBankRiil += 5500;
+                } else if (statusUpper === "PAID") {
+                    danaPaidGross += nilaiSettlement; ownerPaid += jOwnerMentah; investorPaid += jInvsMentah;
+                    if (item.idPesanan && String(item.idPesanan).trim() !== "") totalBiayaBankRiil += 5500;
+                } else {
+                    danaWaitingGross += nilaiSettlement; ownerWaiting += jOwnerMentah; investorWaiting += jInvsMentah;
+                }
+
+                totalOwnerSemua += jOwnerMentah;
+                totalInvestorSemua += jInvsMentah;
+            });
+
+            document.getElementById("progress-bar").style.width = Math.min((rekapTotalQty / 300) * 100, 100) + "%";
+            document.getElementById("target-text").innerText = `${rekapTotalQty} / 300 Pcs`;
+            
+            document.getElementById("total-owner").innerText = formatRupiah(totalOwnerSemua);
+            document.getElementById("owner-ready").innerText = formatRupiah(ownerReady);
+            document.getElementById("owner-paid").innerText = formatRupiah(ownerPaid);
+            document.getElementById("owner-waiting").innerText = formatRupiah(ownerWaiting);
+            
+            document.getElementById("total-investor").innerText = formatRupiah(totalInvestorSemua);
+            document.getElementById("investor-ready").innerText = formatRupiah(investorReady);
+            document.getElementById("investor-paid").innerText = formatRupiah(investorPaid);
+            document.getElementById("investor-waiting").innerText = formatRupiah(investorWaiting);
+            
+            document.getElementById("total-hpp").innerText = formatRupiah(rekapTotalHPP);
+            document.getElementById("hpp-total-qty").innerText = `${rekapTotalQty} Pcs`;
+            document.getElementById("hpp-failed-qty").innerText = `${rekapFailedQty} Pcs`;
+            document.getElementById("hpp-total-settlement").innerText = formatRupiah(rekapTotalSettlement);
+            document.getElementById("hpp-total-laba").innerText = formatRupiah(rekapTotalLabaKotor || (rekapTotalSettlement - rekapTotalHPP));
+            
+            document.getElementById("total-biaya-bank").innerText = formatRupiah(totalBiayaBankRiil);
+            document.getElementById("dana-ready").innerText = formatRupiah(danaReadyGross);
+            document.getElementById("dana-paid").innerText = formatRupiah(danaPaidGross);
+            document.getElementById("dana-waiting").innerText = formatRupiah(danaWaitingGross);
+
+            updateChart(rekapTotalHPP, totalOwnerSemua, totalInvestorSemua, totalBiayaBankRiil);
+        }
+
+        // ================= CHART & VISUAL =================
         function buildTrendChart() {
             let rekapHarian = {};
             masterData.forEach(item => {
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
-                if (statusUpper === "FAILED" || statusUpper === "RETUR") return;
+                if (statusUpper === "FAILED" || statusUpper === "RETUR" || statusUpper === "CANCELED") return;
                 let tgl = item.tanggal ? (String(item.tanggal).includes("T") ? item.tanggal.split("T")[0] : item.tanggal) : "Tanpa Tanggal";
                 rekapHarian[tgl] = (rekapHarian[tgl] || 0) + Number(item.qty || 0);
             });
-            let tanggalUrut = Object.keys(rekapHarian).sort(); let volumeData = tanggalUrut.map(tgl => rekapHarian[tgl]);
+            let tanggalUrut = Object.keys(rekapHarian).sort();
+            let volumeData = tanggalUrut.map(tgl => rekapHarian[tgl]);
             const ctx = document.getElementById('chartTrenHarian').getContext('2d');
-            if (trendChart) trendChart.destroy();
-            trendChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: tanggalUrut, datasets: [{ label: 'Pcs', data: volumeData, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.2)', borderWidth: 2, fill: true, tension: 0.3 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { color: '#64748b', font: { size: 9 }, stepSize: 1 }, grid: { color: '#1e293b' } } } }
+            if (window.trendChart) window.trendChart.destroy();
+            window.trendChart = new Chart(ctx, {
+                type: 'line', data: { labels: tanggalUrut, datasets: [{ data: volumeData, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.2)', borderWidth: 2, fill: true, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: '#1e293b' } } } }
             });
         }
 
         function updateChart(hpp, owner, invs, bank) {
             const ctx = document.getElementById('chartDuit').getContext('2d');
-            if (myChart) myChart.destroy();
-            myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['HPP', 'Owner', 'Invs', 'Bank'], datasets: [{ data: [hpp, owner, invs, bank], backgroundColor: ['#f43f5e', '#eab308', '#8b5cf6', '#38bdf8'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '75%' } });
+            if (window.myChart) window.myChart.destroy();
+            window.myChart = new Chart(ctx, {
+                type: 'doughnut', data: { labels: ['HPP', 'Owner', 'Invs', 'Bank'], datasets: [{ data: [hpp, owner, invs, bank], backgroundColor: ['#f43f5e', '#eab308', '#8b5cf6', '#38bdf8'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '75%' }
+            });
         }
 
         function renderRekapVarian() {
-            let rekap = {}; 
-            DAFTAR_VARIAN_DINAMIS.forEach(v => rekap[v] = 0);
-            
+            let rekap = {};
+            DAFTAR_VARIAN_DINAMIS.forEach(v => rekap[v] = { qty: 0, laba: 0 });
             masterData.forEach(item => {
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
-                if (statusUpper === "FAILED" || statusUpper === "RETUR") return;
-                
+                if (statusUpper === "FAILED" || statusUpper === "RETUR" || statusUpper === "CANCELED") return;
                 let prod = item.namaProduk ? String(item.namaProduk).trim().toUpperCase() : "";
-                if (prod !== "") rekap[prod] = (rekap[prod] || 0) + Number(item.qty || 0);
+                if (prod !== "") {
+                    if (!rekap[prod]) rekap[prod] = { qty: 0, laba: 0 };
+                    rekap[prod].qty += Number(item.qty || 0);
+                    rekap[prod].laba += Number(item.labaKotor || 0);
+                }
             });
-            
-            const tbody = document.getElementById("tabel-rekap-varian"); tbody.innerHTML = "";
-            let rekapSorted = Object.entries(rekap).sort((a, b) => b[1] - a[1]);
-            
-            rekapSorted.forEach(([k, qty]) => {
-                let statusKinerja = qty >= 10 ? "<span class='text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded'>🔥 Laris</span>" : (qty > 0 ? "<span class='text-sky-400 font-bold'>✓ Terjual</span>" : "<span class='text-slate-500'>Zonk</span>");
-                let tr = document.createElement("tr"); tr.className = "hover:bg-slate-900/60 text-slate-300 border-b border-slate-800/50";
-                tr.innerHTML = `<td class="p-3 font-semibold text-yellow-500/80">${k}</td><td class="p-3 text-center font-bold text-slate-200">${qty}</td>`;
+            const tbody = document.getElementById("tabel-rekap-varian");
+            tbody.innerHTML = "";
+            let rekapSorted = Object.entries(rekap).sort((a, b) => b[1].qty - a[1].qty);
+            let totalQtySemua = Object.values(rekap).reduce((a, b) => a + b.qty, 0);
+            rekapSorted.forEach(([k, dataVarian]) => {
+                let tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-900/60 text-slate-300 border-b border-slate-800/50";
+                let pct = totalQtySemua > 0 ? ((dataVarian.qty / totalQtySemua) * 100) : 0;
+                tr.innerHTML = `<td class="p-2 font-semibold text-yellow-500/80">${k}</td><td class="p-2 text-center font-bold text-slate-200">${dataVarian.qty}</td><td class="p-2 text-right font-semibold text-emerald-400">${formatRupiah(dataVarian.laba)}</td><td class="p-2 text-center text-slate-400 text-xs">${pct.toFixed(1)}%</td>`;
                 tbody.appendChild(tr);
             });
         }
 
         function cariProdukTerlaris() {
-            let rekap = {}; masterData.forEach(item => {
+            let rekap = {};
+            masterData.forEach(item => {
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
-                if (statusUpper !== "FAILED" && statusUpper !== "RETUR" && item.namaProduk) {
+                if (statusUpper !== "FAILED" && statusUpper !== "RETUR" && statusUpper !== "CANCELED" && item.namaProduk) {
                     let namaKey = String(item.namaProduk).trim().toUpperCase();
                     rekap[namaKey] = (rekap[namaKey] || 0) + Number(item.qty || 0);
                 }
             });
-            let terlaris = "Belum Ada"; let max = 0;
+            let terlaris = "Belum Ada", max = 0;
             Object.keys(rekap).forEach(k => { if(rekap[k] > max) { max = rekap[k]; terlaris = k; } });
-            document.getElementById("the-king-product").innerText = max > 0 ? `${terlaris} (${max} Pcs)` : "Belum Ada";
+            document.getElementById("the-king-product").innerText = max > 0 ? `${terlaris} (${max} Pcs)` : "-";
         }
 
-        // 🌟 FITUR UPGRADE: DOWNLOAD CSV STANDAR INDONESIA
+        // ================= AUDIT LOG & ALERT SYSTEM =================
+        function initAuditLog() { auditLog = JSON.parse(localStorage.getItem("auditLog_BogaKarya86") || "[]"); }
+        function addAuditLog(action, details, type = "info") {
+            auditLog.unshift({ timestamp: new Date().toISOString(), action, details, type, user: "System" });
+            if (auditLog.length > 100) auditLog.pop();
+            localStorage.setItem("auditLog_BogaKarya86", JSON.stringify(auditLog));
+        }
+        function renderAuditLog() {
+            const container = document.getElementById("audit-log-container");
+            container.innerHTML = "";
+            if (auditLog.length === 0) { container.innerHTML = '<div class="text-xs text-slate-500 p-2">Belum ada aktivitas...</div>'; return; }
+            auditLog.slice(0, 20).forEach(log => {
+                let color = log.type === "warning" ? "text-amber-400" : (log.type === "danger" ? "text-rose-400" : (log.type === "success" ? "text-emerald-400" : "text-blue-400"));
+                let time = new Date(log.timestamp).toLocaleTimeString('id-ID');
+                let div = document.createElement("div");
+                div.className = `bg-slate-950 border border-slate-800 p-2 rounded text-xs ${color}`;
+                div.innerHTML = `<div class="flex justify-between"><span>${log.action}</span><span class="text-slate-500">${time}</span></div><div class="text-slate-400 ml-4 mt-1 text-[10px]">${log.details}</div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function checkSystemAlerts() {
+            systemAlerts = [];
+            let failedCount = masterData.filter(i => String(i.status || "WAITING").toUpperCase() === "RETUR" || String(i.status || "WAITING").toUpperCase() === "FAILED").length;
+            if (failedCount > 0) addSystemAlert("warning", `Ada ${failedCount} transaksi RETUR/FAILED yang perlu ditinjau!`);
+            let canceledCount = masterData.filter(i => String(i.status || "WAITING").toUpperCase() === "CANCELED").length;
+            if (canceledCount > 0) addSystemAlert("info", `Ada ${canceledCount} transaksi CANCELED`);
+            let waitingCount = masterData.filter(i => String(i.status || "WAITING").toUpperCase() === "WAITING").length;
+            if (waitingCount > 10) addSystemAlert("warning", `Ada ${waitingCount} transaksi WAITING untuk di-settle!`);
+            renderSystemAlerts();
+        }
+
+        function addSystemAlert(type, message) { systemAlerts.push({ type, message, timestamp: new Date() }); }
+        function renderSystemAlerts() {
+            const container = document.getElementById("system-alerts-container");
+            container.innerHTML = systemAlerts.length === 0 ? '<div class="text-xs text-slate-500 p-2">Semua sistem normal</div>' : "";
+            systemAlerts.forEach(alert => {
+                let bgColor = alert.type === "warning" ? "bg-amber-900/30" : (alert.type === "danger" ? "bg-rose-900/30" : "bg-blue-900/30");
+                let border = alert.type === "warning" ? "border-amber-700" : (alert.type === "danger" ? "border-rose-700" : "border-blue-700");
+                let text = alert.type === "warning" ? "text-amber-400" : (alert.type === "danger" ? "text-rose-400" : "text-blue-400");
+                let div = document.createElement("div");
+                div.className = `${bgColor} border ${border} ${text} text-xs p-2 rounded flex items-start gap-2`;
+                div.innerHTML = `<span class="flex-shrink-0">●</span><span>${alert.message}</span>`;
+                container.appendChild(div);
+            });
+        }
+
+        // ================= FITUR EXPORT & SHARE WA =================
         function exportKeCSV() {
-            // \uFEFF adalah BOM untuk memaksa Excel membaca UTF-8, dan titik koma (;) standar kolom PC Indonesia
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "Tanggal;ID Pesanan;Nama Produk;Qty;HPP (Modal);Laba Kotor Bersama;Status\n";
+            let csvContent = "\uFEFFTanggal;ID Pesanan;Nama Produk;Qty;HPP;Laba Kotor;Hak Owner;Hak Investor;Status\n";
             filteredData.forEach(row => {
                 let tgl = row.tanggal ? (String(row.tanggal).includes("T") ? row.tanggal.split("T")[0] : row.tanggal) : "-";
-                let id = row.idPesanan || "-";
-                let nama = row.namaProduk ? String(row.namaProduk).replace(/;/g, " ") : "NAMA KOSONG"; 
-                let qty = row.qty || 0; let hpp = row.hpp || 0; let laba = row.labaKotor || 0; let status = row.status || "WAITING";
-                csvContent += `${tgl};${id};${nama};${qty};${hpp};${laba};${status}\n`;
+                csvContent += `${tgl};${row.idPesanan || "-"};${(row.namaProduk||"").replace(/;/g, " ")};${row.qty || 0};${row.hpp || 0};${row.labaKotor || 0};${row.jatahOwner || 0};${row.jatahInvs || 0};${row.status || "WAITING"}\n`;
             });
-            var encodedUri = encodeURI(csvContent); var link = document.createElement("a");
-            link.setAttribute("href", encodedUri); link.setAttribute("download", `Laporan_BogaKarya86_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `Laporan_BogaKarya86_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            addAuditLog("EXPORT", "Data diexport ke CSV", "success");
         }
 
-        // 🌟 FITUR UPGRADE: WA LANGSUNG BUKA APLIKASI
-        function salinLaporanWA() {
-            let teks = `*LAPORAN KEUANGAN BOGA KARYA86* 📊\nUpdate: ${new Date().toLocaleString('id-ID')}\n\n👑 *HAK OWNER (80%):* ${document.getElementById("total-owner").innerText}\n💼 *HAK INVESTOR (20%):* ${document.getElementById("total-investor").innerText}\n\n🎯 *Target Penjualan:* ${document.getElementById("target-text").innerText}\n💰 *Kas Ready:* ${document.getElementById("dana-ready").innerText}\n⏳ *Dana Muter:* ${document.getElementById("dana-waiting").innerText}\n\n_Sistem Otomatis - Boga Karya86 ✨_`;
-            
-            // Backup Copy (Silently salin ke clipboard HP/PC)
-            try { navigator.clipboard.writeText(teks); } catch(err) { console.log("Auto-copy diblokir browser"); }
-            
-            // Perintah Utama: Buka langsung WA beserta Teks!
-            let waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(teks)}`;
-            window.open(waUrl, '_blank');
+        async function salinLaporanWA() {
+            let teks = `*LAPORAN KEUANGAN BOGA KARYA86* \nUpdate: ${new Date().toLocaleString('id-ID')}\n\n👑 *HAK OWNER:* ${document.getElementById("total-owner").innerText}\n💼 *HAK INVESTOR:* ${document.getElementById("total-investor").innerText}\n\n🎯 *Target:* ${document.getElementById("target-text").innerText}\n💰 *Kas Ready:* ${document.getElementById("dana-ready").innerText}\n⏳ *Dana Muter:* ${document.getElementById("dana-waiting").innerText}`;
+            try { await navigator.clipboard.writeText(teks); alert("Laporan disalin ke clipboard!"); addAuditLog("SHARE_WA", "Laporan disalin", "success"); } 
+            catch(err) { alert("Gagal menyalin, WhatsApp akan terbuka."); }
+            window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
         }
 
-     function bukaModalAudit(globalIndex) {
-    let item = filteredData[globalIndex];
-    if(!item) return;
-
-    let statusUpper = String(item.status || "WAITING").toUpperCase();
-    let qty = Number(item.qty || 0);
-    let settlement = Number(item.settlement || 0);
-    let totalPendapatan = settlement * qty;
-
-    document.getElementById("m-nama-produk").innerText = item.namaProduk ? String(item.namaProduk).toUpperCase() : "[ NAMA KOSONG ]";
-    document.getElementById("m-id-pesanan").innerText = `ID: ${item.idPesanan && String(item.idPesanan).trim() !== "" ? item.idPesanan : '[ Antrean Produksi ]'}`;
-    document.getElementById("m-settlement").innerText = formatRupiah(settlement);
-    document.getElementById("m-qty").innerText = `${qty} Pcs`;
-    document.getElementById("m-total-pendapatan").innerText = formatRupiah(totalPendapatan);
-    document.getElementById("m-hpp").innerText = `- ${formatRupiah(item.hpp || 0)}`;
-    document.getElementById("m-laba-kotor").innerText = formatRupiah(item.labaKotor || 0);
-    document.getElementById("m-jatah-investor").innerText = formatRupiah(item.jatahInvs || 0);
-    document.getElementById("m-jatah-owner").innerText = formatRupiah(item.jatahOwner || 0);
-
-    if (statusUpper === "FAILED" || statusUpper === "RETUR") {
-        document.getElementById("m-watermark").classList.remove("hidden");
-        document.getElementById("m-laba-kotor").innerText = "Rp 0";
-        document.getElementById("m-jatah-investor").innerText = "Rp 0";
-        document.getElementById("m-jatah-owner").innerText = "Rp 0";
-    } else {
-        document.getElementById("m-watermark").classList.add("hidden");
-    }
-    
-    document.getElementById("modal-audit").classList.remove("hidden");
-}
-
-        function tutupModal() { document.getElementById("modal-audit").classList.add("hidden"); }
         function prevPage() { if (currentPage > 1) { currentPage--; renderTabel(); } }
         function nextPage() { if ((currentPage * rowsPerPage) < filteredData.length) { currentPage++; renderTabel(); } }
         function formatRupiah(angka) { return "Rp " + Math.round(Number(angka || 0)).toLocaleString('id-ID'); }
+
+        // ================= SISTEM GENERATOR LAPORAN CLOSING FORMAL =================
+        function hitungClosingFormal() {
+            let rekapUtama = { READY: { vol: 0, settle: 0, hpp: 0, laba: 0, invs: 0, owner: 0 }, WAITING: { vol: 0, settle: 0, hpp: 0, laba: 0, invs: 0, owner: 0 }, GAGAL: { vol: 0, settle: 0, hpp: 0, laba: 0, invs: 0, owner: 0 } };
+            let rincianReady = {}, rincianWaiting = {}, analisisMargin = {};
+
+            masterData.forEach(item => {
+                let statusRaw = String(item.status || "WAITING").toUpperCase();
+                let prod = item.namaProduk ? String(item.namaProduk).trim() : "TIDAK DIKETAHUI";
+                let qty = Number(item.qty || 0), hpp = Number(item.hpp || 0);
+
+                let kategoriStatus = "WAITING";
+                if(statusRaw === "READY" || statusRaw === "PAID") kategoriStatus = "READY";
+                if(statusRaw === "CANCELED" || statusRaw === "RETUR" || statusRaw === "FAILED") kategoriStatus = "GAGAL";
+
+                let settle = kategoriStatus === "GAGAL" ? 0 : (Number(item.settlement || 0) * qty);
+                let laba = kategoriStatus === "GAGAL" ? 0 : Number(item.labaKotor || 0);
+                let invs = kategoriStatus === "GAGAL" ? 0 : Number(item.jatahInvs || 0);
+                let owner = kategoriStatus === "GAGAL" ? 0 : Number(item.jatahOwner || 0);
+
+                rekapUtama[kategoriStatus].vol += qty; rekapUtama[kategoriStatus].settle += settle;
+                rekapUtama[kategoriStatus].hpp += hpp; rekapUtama[kategoriStatus].laba += laba;
+                rekapUtama[kategoriStatus].invs += invs; rekapUtama[kategoriStatus].owner += owner;
+
+                if(kategoriStatus === "GAGAL") return;
+
+                if(kategoriStatus === "READY") {
+                    if(!rincianReady[prod]) rincianReady[prod] = { vol: 0, settle: 0, laba: 0, invs: 0, owner: 0 };
+                    rincianReady[prod].vol += qty; rincianReady[prod].settle += settle; rincianReady[prod].laba += laba; rincianReady[prod].invs += invs; rincianReady[prod].owner += owner;
+                }
+                if(kategoriStatus === "WAITING") {
+                    if(!rincianWaiting[prod]) rincianWaiting[prod] = { vol: 0, settle: 0, laba: 0, invs: 0, owner: 0 };
+                    rincianWaiting[prod].vol += qty; rincianWaiting[prod].settle += settle; rincianWaiting[prod].laba += laba; rincianWaiting[prod].invs += invs; rincianWaiting[prod].owner += owner;
+                }
+                
+                // Tambahan perhitungan HPP per produk untuk Tabel 4
+                if(!analisisMargin[prod]) analisisMargin[prod] = { vol: 0, settle: 0, hpp: 0, laba: 0 };
+                analisisMargin[prod].vol += qty; analisisMargin[prod].settle += settle; analisisMargin[prod].hpp += hpp; analisisMargin[prod].laba += laba;
+            });
+
+            // TABEL 1
+            let t1 = document.getElementById("table-rekap-utama");
+            let sumVol = rekapUtama.READY.vol + rekapUtama.WAITING.vol;
+            let sumSettle = rekapUtama.READY.settle + rekapUtama.WAITING.settle;
+            let sumHpp = rekapUtama.READY.hpp + rekapUtama.WAITING.hpp;
+            let sumLaba = rekapUtama.READY.laba + rekapUtama.WAITING.laba;
+            let sumInvs = rekapUtama.READY.invs + rekapUtama.WAITING.invs;
+            let sumOwner = rekapUtama.READY.owner + rekapUtama.WAITING.owner;
+            t1.innerHTML = `
+                <tr><td class="border border-black p-2 font-bold">READY (DANA CAIR)</td><td class="border border-black p-2 text-center font-bold">${rekapUtama.READY.vol}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.READY.settle)}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.READY.hpp)}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.READY.laba)}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.READY.invs)}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.READY.owner)}</td></tr>
+                <tr><td class="border border-black p-2 font-bold">WAITING (DANA BERJALAN)</td><td class="border border-black p-2 text-center font-bold">${rekapUtama.WAITING.vol}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.WAITING.settle)}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.WAITING.hpp)}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.WAITING.laba)}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.WAITING.invs)}</td><td class="border border-black p-2 text-right">${formatRupiah(rekapUtama.WAITING.owner)}</td></tr>
+                <tr><td class="border border-black p-2 font-bold text-red-600">GAGAL ANTAR / RETUR</td><td class="border border-black p-2 text-center">${rekapUtama.GAGAL.vol}</td><td class="border border-black p-2 text-right">-</td><td class="border border-black p-2 text-right text-red-600">${formatRupiah(rekapUtama.GAGAL.hpp)}</td><td class="border border-black p-2 text-right">-</td><td class="border border-black p-2 text-right">-</td><td class="border border-black p-2 text-right">-</td></tr>
+                <tr class="bg-gray-300 font-bold"><td class="border border-black p-2">TOTAL PENJUALAN AKTIF</td><td class="border border-black p-2 text-center">${sumVol}</td><td class="border border-black p-2 text-right">${formatRupiah(sumSettle)}</td><td class="border border-black p-2 text-right">${formatRupiah(sumHpp)}</td><td class="border border-black p-2 text-right">${formatRupiah(sumLaba)}</td><td class="border border-black p-2 text-right">${formatRupiah(sumInvs)}</td><td class="border border-black p-2 text-right">${formatRupiah(sumOwner)}</td></tr>
+            `;
+
+            // TABEL 2 (Ready)
+            let t2 = document.getElementById("table-rincian-ready"); t2.innerHTML = "";
+            Object.keys(rincianReady).map(k => ({nama: k, ...rincianReady[k]})).sort((a,b) => b.vol - a.vol).forEach(row => {
+                t2.innerHTML += `<tr><td class="border border-black p-2">${row.nama}</td><td class="border border-black p-2 text-center">${row.vol}</td><td class="border border-black p-2 text-right">${formatRupiah(row.settle)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.laba)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.invs)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.owner)}</td></tr>`;
+            });
+
+            // TABEL 3 (Waiting)
+            let t3 = document.getElementById("table-rincian-waiting"); t3.innerHTML = "";
+            Object.keys(rincianWaiting).map(k => ({nama: k, ...rincianWaiting[k]})).sort((a,b) => b.vol - a.vol).forEach(row => {
+                t3.innerHTML += `<tr><td class="border border-black p-2">${row.nama}</td><td class="border border-black p-2 text-center">${row.vol}</td><td class="border border-black p-2 text-right">${formatRupiah(row.settle)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.laba)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.invs)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.owner)}</td></tr>`;
+            });
+
+            // TABEL 4 (Analisis Margin & HPP Baru)
+            let t4 = document.getElementById("table-analisis-margin"); t4.innerHTML = "";
+            let arrAnalisis = Object.keys(analisisMargin).map(k => ({nama: k, ...analisisMargin[k]})).sort((a,b) => b.vol - a.vol);
+            arrAnalisis.forEach(row => {
+                t4.innerHTML += `<tr><td class="border border-black p-2 font-semibold">${row.nama}</td><td class="border border-black p-2 text-center">${row.vol}</td><td class="border border-black p-2 text-right">${formatRupiah(row.hpp)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.settle)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.laba)}</td><td class="border border-black p-2 text-center font-bold">${row.settle > 0 ? ((row.laba/row.settle)*100).toFixed(2) : 0}%</td></tr>`;
+            });
+        }
+
+        // ================= TOMBOL CETAK & EVALUASI CERDAS =================
+        function prosesCetakClosingFormal() {
+            let totalSettle = 0;
+            let totalLaba = 0;
+            let totalGagal = 0;
+            let totalVolAktif = 0;
+            const TARGET_BULANAN = 300; // Target bisa disesuaikan di sini
+
+            masterData.forEach(item => {
+                let status = String(item.status || "WAITING").toUpperCase();
+                let qty = Number(item.qty || 0);
+                
+                if (status === "RETUR" || status === "FAILED" || status === "CANCELED") {
+                    totalGagal += qty;
+                } else {
+                    totalVolAktif += qty;
+                    totalSettle += (Number(item.settlement || 0) * qty);
+                    totalLaba += Number(item.labaKotor || 0);
+                }
+            });
+
+            let marginAvg = totalSettle > 0 ? ((totalLaba / totalSettle) * 100).toFixed(1) : 0;
+            let persentaseTarget = ((totalVolAktif / TARGET_BULANAN) * 100).toFixed(1);
+            
+            let rajaProdukElement = document.getElementById("the-king-product").innerText;
+            let namaRaja = rajaProdukElement !== "-" ? rajaProdukElement.split(" (")[0] : "Belum Ada";
+
+            // Menyusun Draf Narasi Pintar
+            let drafEvaluasi = `Bulan ini, total volume penjualan aktif mencapai ${totalVolAktif} unit, yang berarti menyentuh ${persentaseTarget}% dari target bulanan kita (${TARGET_BULANAN} unit). \n\nSecara performa, operasional berjalan stabil dengan rata-rata margin keuntungan di angka ${marginAvg}%. Penjualan didominasi oleh varian ${namaRaja} yang menunjukkan minat pasar yang sangat baik. `;
+            
+            if (totalGagal > 0) {
+                drafEvaluasi += `Namun, menjadi catatan penting bahwa terdapat ${totalGagal} unit pesanan yang mengalami Retur/Gagal Antar. Management perlu segera meninjau ulang SOP packing dan berkoordinasi dengan pihak ekspedisi untuk meminimalisir HPP yang tertahan pada bulan depan. `;
+            } else {
+                drafEvaluasi += `Luar biasanya, tidak ada kendala Retur atau Gagal Antar yang signifikan pada periode ini, menandakan proses logistik berjalan maksimal. `;
+            }
+
+            drafEvaluasi += `Seluruh dana tertahan (Waiting) akan dipantau ketat proses pencairannya agar bisa masuk ke buku kas periode berikutnya.`;
+
+            // Prompt Draf untuk diedit User
+            let evalText = prompt("Sistem telah membuat Draf Evaluasi. Silakan edit jika perlu, lalu tekan OK untuk mencetak:", drafEvaluasi);
+            
+            if (evalText === null) return; // Kalau di-cancel, batal cetak
+            
+            document.getElementById("print-catatan").innerText = evalText.trim() === "" ? "Tidak ada catatan evaluasi tambahan pada laporan periode ini." : evalText;
+            window.print();
+        }
     </script>
 </body>
 </html>
