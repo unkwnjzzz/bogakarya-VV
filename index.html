@@ -13,8 +13,10 @@
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
         .modal.active { display: flex; align-items: center; justify-content: center; }
+        
         @media print {
             body { background: white !important; color: black !important; margin: 0; padding: 0; }
             .no-print { display: none !important; }
@@ -367,6 +369,7 @@
         let filteredData = [];
         let DAFTAR_VARIAN_DINAMIS = [];
         let DAFTAR_BULAN = []; 
+        
         let currentPage = 1;
         const rowsPerPage = 5;
         let myChart = null;
@@ -678,6 +681,7 @@
             addAuditLog("FOLLOW_UP", `Follow up kurir via WA untuk ID ${idResi}`, "info");
         }
 
+        // ================= DASHBOARD PERHITUNGAN (UPDATE LOGIKA BIAYA BANK) =================
         function hitungDashboard() {
             let totalOwnerSemua = 0, totalInvestorSemua = 0, ownerReady = 0, ownerPaid = 0, ownerWaiting = 0;
             let investorReady = 0, investorPaid = 0, investorWaiting = 0, rekapTotalQty = 0, rekapFailedQty = 0;
@@ -703,9 +707,10 @@
 
                 if (statusUpper === "READY") {
                     danaReadyGross += nilaiSettlement; ownerReady += jOwnerMentah; investorReady += jInvsMentah;
-                    if (item.idPesanan && String(item.idPesanan).trim() !== "") totalBiayaBankRiil += 5500;
+                    // BIAYA BANK TIDAK DIPOTONG DI SINI (SESUAI REQUEST)
                 } else if (statusUpper === "PAID") {
                     danaPaidGross += nilaiSettlement; ownerPaid += jOwnerMentah; investorPaid += jInvsMentah;
+                    // BIAYA BANK HANYA DIPOTONG SAAT STATUS PAID
                     if (item.idPesanan && String(item.idPesanan).trim() !== "") totalBiayaBankRiil += 5500;
                 } else {
                     danaWaitingGross += nilaiSettlement; ownerWaiting += jOwnerMentah; investorWaiting += jInvsMentah;
