@@ -13,10 +13,8 @@
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
         .modal.active { display: flex; align-items: center; justify-content: center; }
-        
         @media print {
             body { background: white !important; color: black !important; margin: 0; padding: 0; }
             .no-print { display: none !important; }
@@ -28,7 +26,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-6 font-sans antialiased relative">
+<body class="bg-black text-slate-100 min-h-screen p-4 md:p-6 font-sans antialiased relative">
 
     <div id="app-layar" class="no-print">
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 max-w-7xl mx-auto border-b border-slate-800 pb-4">
@@ -38,8 +36,8 @@
             </div>
             <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                 
-                <select id="filter-bulan" onchange="ubahFilterBulan()" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-xs px-3 py-2.5 rounded-lg transition cursor-pointer shadow-md focus:outline-none focus:border-yellow-500">
-                    <option value="ALL">Loading Bulan...</option>
+                <select id="filter-bulan" onchange="terapkanFilterBulan()" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-xs px-3 py-2.5 rounded-lg transition cursor-pointer shadow-md focus:outline-none focus:border-yellow-500">
+                    <option value="ALL">Semua Waktu</option>
                 </select>
 
                 <button onclick="prosesCetakClosingFormal()" class="bg-yellow-600 hover:bg-yellow-500 text-slate-900 border border-yellow-500 font-bold text-xs px-3 py-2.5 rounded-lg transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(234,179,8,0.3)] cursor-pointer">
@@ -69,7 +67,7 @@
             <div id="dashboard" class="tab-content active space-y-6">
                 <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg flex flex-col gap-2 relative overflow-hidden">
                     <div class="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10">
-                        <span class="flex items-center gap-2">Target Penjualan Bulan Ini</span>
+                        <span class="flex items-center gap-2">Target Penjualan</span>
                         <span class="flex items-center gap-2">
                             <span id="target-text" class="text-yellow-500 font-mono text-sm">0 / 300 Pcs</span>
                             <button onclick="editTargetBulanan()" class="text-slate-500 hover:text-yellow-400 transition cursor-pointer bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700" title="Edit Target">✎</button>
@@ -170,7 +168,6 @@
                     </div>
                 </div>
             </div>
-
             <div id="transactions" class="tab-content space-y-6">
                 <div class="bg-slate-900 rounded-xl border border-slate-800 p-4 shadow-lg space-y-3">
                     <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
@@ -232,6 +229,7 @@
             </div>
         </main>
     </div>
+
     <div id="print-area-closing" class="hidden print-only bg-white text-black max-w-4xl mx-auto p-8">
         <div class="text-center border-b-2 border-black pb-4 mb-6">
             <h1 class="text-xl font-bold uppercase">Laporan Closingan Final & Kinerja Keuangan</h1>
@@ -368,8 +366,7 @@
         let masterData = [];
         let filteredData = [];
         let DAFTAR_VARIAN_DINAMIS = [];
-        let DAFTAR_BULAN = []; // Untuk Filter Bulan
-        
+        let DAFTAR_BULAN = []; 
         let currentPage = 1;
         const rowsPerPage = 5;
         let myChart = null;
@@ -378,28 +375,43 @@
         let varianAktif = "ALL";
         let kataKunciCari = "";
         let statusAktif = "ALL";
-        let bulanAktif = "ALL"; // Untuk Filter Bulan
+        let bulanAktif = "ALL"; 
         
-        let targetBulanan = parseInt(localStorage.getItem("target_BogaKarya86")) || 300; // Target Dinamis
+        let targetBulanan = parseInt(localStorage.getItem("target_BogaKarya86")) || 300; 
         let auditLog = [];
         let systemAlerts = [];
-
-        // Variabel untuk modal WA
         let currentModalItem = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             fetchData();
             initAuditLog();
             renderAuditLog();
-            setPeriodeLaporan();
         });
 
         setInterval(fetchData, 600000);
 
-        function setPeriodeLaporan() {
-            const bulan = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
-            const tgl = new Date();
-            document.getElementById("laporan-periode").innerText = `${bulan[tgl.getMonth()]} ${tgl.getFullYear()}`;
+        // ================= MESIN WAKTU (CUT-OFF TGL 31) =================
+        function getPeriodeLaporan(tglRaw) {
+            if (!tglRaw) return null;
+            let d = new Date(tglRaw);
+            
+            if (isNaN(d.getTime())) {
+                let parts = String(tglRaw).split(/[-/]/);
+                if (parts.length >= 3) {
+                    if (parts[0].length === 4) d = new Date(`${parts[0]}/${parts[1]}/${parts[2]}`);
+                    else d = new Date(`${parts[2]}/${parts[1]}/${parts[0]}`);
+                }
+            }
+
+            if (!isNaN(d.getTime())) {
+                if (d.getDate() === 31) {
+                    d.setDate(d.getDate() + 1); 
+                }
+                let y = d.getFullYear();
+                let m = String(d.getMonth() + 1).padStart(2, '0');
+                return `${y}-${m}`; 
+            }
+            return null;
         }
 
         async function fetchData() {
@@ -412,24 +424,24 @@
                 masterData = rawData.filter(item => (item.tanggal && String(item.tanggal).trim() !== "") || (item.idPesanan && String(item.idPesanan).trim() !== ""));
                 
                 let setVarian = new Set();
-                let setBulan = new Set(); // Set untuk filter bulan
+                let setBulan = new Set(); 
                 
                 masterData.forEach(item => {
                     if (item.namaProduk && String(item.namaProduk).trim() !== "") {
                         setVarian.add(String(item.namaProduk).trim().toUpperCase());
                     }
                     
-                    // Ambil YYYY-MM untuk filter
-                    if (item.tanggal) {
-                        let tglStr = String(item.tanggal).includes("T") ? item.tanggal.split("T")[0] : String(item.tanggal);
-                        if (tglStr.length >= 7) {
-                            setBulan.add(tglStr.substring(0, 7));
-                        }
+                    let periode = getPeriodeLaporan(item.tanggal);
+                    if (periode) {
+                        item.periodeBulan = periode; 
+                        setBulan.add(periode);
+                    } else {
+                        item.periodeBulan = "ALL";
                     }
                 });
                 
                 DAFTAR_VARIAN_DINAMIS = Array.from(setVarian).sort();
-                DAFTAR_BULAN = Array.from(setBulan).sort().reverse(); // Terbaru di atas
+                DAFTAR_BULAN = Array.from(setBulan).sort().reverse(); 
                 
                 buatDropdownBulan();
                 buatTombolFilterDinamis();
@@ -438,21 +450,18 @@
                 if(syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Diperbarui: ${new Date().toLocaleTimeString('id-ID')}`;
             } catch (error) {
                 console.error("Fetch error:", error);
-                document.getElementById("tabel-body").innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-semibold">Gagal memuat data dari API. Periksa URL koneksi.</td></tr>`;
+                document.getElementById("tabel-body").innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-400 font-semibold">Gagal memuat data dari API.</td></tr>`;
                 if(syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Terputus`;
-                addSystemAlert("danger", "Koneksi API gagal! Periksa URL Google Apps Script.");
             }
         }
 
-        // ================= FITUR BARU 1: FILTER BULAN =================
         function buatDropdownBulan() {
             const selectBulan = document.getElementById("filter-bulan");
             selectBulan.innerHTML = `<option value="ALL">Semua Waktu</option>`;
-            
             const namaBulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
             
             DAFTAR_BULAN.forEach(b => {
-                let parts = b.split("-");
+                let parts = b.split("-"); 
                 if(parts.length === 2) {
                     let label = `${namaBulan[parseInt(parts[1])-1]} ${parts[0]}`;
                     selectBulan.innerHTML += `<option value="${b}">${label}</option>`;
@@ -466,7 +475,16 @@
             aplikasikanFilter();
         }
 
-        // ================= TAB SWITCHING =================
+        function editTargetBulanan() {
+            let input = prompt("Masukkan jumlah target penjualan bulanan (Pcs):", targetBulanan);
+            if(input !== null && !isNaN(parseInt(input)) && parseInt(input) > 0) {
+                targetBulanan = parseInt(input);
+                localStorage.setItem("target_BogaKarya86", targetBulanan);
+                hitungDashboard(); 
+                addAuditLog("UPDATE_TARGET", `Target diubah menjadi ${targetBulanan} Pcs`, "info");
+            }
+        }
+
         function switchTab(tabName, event) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'border-yellow-500', 'text-yellow-500'));
@@ -474,18 +492,6 @@
             if (event) event.currentTarget.classList.add('active', 'border-yellow-500', 'text-yellow-500');
         }
 
-        // ================= FITUR BARU 2: EDIT TARGET =================
-        function editTargetBulanan() {
-            let input = prompt("Masukkan jumlah target penjualan bulanan (Pcs):", targetBulanan);
-            if(input !== null && !isNaN(parseInt(input)) && parseInt(input) > 0) {
-                targetBulanan = parseInt(input);
-                localStorage.setItem("target_BogaKarya86", targetBulanan);
-                hitungDashboard(); // Update tampilan
-                addAuditLog("UPDATE_TARGET", `Target diubah menjadi ${targetBulanan} Pcs`, "info");
-            }
-        }
-
-        // ================= FILTER TRANSAKSI & PENCARIAN =================
         function buatTombolFilterDinamis() {
             const container = document.getElementById("filter-container");
             container.innerHTML = `<button onclick="filterProduk('ALL', event)" class="btn-filter active border border-slate-800 bg-slate-900 text-slate-300 px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">Semua Produk</button>`;
@@ -548,7 +554,6 @@
 
         function aplikasikanFilter() {
             filteredData = masterData.filter(item => {
-                // Filter Teks & Varian
                 let cocokNama = true;
                 if (varianAktif === "SEARCH") {
                     cocokNama = String(item.namaProduk || "").toLowerCase().includes(kataKunciCari) || 
@@ -557,15 +562,12 @@
                     cocokNama = String(item.namaProduk || "").trim().toUpperCase() === varianAktif;
                 }
                 
-                // Filter Status
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
                 let cocokStatus = (statusAktif === "ALL" || statusUpper === statusAktif);
                 
-                // Filter Bulan
                 let cocokBulan = true;
-                if (bulanAktif !== "ALL" && item.tanggal) {
-                    let tglStr = String(item.tanggal).includes("T") ? item.tanggal.split("T")[0] : String(item.tanggal);
-                    cocokBulan = tglStr.startsWith(bulanAktif);
+                if (bulanAktif !== "ALL") {
+                    cocokBulan = (item.periodeBulan === bulanAktif);
                 }
 
                 return cocokNama && cocokStatus && cocokBulan;
@@ -573,8 +575,6 @@
             
             currentPage = 1;
             renderTabel();
-            
-            // Re-render semua grafik & dashboard berdasarkan data yang difilter!
             hitungDashboard();
             renderRekapVarian();
             cariProdukTerlaris();
@@ -622,12 +622,11 @@
             document.getElementById("btn-next").disabled = end >= filteredData.length;
         }
 
-        // ================= FUNGSI POP-UP MODAL TRANSAKSI =================
         function bukaModal(index) {
             let item = filteredData[index];
             if(!item) return;
 
-            currentModalItem = item; // Simpan untuk dipakai Follow Up WA
+            currentModalItem = item; 
 
             let statusUpper = String(item.status || "WAITING").toUpperCase();
             let qty = Number(item.qty || 0);
@@ -652,7 +651,6 @@
             let elStatus = document.getElementById("modal-status");
             elStatus.className = "font-bold " + (statusUpper === "READY" ? "text-emerald-400" : (statusUpper.match(/CANCELED|RETUR|FAILED/) ? "text-rose-400" : "text-amber-400"));
 
-            // Tampilkan/Sembunyikan Tombol WA Ekspedisi
             let waContainer = document.getElementById("modal-btn-wa-container");
             if(statusUpper === "RETUR" || statusUpper === "FAILED") {
                 waContainer.classList.remove("hidden");
@@ -668,27 +666,24 @@
             currentModalItem = null;
         }
 
-        // ================= FITUR BARU 3: AUTO WA EKSPEDISI =================
         function followUpWA() {
             if(!currentModalItem) return;
             let idResi = currentModalItem.idPesanan || "[Tidak ada ID/Resi]";
             let produk = currentModalItem.namaProduk || "";
             
-            let pesan = `Halo CS Ekspedisi,\n\nMohon bantu pengecekan untuk pesanan yang berstatus RETUR/GAGAL ANTAR berikut:\n\n*ID / RESI:* ${idResi}\n*Produk:* ${produk}\n\nMohon info detail hambatannya dan tolong segera dikoordinasikan pengembaliannya agar barang kami tidak tertahan. Terima kasih.`;
+            let pesan = `Halo CS Ekspedisi,\n\nMohon bantu pengecekan untuk pesanan yang berstatus RETUR/GAGAL ANTAR berikut:\n\n*ID / RESI:* ${idResi}\n*Produk:* ${produk}\n\nMohon info detail hambatannya dan tolong segera dikoordinasikan pengembaliannya agar modal kami tidak tertahan. Terima kasih.`;
             
             let url = `https://wa.me/?text=${encodeURIComponent(pesan)}`;
             window.open(url, '_blank');
             addAuditLog("FOLLOW_UP", `Follow up kurir via WA untuk ID ${idResi}`, "info");
         }
 
-        // ================= DASHBOARD PERHITUNGAN =================
         function hitungDashboard() {
             let totalOwnerSemua = 0, totalInvestorSemua = 0, ownerReady = 0, ownerPaid = 0, ownerWaiting = 0;
             let investorReady = 0, investorPaid = 0, investorWaiting = 0, rekapTotalQty = 0, rekapFailedQty = 0;
             let rekapTotalSettlement = 0, rekapTotalHPP = 0, rekapTotalLabaKotor = 0, totalBiayaBankRiil = 0;
             let danaReadyGross = 0, danaPaidGross = 0, danaWaitingGross = 0;
 
-            // PENTING: Hitung berdasarkan filteredData agar match dengan Filter Bulan
             filteredData.forEach(item => {
                 let statusUpper = String(item.status || "WAITING").toUpperCase();
                 let qtyValid = Number(item.qty || 0);
@@ -720,7 +715,6 @@
                 totalInvestorSemua += jInvsMentah;
             });
 
-            // Implementasi Target Bulanan Dinamis
             let pct = targetBulanan > 0 ? (rekapTotalQty / targetBulanan) * 100 : 0;
             document.getElementById("progress-bar").style.width = Math.min(pct, 100) + "%";
             document.getElementById("target-text").innerText = `${rekapTotalQty} / ${targetBulanan} Pcs`;
@@ -816,7 +810,6 @@
             document.getElementById("the-king-product").innerText = max > 0 ? `${terlaris} (${max} Pcs)` : "-";
         }
 
-        // ================= AUDIT LOG & ALERT SYSTEM =================
         function initAuditLog() { auditLog = JSON.parse(localStorage.getItem("auditLog_BogaKarya86") || "[]"); }
         function addAuditLog(action, details, type = "info") {
             auditLog.unshift({ timestamp: new Date().toISOString(), action, details, type, user: "System" });
@@ -840,18 +833,18 @@
         function checkSystemAlerts() {
             systemAlerts = [];
             let failedCount = filteredData.filter(i => String(i.status || "WAITING").toUpperCase() === "RETUR" || String(i.status || "WAITING").toUpperCase() === "FAILED").length;
-            if (failedCount > 0) addSystemAlert("warning", `Ada ${failedCount} transaksi RETUR/FAILED pada filter ini!`);
+            if (failedCount > 0) addSystemAlert("warning", `Ada ${failedCount} transaksi RETUR/FAILED pada bulan ini!`);
             let canceledCount = filteredData.filter(i => String(i.status || "WAITING").toUpperCase() === "CANCELED").length;
-            if (canceledCount > 0) addSystemAlert("info", `Ada ${canceledCount} transaksi CANCELED`);
+            if (canceledCount > 0) addSystemAlert("info", `Ada ${canceledCount} transaksi CANCELED pada bulan ini.`);
             let waitingCount = filteredData.filter(i => String(i.status || "WAITING").toUpperCase() === "WAITING").length;
-            if (waitingCount > 10) addSystemAlert("warning", `Ada ${waitingCount} transaksi WAITING untuk di-settle!`);
+            if (waitingCount > 10) addSystemAlert("warning", `Terdapat ${waitingCount} transaksi WAITING yang harus dipantau!`);
             renderSystemAlerts();
         }
 
         function addSystemAlert(type, message) { systemAlerts.push({ type, message, timestamp: new Date() }); }
         function renderSystemAlerts() {
             const container = document.getElementById("system-alerts-container");
-            container.innerHTML = systemAlerts.length === 0 ? '<div class="text-xs text-slate-500 p-2">Semua sistem normal</div>' : "";
+            container.innerHTML = systemAlerts.length === 0 ? '<div class="text-xs text-slate-500 p-2">Semua sistem operasional normal</div>' : "";
             systemAlerts.forEach(alert => {
                 let bgColor = alert.type === "warning" ? "bg-amber-900/30" : (alert.type === "danger" ? "bg-rose-900/30" : "bg-blue-900/30");
                 let border = alert.type === "warning" ? "border-amber-700" : (alert.type === "danger" ? "border-rose-700" : "border-blue-700");
@@ -863,7 +856,6 @@
             });
         }
 
-        // ================= FITUR EXPORT & SHARE WA =================
         function exportKeCSV() {
             let csvContent = "\uFEFFTanggal;ID Pesanan;Nama Produk;Qty;HPP;Laba Kotor;Hak Owner;Hak Investor;Status\n";
             filteredData.forEach(row => {
@@ -874,7 +866,7 @@
             link.href = URL.createObjectURL(new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }));
             link.download = `Laporan_BogaKarya86_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
-            addAuditLog("EXPORT", "Data diexport ke CSV", "success");
+            addAuditLog("EXPORT", "Data bulan ini diexport ke CSV", "success");
         }
 
         async function salinLaporanWA() {
@@ -888,12 +880,10 @@
         function nextPage() { if ((currentPage * rowsPerPage) < filteredData.length) { currentPage++; renderTabel(); } }
         function formatRupiah(angka) { return "Rp " + Math.round(Number(angka || 0)).toLocaleString('id-ID'); }
 
-        // ================= SISTEM GENERATOR LAPORAN CLOSING FORMAL =================
         function hitungClosingFormal() {
             let rekapUtama = { READY: { vol: 0, settle: 0, hpp: 0, laba: 0, invs: 0, owner: 0 }, WAITING: { vol: 0, settle: 0, hpp: 0, laba: 0, invs: 0, owner: 0 }, GAGAL: { vol: 0, settle: 0, hpp: 0, laba: 0, invs: 0, owner: 0 } };
             let rincianReady = {}, rincianWaiting = {}, analisisMargin = {};
 
-            // Dihitung berdasarkan FilteredData agar sesuai dengan Filter Bulan
             filteredData.forEach(item => {
                 let statusRaw = String(item.status || "WAITING").toUpperCase();
                 let prod = item.namaProduk ? String(item.namaProduk).trim() : "TIDAK DIKETAHUI";
@@ -927,7 +917,6 @@
                 analisisMargin[prod].vol += qty; analisisMargin[prod].settle += settle; analisisMargin[prod].hpp += hpp; analisisMargin[prod].laba += laba;
             });
 
-            // TABEL 1
             let t1 = document.getElementById("table-rekap-utama");
             let sumVol = rekapUtama.READY.vol + rekapUtama.WAITING.vol;
             let sumSettle = rekapUtama.READY.settle + rekapUtama.WAITING.settle;
@@ -942,19 +931,16 @@
                 <tr class="bg-gray-300 font-bold"><td class="border border-black p-2">TOTAL PENJUALAN AKTIF</td><td class="border border-black p-2 text-center">${sumVol}</td><td class="border border-black p-2 text-right">${formatRupiah(sumSettle)}</td><td class="border border-black p-2 text-right">${formatRupiah(sumHpp)}</td><td class="border border-black p-2 text-right">${formatRupiah(sumLaba)}</td><td class="border border-black p-2 text-right">${formatRupiah(sumInvs)}</td><td class="border border-black p-2 text-right">${formatRupiah(sumOwner)}</td></tr>
             `;
 
-            // TABEL 2 (Ready)
             let t2 = document.getElementById("table-rincian-ready"); t2.innerHTML = "";
             Object.keys(rincianReady).map(k => ({nama: k, ...rincianReady[k]})).sort((a,b) => b.vol - a.vol).forEach(row => {
                 t2.innerHTML += `<tr><td class="border border-black p-2">${row.nama}</td><td class="border border-black p-2 text-center">${row.vol}</td><td class="border border-black p-2 text-right">${formatRupiah(row.settle)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.laba)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.invs)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.owner)}</td></tr>`;
             });
 
-            // TABEL 3 (Waiting)
             let t3 = document.getElementById("table-rincian-waiting"); t3.innerHTML = "";
             Object.keys(rincianWaiting).map(k => ({nama: k, ...rincianWaiting[k]})).sort((a,b) => b.vol - a.vol).forEach(row => {
                 t3.innerHTML += `<tr><td class="border border-black p-2">${row.nama}</td><td class="border border-black p-2 text-center">${row.vol}</td><td class="border border-black p-2 text-right">${formatRupiah(row.settle)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.laba)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.invs)}</td><td class="border border-black p-2 text-right">${formatRupiah(row.owner)}</td></tr>`;
             });
 
-            // TABEL 4 (Analisis Margin & HPP Baru)
             let t4 = document.getElementById("table-analisis-margin"); t4.innerHTML = "";
             let arrAnalisis = Object.keys(analisisMargin).map(k => ({nama: k, ...analisisMargin[k]})).sort((a,b) => b.vol - a.vol);
             arrAnalisis.forEach(row => {
@@ -962,51 +948,37 @@
             });
         }
 
-        // ================= TOMBOL CETAK & EVALUASI CERDAS =================
         function prosesCetakClosingFormal() {
-            let totalSettle = 0;
-            let totalLaba = 0;
-            let totalGagal = 0;
-            let totalVolAktif = 0;
+            let totalSettle = 0; let totalLaba = 0; let totalGagal = 0; let totalVolAktif = 0;
 
             filteredData.forEach(item => {
                 let status = String(item.status || "WAITING").toUpperCase();
                 let qty = Number(item.qty || 0);
-                
                 if (status === "RETUR" || status === "FAILED" || status === "CANCELED") {
                     totalGagal += qty;
                 } else {
-                    totalVolAktif += qty;
-                    totalSettle += (Number(item.settlement || 0) * qty);
-                    totalLaba += Number(item.labaKotor || 0);
+                    totalVolAktif += qty; totalSettle += (Number(item.settlement || 0) * qty); totalLaba += Number(item.labaKotor || 0);
                 }
             });
 
             let marginAvg = totalSettle > 0 ? ((totalLaba / totalSettle) * 100).toFixed(1) : 0;
             let persentaseTarget = targetBulanan > 0 ? ((totalVolAktif / targetBulanan) * 100).toFixed(1) : 0;
-            
             let rajaProdukElement = document.getElementById("the-king-product").innerText;
             let namaRaja = rajaProdukElement !== "-" ? rajaProdukElement.split(" (")[0] : "Belum Ada";
 
-            // Teks laporannya ngikutin bulan apa yang difilter!
-            let labelBulan = document.getElementById("filter-bulan").options[document.getElementById("filter-bulan").selectedIndex].text;
+            let selectBox = document.getElementById("filter-bulan");
+            let labelBulan = selectBox.options[selectBox.selectedIndex].text;
             document.getElementById("laporan-periode").innerText = labelBulan.toUpperCase();
 
-            // Menyusun Draf Narasi Pintar
             let drafEvaluasi = `Periode ${labelBulan}, total volume penjualan aktif mencapai ${totalVolAktif} unit, yang berarti menyentuh ${persentaseTarget}% dari target kita (${targetBulanan} unit). \n\nSecara performa, operasional berjalan stabil dengan rata-rata margin keuntungan di angka ${marginAvg}%. Penjualan didominasi oleh varian ${namaRaja} yang menunjukkan minat pasar yang sangat baik. `;
             
-            if (totalGagal > 0) {
-                drafEvaluasi += `Namun, menjadi catatan penting bahwa terdapat ${totalGagal} unit pesanan yang mengalami Retur/Gagal Antar. Management perlu segera meninjau ulang SOP packing dan berkoordinasi dengan pihak ekspedisi untuk meminimalisir HPP yang tertahan pada bulan depan. `;
-            } else {
-                drafEvaluasi += `Luar biasanya, tidak ada kendala Retur atau Gagal Antar yang signifikan pada periode ini, menandakan proses logistik berjalan maksimal. `;
-            }
+            if (totalGagal > 0) drafEvaluasi += `Namun, menjadi catatan penting bahwa terdapat ${totalGagal} unit pesanan yang mengalami Retur/Gagal Antar. Management perlu segera meninjau ulang SOP packing dan berkoordinasi dengan pihak ekspedisi untuk meminimalisir HPP yang tertahan pada bulan depan. `;
+            else drafEvaluasi += `Luar biasanya, tidak ada kendala Retur atau Gagal Antar yang signifikan pada periode ini, menandakan proses logistik berjalan maksimal. `;
 
             drafEvaluasi += `Seluruh dana tertahan (Waiting) akan dipantau ketat proses pencairannya agar bisa masuk ke buku kas.`;
 
-            // Prompt Draf untuk diedit User
             let evalText = prompt("Sistem telah membuat Draf Evaluasi. Silakan edit jika perlu, lalu tekan OK untuk mencetak:", drafEvaluasi);
-            
-            if (evalText === null) return; // Kalau di-cancel, batal cetak
+            if (evalText === null) return; 
             
             document.getElementById("print-catatan").innerText = evalText.trim() === "" ? "Tidak ada catatan evaluasi tambahan pada laporan periode ini." : evalText;
             window.print();
