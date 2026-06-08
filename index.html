@@ -25,6 +25,7 @@
             th { background-color: #f3f4f6 !important; font-weight: bold; }
             .page-break { page-break-before: always; }
         }
+        
     </style>
 </head>
 <body class="bg-black text-slate-100 min-h-screen p-4 md:p-6 font-sans antialiased relative">
@@ -57,7 +58,7 @@
                 <p class="text-xs text-slate-400 mt-0.5">Sistem Monitoring Penjualan & Pembagian Hasil Transparan</p>
                 <div class="mt-3 flex gap-2">
     <span class="bg-indigo-900/30 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
-        Versi: v2.1-Beta
+        Versi: v2.2-Beta
     </span>
     <span class="bg-amber-900/30 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
         Status: Pengembangan Aktif
@@ -290,13 +291,74 @@
                     <div class="space-y-4 bg-slate-950 p-5 rounded-lg border border-slate-800">
                         <h3 class="text-sm font-bold text-slate-300">Input Pengeluaran Operasional</h3>
                         <div class="flex flex-col md:flex-row gap-2">
+                            <input type="date" id="input-opex-tanggal" class="bg-slate-900 border border-slate-700 text-slate-400 text-sm px-3 py-2 rounded focus:border-rose-500 outline-none w-full md:w-36 cursor-pointer">
+                            
                             <input type="number" id="input-opex-nominal" class="flex-1 bg-slate-900 border border-slate-700 text-slate-200 text-sm px-3 py-2 rounded focus:border-rose-500 outline-none" placeholder="Nominal (Rp)">
                             <input type="text" id="input-opex-note" class="flex-[2] bg-slate-900 border border-slate-700 text-slate-200 text-sm px-3 py-2 rounded focus:border-rose-500 outline-none" placeholder="Rincian Biaya (Misal: Iklan IG, Kardus)">
-                            <button onclick="tambahOpex()" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs px-4 py-2 rounded transition shadow-md cursor-pointer">Tambah Data</button>
+                            <button onclick="tambahOpex()" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs px-4 py-2 rounded transition shadow-md cursor-pointer whitespace-nowrap">Tambah Data</button>
                         </div>
                         <div id="opex-list-container" class="space-y-2 mt-4 max-h-40 overflow-y-auto pr-2"></div>
                     </div>
+
                 </div>
+            <div class="bg-slate-900 rounded-xl border border-slate-800 p-6 shadow-lg mb-6">
+    <div class="border-b border-slate-700 pb-2 mb-4">
+        <h2 class="text-lg font-bold text-sky-500">🛡️ Radar Kesehatan Modal (Cashflow)</h2>
+        <p class="text-[10px] text-slate-400">Analisa perputaran uang di marketplace & proyeksi kebutuhan modal</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 relative group">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] uppercase text-slate-400">Kecepatan Uang Cair</span>
+                <span class="cursor-help text-slate-500 hover:text-sky-400 transition">ⓘ</span>
+            </div>
+            <h3 id="radar-siklus" class="text-xl font-bold text-sky-400 font-mono">0 Hari</h3>
+            <div class="absolute z-50 left-0 top-12 w-64 p-3 bg-slate-800 border border-slate-600 rounded-lg text-xs text-slate-200 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pointer-events-none">
+                <strong class="text-sky-400 block mb-1">Cara Hitung Mesin:</strong>
+                Rata-rata jarak hari dari <b>Tanggal Pesanan</b> sampai <b>Estimated Settle Time</b>. <br><br><i>*Catatan: Jika ada teks 'Delivered + 7 days', sistem pintar otomatis mengasumsikan butuh 10 hari (3 hari pengiriman + 7 hari garansi lepas).</i>
+            </div>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-lg border border-amber-900/50 relative group">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] uppercase text-amber-400">Modal Nyangkut (Kurir)</span>
+                <span class="cursor-help text-amber-500/50 hover:text-amber-400 transition">ⓘ</span>
+            </div>
+            <h3 id="radar-hpp-gantung" class="text-xl font-bold text-amber-400 font-mono">Rp 0</h3>
+            <div class="absolute z-50 left-0 top-12 w-64 p-3 bg-slate-800 border border-amber-700/50 rounded-lg text-xs text-slate-200 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pointer-events-none">
+                <strong class="text-amber-400 block mb-1">Definisi Data:</strong>
+                Total nilai <b>HPP (Modal Dasar)</b> dari semua transaksi yang saat ini masih berstatus <b>WAITING</b>.<br><br>Ini adalah uang riil kita yang wujudnya masih berupa barang di jalan atau tertahan di dompet marketplace.
+            </div>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-lg border border-emerald-900/50 shadow-[0_0_15px_rgba(16,185,129,0.15)] relative overflow-visible group">
+            <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full pointer-events-none"></div>
+            <div class="flex justify-between items-center mb-1 relative z-10">
+                <span class="text-[10px] uppercase text-emerald-400">Wajib Cash (Buffer)</span>
+                <span class="cursor-help text-emerald-500/50 hover:text-emerald-400 transition pointer-events-auto relative z-20">ⓘ</span>
+            </div>
+            <h3 id="radar-buffer" class="text-2xl font-bold text-emerald-400 font-mono relative z-10">Rp 0</h3>
+            <div class="absolute z-50 left-0 md:-left-10 top-12 w-64 p-3 bg-slate-800 border border-emerald-700/50 rounded-lg text-xs text-slate-200 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pointer-events-none">
+                <strong class="text-emerald-400 block mb-1">Dana Talangan Darurat:</strong>
+                Uang tunai minimal yang <b>WAJIB</b> ada di ATM hari ini.<br><br><b>Rumus:</b> (Pengeluaran HPP rata-rata/hari) × (Kecepatan Uang Cair). <br>Tujuannya agar operasional tetap jalan tanpa harus pinjam modal.
+            </div>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-lg border border-violet-900/50 relative group">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] uppercase text-violet-400">Estimasi Modal 1 Bulan</span>
+                <span class="cursor-help text-violet-500/50 hover:text-violet-400 transition pointer-events-auto relative z-20">ⓘ</span>
+            </div>
+            <h3 id="radar-proyeksi-modal" class="text-xl font-bold text-violet-400 font-mono">Rp 0</h3>
+            <div class="absolute z-50 right-0 top-12 w-64 p-3 bg-slate-800 border border-violet-700/50 rounded-lg text-xs text-slate-200 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pointer-events-none">
+                <strong class="text-violet-400 block mb-1">Proyeksi Modal Dinamis:</strong>
+                Total modal (HPP) yang akan berputar selama bulan ini.<br><br>Angka ini bukan fix, melainkan <b>naik-turun otomatis</b> meramal masa depan menyesuaikan seberapa ngebut penjualan produk kita setiap harinya.
+            </div>
+        </div>
+
+    </div>
+</div>  
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-slate-900 rounded-xl border border-slate-800 p-6 shadow-lg">
@@ -748,8 +810,11 @@
             buildTrendChart(); 
             checkSystemAlerts(); 
             hitungClosingFormal();
-            
+            hitungClosingFormal();
+            hitungRadarModal(); // <--- Ketik di sini bro (baris 751)
+
             if(isInternalUnlocked) renderManajemenArea();
+            
         }
 
         function hitungDashboard() {
@@ -842,18 +907,24 @@
             let totalOpex = 0;
             let container = document.getElementById("opex-list-container"); 
             container.innerHTML = "";
-            
+
             if(rawData) { 
                 try { 
-                    let parsed = JSON.parse(rawData); 
+                    let parsed = JSON.parse(rawData);
                     if(Array.isArray(parsed)) { 
-                        listOpex = parsed; 
+                        listOpex = parsed;
                     } else if(parsed.nominal) { 
-                        listOpex = [parsed]; // Memperbaiki bug format lama otomatis
+                        listOpex = [parsed];
                     } 
                 } catch(e) { 
-                    localStorage.removeItem(key); 
+                    localStorage.removeItem(key);
                 } 
+            }
+
+            // Set default tanggal hari ini di kotak input kalau belum ada isinya
+            let inputTgl = document.getElementById("input-opex-tanggal");
+            if(inputTgl && !inputTgl.value) {
+                inputTgl.value = new Date().toISOString().split('T')[0];
             }
 
             if(listOpex.length === 0) {
@@ -861,8 +932,9 @@
             } else {
                 listOpex.forEach((item, idx) => {
                     totalOpex += Number(item.nominal);
+                    let tglTampil = item.tanggal ? `[${item.tanggal}] ` : ""; // Format tanggal buat ditampilin
                     container.innerHTML += `<div class="flex justify-between items-center bg-slate-900 border border-slate-700 p-2 rounded text-xs">
-                        <span class="text-slate-300">📌 ${item.note}</span>
+                        <span class="text-slate-300">📌 <span class="text-slate-500 font-mono text-[10px]">${tglTampil}</span> ${item.note}</span>
                         <span class="font-bold text-rose-400 flex items-center">
                             Rp ${Number(item.nominal).toLocaleString('id-ID')} 
                             <button onclick="editOpex(${idx})" class="ml-3 text-slate-500 hover:text-yellow-400 transition px-1 cursor-pointer" title="Edit Data">✎</button>
@@ -879,31 +951,34 @@
         }
 
         function tambahOpex() {
+            let tgl = document.getElementById("input-opex-tanggal").value;
             let n = document.getElementById("input-opex-nominal").value;
             let note = document.getElementById("input-opex-note").value;
             
-            if(!n || !note) { 
-                alert("Isi nominal dan catatan biaya!"); 
+            if(!tgl || !n || !note) { 
+                alert("Mohon isi Tanggal, Nominal, dan Rincian Biaya!");
                 return;
             }
             
-            let key = `opex_BogaKarya86_${bulanAktif}`; 
+            let key = `opex_BogaKarya86_${bulanAktif}`;
             let list = [];
             
             try { 
-                let parsed = JSON.parse(localStorage.getItem(key)); 
+                let parsed = JSON.parse(localStorage.getItem(key));
                 if(Array.isArray(parsed)) list = parsed; 
                 else if(parsed && parsed.nominal) list=[parsed];
             } catch(e){}
             
-            list.push({nominal: n, note: note}); 
+            list.push({tanggal: tgl, nominal: n, note: note});
             localStorage.setItem(key, JSON.stringify(list));
             
+            // Kolom nominal dan rincian dikosongin lagi setelah input
             document.getElementById("input-opex-nominal").value = ""; 
             document.getElementById("input-opex-note").value = "";
+            // Kolom tanggal sengaja nggak dikosongin biar gampang kalau mau input beberapa nota di hari yang sama
             
             renderOpexSystem(); 
-            addAuditLog("OPEX_ADDED", `Catat biaya ${note} (Rp ${n})`, "warning");
+            addAuditLog("OPEX_ADDED", `Catat biaya ${note} (Rp ${n}) pada ${tgl}`, "warning");
         }
 
         function hapusOpex(idx) {
@@ -1340,7 +1415,7 @@
             link.click();
             addAuditLog("EXPORT", "Data bulan ini diexport ke CSV", "success"); 
         }
-        
+
         async function salinLaporanWA() { 
             let teks = `*LAPORAN KEUANGAN BOGA KARYA86* \nUpdate: ${new Date().toLocaleString('id-ID')}\n\n👑 *HAK OWNER:* ${document.getElementById("total-owner").innerText}\n💼 *HAK INVESTOR:* ${document.getElementById("total-investor").innerText}\n\n🎯 *Target:* ${document.getElementById("target-text").innerText}\n💰 *Kas Ready:* ${document.getElementById("dana-ready").innerText}\n⏳ *Dana Muter:* ${document.getElementById("dana-waiting").innerText}`;
             try { 
@@ -1504,6 +1579,92 @@
             
             document.getElementById("print-area-closing").classList.add("hidden"); 
             document.getElementById("app-layar").style.display = "block";
+        }
+
+       function hitungRadarModal() {
+            let totalHariSiklus = 0;
+            let jumlahTransaksiValid = 0;
+            let totalHppTertahan = 0;
+            let totalHppAktif = 0;
+
+            filteredData.forEach(item => {
+                let st = String(item.status || item.STATUS || "WAITING").toUpperCase();
+                let hpp = Number(item.hpp || item.HPP || item["HPP (MODAL)"] || item["hpp (modal)"] || 0);
+
+                if (st !== "CANCELED" && st !== "FAILED" && st !== "RETUR") {
+                    totalHppAktif += hpp;
+                }
+
+                if (st === "WAITING") {
+                    totalHppTertahan += hpp;
+                }
+
+                let tglOrderRaw = item.tanggal || item.TANGGAL;
+                let tglSettleRaw = item.estimatedSettleTime || item["ESTIMATED SETTLE TIME"] || item["estimated settle time"];
+
+                if (tglOrderRaw && tglSettleRaw && (st === "READY" || st === "WAITING")) {
+                    let dOrder = new Date(tglOrderRaw);
+                    let textSettle = String(tglSettleRaw).toLowerCase().trim();
+                    let dSettle = null;
+
+                    if (textSettle.includes("delivered") || textSettle.includes("days")) {
+                        dSettle = new Date(dOrder.getTime() + (10 * 24 * 60 * 60 * 1000));
+                    } else {
+                        let parts = textSettle.split("/");
+                        if (parts.length === 3) {
+                            dSettle = new Date(`${parts[2]}/${parts[1]}/${parts[0]}`);
+                        }
+                    }
+
+                    if (dSettle && !isNaN(dSettle.getTime())) {
+                        let diffTime = Math.abs(dSettle - dOrder);
+                        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays > 0 && diffDays <= 30) {
+                            totalHariSiklus += diffDays;
+                            jumlahTransaksiValid++;
+                        }
+                    }
+                }
+            });
+
+            let rataSiklus = jumlahTransaksiValid > 0 ? (totalHariSiklus / jumlahTransaksiValid) : 5;
+            
+            let daysPassed = 30;
+            let daysInMonth = 30;
+            let today = new Date();
+            
+            if (bulanAktif !== "ALL") {
+                let parts = bulanAktif.split("-");
+                let year = parseInt(parts[0]);
+                let month = parseInt(parts[1]) - 1;
+                daysInMonth = new Date(year, month + 1, 0).getDate();
+                
+                if (today.getFullYear() === year && today.getMonth() === month) {
+                    daysPassed = today.getDate() || 1;
+                } else {
+                    daysPassed = daysInMonth;
+                }
+            } else {
+                daysPassed = today.getDate() || 1;
+                daysInMonth = daysPassed;
+            }
+            
+            // LOGIKA MATEMATIKANYA:
+            let rataHppHarian = totalHppAktif / daysPassed;
+            let bufferModal = rataSiklus * rataHppHarian; // Uang jaga-jaga hari ini
+            let proyeksiModalSebulan = rataHppHarian * daysInMonth; // IDE LU: Total muter sebulan
+
+            // UPDATE TAMPILAN WEB:
+            let elSiklus = document.getElementById("radar-siklus");
+            let elHppGantung = document.getElementById("radar-hpp-gantung");
+            let elBuffer = document.getElementById("radar-buffer");
+            let elProyeksi = document.getElementById("radar-proyeksi-modal");
+
+            if(elSiklus) elSiklus.innerText = rataSiklus.toFixed(1) + " Hari";
+            if(elHppGantung) elHppGantung.innerText = formatRupiah(totalHppTertahan);
+            if(elBuffer) elBuffer.innerText = formatRupiah(bufferModal);
+            if(elProyeksi) elProyeksi.innerText = formatRupiah(proyeksiModalSebulan);
         }
     </script>
 </body>
