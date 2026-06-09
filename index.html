@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boga Karya86 ERP System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -28,9 +29,74 @@
             th { background-color: #f3f4f6 !important; font-weight: bold; }
             .page-break { page-break-before: always; }
         }
+        #dark-mode-toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #334155;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s;
+            border: 1px solid #475569;
+            flex-shrink: 0;
+        }
+        #dark-mode-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: #f8fafc;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        body.extra-dark #dark-mode-toggle {
+            background: #eab308;
+            border-color: #ca8a04;
+        }
+        body.extra-dark #dark-mode-toggle::after {
+            transform: translateX(20px);
+        }
+        body.extra-dark {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+        }
+        body.extra-dark .bg-slate-950,
+        body.extra-dark .bg-slate-950\/50 {
+            background-color: #000000 !important;
+        }
+        body.extra-dark .bg-slate-900,
+        body.extra-dark .bg-slate-900\/60,
+        body.extra-dark .bg-slate-900\/80 {
+            background-color: #0a0a0a !important;
+        }
+        body.extra-dark .bg-slate-800,
+        body.extra-dark .bg-slate-800\/50,
+        body.extra-dark .bg-slate-800\/80 {
+            background-color: #111111 !important;
+        }
+        body.extra-dark .text-slate-300,
+        body.extra-dark .text-slate-400 {
+            color: #f1f5f9 !important;
+        }
+        body.extra-dark .text-slate-200,
+        body.extra-dark .text-slate-100 {
+            color: #ffffff !important;
+        }
+        body.extra-dark .text-slate-500,
+        body.extra-dark .text-slate-600 {
+            color: #cbd5e1 !important;
+        }
+        body.extra-dark .border-slate-800,
+        body.extra-dark .border-slate-700 {
+            border-color: #1e293b !important;
+        }
+        body.extra-dark ::-webkit-scrollbar-track { background: #000000; }
+        body.extra-dark ::-webkit-scrollbar-thumb { background: #1e293b; }
     </style>
 </head>
-<body class="bg-black-950 text-slate-300 antialiased overflow-hidden">
+<body class="bg-slate-950 text-slate-300 antialiased overflow-hidden">
 
     <div id="login-layar" class="min-h-screen bg-slate-950 flex items-center justify-center absolute w-full h-full z-[100] no-print">
         <div class="bg-slate-900/80 backdrop-blur-xl p-10 rounded-2xl border border-slate-800 shadow-[0_0_40px_rgba(0,0,0,0.5)] w-11/12 max-w-sm text-center">
@@ -41,8 +107,8 @@
             <p class="text-xs text-slate-500 mb-8 font-medium">Enterprise Resource Planning</p>
             <div class="space-y-5 text-left">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Username</label>
-                    <input type="text" id="login-username" class="w-full bg-slate-950/50 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-yellow-500 transition mt-1" placeholder="Masukkan username">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Email</label>
+                    <input type="email" id="login-username" class="w-full bg-slate-950/50 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-yellow-500 transition mt-1" placeholder="Masukkan email">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Password</label>
@@ -118,6 +184,10 @@
                         <select id="filter-bulan" onchange="terapkanFilterBulan()" class="bg-transparent text-slate-200 font-semibold text-sm focus:outline-none cursor-pointer appearance-none pr-4">
                             <option value="ALL">Semua Waktu</option>
                         </select>
+                    </div>
+                    <div class="flex items-center gap-2" title="Mode Gelap">
+                        <span class="text-[10px] text-slate-500 font-medium hidden sm:block">Dark</span>
+                        <button id="dark-mode-toggle" type="button" onclick="toggleDarkMode()" aria-label="Toggle dark mode" class="no-print"></button>
                     </div>
                     <div class="h-8 w-px bg-slate-800 hidden md:block"></div>
                     <div class="flex items-center gap-3">
@@ -512,7 +582,10 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwNi7pxlgSd2TJKR03B7_yPudvXGoi81Gwo5IYhWWA6HzsO5PX-keih2PcBt2Lg0B9O/exec";
+        const SUPABASE_URL = 'https://srnjmegvjszebhagallq.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNybmptZWd2anN6ZWJoYWdhbGxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDI1NTAsImV4cCI6MjA5NjU3ODU1MH0.1VPTLWIo-02Behop1k-JnzVBbo7D6ouI3cofgWaWM5Y';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
         const PIN_RAHASIA = "8686";
 
         let masterData = [], filteredData = [], DAFTAR_VARIAN_DINAMIS = [], DAFTAR_BULAN = [];
@@ -525,71 +598,94 @@
         let currentOwnerGross = 0, currentSettleGlobal = 0, currentHPPGlobal = 0;
         let currentLabaKotorGlobal = 0, currentInvsGlobal = 0, currentVolAktif = 0;
 
-        const DAFTAR_AKUN = {
-            "owner":    { pass: "owner86",  role: "OWNER",    nama: "Bpk. Owner" },
-            "investor": { pass: "invs123",  role: "INVESTOR", nama: "Mitra Investor" },
-            "admin":    { pass: "admin456", role: "ADMIN",    nama: "CS Admin" }
-        };
         let currentUser = null;
 
-      // --- SISTEM AKUN & AUTO-LOGIN ---
-        document.addEventListener("DOMContentLoaded", () => { 
-            let savedSession = localStorage.getItem("bk86_session");
-            if(savedSession) {
-                currentUser = JSON.parse(savedSession);
-                document.getElementById("login-layar").classList.add("hidden");
-                document.getElementById("app-layar").classList.remove("hidden");
-                
-                // Update UI Header
-                if(document.getElementById("header-user-name")) {
-                    document.getElementById("header-user-name").innerText = currentUser.nama;
-                    document.getElementById("header-user-role").innerText = currentUser.role;
-                    document.getElementById("header-user-initial").innerText = currentUser.nama.charAt(0).toUpperCase();
-                }
-                aturTampilanBerdasarkanRole();
-            }
-            fetchData(); 
-            initAuditLog(); 
-            renderAuditLog(); 
-        });
+        const DARK_MODE_KEY = "bk86_dark_mode";
 
-        function prosesLogin() {
-            let u = document.getElementById("login-username").value.trim().toLowerCase();
-            let p = document.getElementById("login-password").value;
-            let err = document.getElementById("login-error");
+        function applyDarkMode(isDark) {
+            document.body.classList.toggle("extra-dark", isDark);
+        }
 
-            if (DAFTAR_AKUN[u] && DAFTAR_AKUN[u].pass === p) {
-                currentUser = DAFTAR_AKUN[u];
-                // SIMPAN SESI KE BROWSER
-                localStorage.setItem("bk86_session", JSON.stringify(currentUser));
+        function toggleDarkMode() {
+            const isDark = !document.body.classList.contains("extra-dark");
+            applyDarkMode(isDark);
+            localStorage.setItem(DARK_MODE_KEY, isDark ? "1" : "0");
+        }
 
-                document.getElementById("login-layar").classList.add("hidden");
-                document.getElementById("app-layar").classList.remove("hidden");
-                err.classList.add("hidden");
-                
-                if(document.getElementById("header-user-name")) {
-                    document.getElementById("header-user-name").innerText = currentUser.nama;
-                    document.getElementById("header-user-role").innerText = currentUser.role;
-                    document.getElementById("header-user-initial").innerText = currentUser.nama.charAt(0).toUpperCase();
-                }
-                
-                aturTampilanBerdasarkanRole();
-                addAuditLog("LOGIN", `${currentUser.nama} masuk ke sistem`, "success");
-            } else {
-                err.classList.remove("hidden");
+        function initDarkMode() {
+            const saved = localStorage.getItem(DARK_MODE_KEY);
+            applyDarkMode(saved === "1");
+        }
+
+        function buildCurrentUser(user) {
+            const meta = user.user_metadata || {};
+            return {
+                email: user.email,
+                nama: meta.nama || meta.full_name || (user.email ? user.email.split("@")[0] : "User"),
+                role: String(meta.role || "ADMIN").toUpperCase()
+            };
+        }
+
+        function updateHeaderUI() {
+            if (!currentUser) return;
+            if (document.getElementById("header-user-name")) {
+                document.getElementById("header-user-name").innerText = currentUser.nama;
+                document.getElementById("header-user-role").innerText = currentUser.role;
+                document.getElementById("header-user-initial").innerText = currentUser.nama.charAt(0).toUpperCase();
             }
         }
 
-        function prosesLogout() {
-            addAuditLog("LOGOUT", `${currentUser.nama} keluar dari sistem`, "info");
+        async function handleAuthSuccess(user) {
+            currentUser = buildCurrentUser(user);
+            document.getElementById("login-layar").classList.add("hidden");
+            document.getElementById("app-layar").classList.remove("hidden");
+            updateHeaderUI();
+            aturTampilanBerdasarkanRole();
+            await fetchData();
+        }
+
+      // --- SISTEM AKUN & AUTO-LOGIN (SUPABASE) ---
+        document.addEventListener("DOMContentLoaded", async () => {
+            initDarkMode();
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) await handleAuthSuccess(session.user);
+            initAuditLog();
+            renderAuditLog();
+
+            supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                if (event === "SIGNED_OUT") {
+                    currentUser = null;
+                    masterData = [];
+                    filteredData = [];
+                }
+            });
+        });
+
+        window.prosesLogin = async function prosesLogin() {
+            const email = document.getElementById("login-username").value.trim();
+            const password = document.getElementById("login-password").value;
+            const err = document.getElementById("login-error");
+            err.classList.add("hidden");
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error || !data.user) {
+                err.classList.remove("hidden");
+                return;
+            }
+
+            await handleAuthSuccess(data.user);
+            addAuditLog("LOGIN", `${currentUser.nama} masuk ke sistem`, "success");
+        };
+
+        window.prosesLogout = async function prosesLogout() {
+            if (currentUser) addAuditLog("LOGOUT", `${currentUser.nama} keluar dari sistem`, "info");
+            await supabaseClient.auth.signOut();
             currentUser = null;
-            // HAPUS SESI
-            localStorage.removeItem("bk86_session"); 
             document.getElementById("login-username").value = "";
             document.getElementById("login-password").value = "";
             document.getElementById("login-layar").classList.remove("hidden");
             document.getElementById("app-layar").classList.add("hidden");
-        }
+        };
 
         function aturTampilanBerdasarkanRole() {
             document.getElementById("tab-btn-internal").style.display = "flex";
@@ -600,11 +696,18 @@
             }
         }
 
-       document.addEventListener("DOMContentLoaded", () => { 
-            fetchData(); 
-            initAuditLog(); 
-            renderAuditLog(); 
-        });
+        function mapTransaksiRow(row) {
+            return {
+                tanggal: row.tanggal ?? row.Tanggal ?? "",
+                idPesanan: row.id_pesanan ?? row.idPesanan ?? row.id ?? "",
+                namaProduk: row.nama_produk ?? row.namaProduk ?? row.produk ?? "",
+                status: row.status ?? row.Status ?? "WAITING",
+                qty: Number(row.qty ?? row.Qty ?? row.volume ?? 0),
+                settlement: Number(row.settlement ?? row.Settlement ?? 0),
+                hpp: Number(row.hpp ?? row.HPP ?? 0),
+                labaKotor: Number(row.laba_kotor ?? row.labaKotor ?? row.LabaKotor ?? 0)
+            };
+        }
 
         function getPeriodeLaporan(tglRaw) {
             if (!tglRaw) return null;
@@ -624,8 +727,10 @@
             const syncStatus = document.getElementById("sync-status");
             if (syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span> <span class="text-[10px] text-slate-400 font-mono">Menyinkronkan...</span>`;
             try {
-                const response = await fetch(API_URL);
-                let rawData = await response.json();
+                const { data, error } = await supabaseClient.from('transaksi').select('*');
+                if (error) throw error;
+
+                let rawData = (data || []).map(mapTransaksiRow);
                 masterData = rawData.filter(item => (item.tanggal && String(item.tanggal).trim() !== "") || (item.idPesanan && String(item.idPesanan).trim() !== ""));
                 let setVarian = new Set(), setBulan = new Set();
                 masterData.forEach(item => {
@@ -638,7 +743,8 @@
                 buatDropdownBulan(); buatTombolFilterDinamis(); aplikasikanFilter();
                 if (syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> <span class="text-[10px] text-slate-400 font-mono">Tersinkronisasi</span>`;
             } catch (error) {
-                document.getElementById("tabel-body").innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-500 font-medium">Gagal memuat data dari Database Google.</td></tr>`;
+                console.error("Supabase fetch error:", error);
+                document.getElementById("tabel-body").innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-500 font-medium">Gagal memuat data dari Supabase.</td></tr>`;
                 if (syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> <span class="text-[10px] text-rose-400 font-mono">Terputus</span>`;
             }
         }
