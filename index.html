@@ -30,7 +30,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-300 antialiased overflow-hidden">
+<body class="bg-black-950 text-slate-300 antialiased overflow-hidden">
 
     <div id="login-layar" class="min-h-screen bg-slate-950 flex items-center justify-center absolute w-full h-full z-[100] no-print">
         <div class="bg-slate-900/80 backdrop-blur-xl p-10 rounded-2xl border border-slate-800 shadow-[0_0_40px_rgba(0,0,0,0.5)] w-11/12 max-w-sm text-center">
@@ -532,21 +532,49 @@
         };
         let currentUser = null;
 
+      // --- SISTEM AKUN & AUTO-LOGIN ---
+        document.addEventListener("DOMContentLoaded", () => { 
+            let savedSession = localStorage.getItem("bk86_session");
+            if(savedSession) {
+                currentUser = JSON.parse(savedSession);
+                document.getElementById("login-layar").classList.add("hidden");
+                document.getElementById("app-layar").classList.remove("hidden");
+                
+                // Update UI Header
+                if(document.getElementById("header-user-name")) {
+                    document.getElementById("header-user-name").innerText = currentUser.nama;
+                    document.getElementById("header-user-role").innerText = currentUser.role;
+                    document.getElementById("header-user-initial").innerText = currentUser.nama.charAt(0).toUpperCase();
+                }
+                aturTampilanBerdasarkanRole();
+            }
+            fetchData(); 
+            initAuditLog(); 
+            renderAuditLog(); 
+        });
+
         function prosesLogin() {
             let u = document.getElementById("login-username").value.trim().toLowerCase();
             let p = document.getElementById("login-password").value;
             let err = document.getElementById("login-error");
+
             if (DAFTAR_AKUN[u] && DAFTAR_AKUN[u].pass === p) {
                 currentUser = DAFTAR_AKUN[u];
+                // SIMPAN SESI KE BROWSER
+                localStorage.setItem("bk86_session", JSON.stringify(currentUser));
+
                 document.getElementById("login-layar").classList.add("hidden");
                 document.getElementById("app-layar").classList.remove("hidden");
                 err.classList.add("hidden");
-                document.getElementById("header-user-name").innerText = currentUser.nama;
-                document.getElementById("header-user-role").innerText = currentUser.role;
-                document.getElementById("header-user-initial").innerText = currentUser.nama.charAt(0).toUpperCase();
+                
+                if(document.getElementById("header-user-name")) {
+                    document.getElementById("header-user-name").innerText = currentUser.nama;
+                    document.getElementById("header-user-role").innerText = currentUser.role;
+                    document.getElementById("header-user-initial").innerText = currentUser.nama.charAt(0).toUpperCase();
+                }
+                
                 aturTampilanBerdasarkanRole();
                 addAuditLog("LOGIN", `${currentUser.nama} masuk ke sistem`, "success");
-                renderAuditLog(); // FIX #5: update audit log langsung setelah login
             } else {
                 err.classList.remove("hidden");
             }
@@ -555,6 +583,8 @@
         function prosesLogout() {
             addAuditLog("LOGOUT", `${currentUser.nama} keluar dari sistem`, "info");
             currentUser = null;
+            // HAPUS SESI
+            localStorage.removeItem("bk86_session"); 
             document.getElementById("login-username").value = "";
             document.getElementById("login-password").value = "";
             document.getElementById("login-layar").classList.remove("hidden");
@@ -570,8 +600,11 @@
             }
         }
 
-        document.addEventListener("DOMContentLoaded", () => { fetchData(); initAuditLog(); renderAuditLog(); });
-        setInterval(fetchData, 600000);
+       document.addEventListener("DOMContentLoaded", () => { 
+            fetchData(); 
+            initAuditLog(); 
+            renderAuditLog(); 
+        });
 
         function getPeriodeLaporan(tglRaw) {
             if (!tglRaw) return null;
