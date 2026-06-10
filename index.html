@@ -379,7 +379,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- TAB: TRANSAKSI -->
                     <div id="transactions" class="tab-content space-y-6">
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 shadow-sm space-y-4">
@@ -511,7 +510,11 @@
 
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6">
                             <h2 class="text-base font-bold text-slate-200 mb-5 border-b border-slate-800 pb-3">Laporan Laba/Rugi (Net Profit)</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                <div class="bg-slate-950 p-5 rounded-xl border border-sky-900/30 shadow-[0_0_15px_rgba(14,165,233,0.05)]">
+                                    <span class="text-[10px] uppercase tracking-widest text-sky-500 font-bold block mb-1">Realisasi HPP (Cair)</span>
+                                    <h3 id="internal-hpp-paid" class="text-xl font-bold text-sky-400 font-mono">Rp 0</h3>
+                                </div>
                                 <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50">
                                     <span class="text-[10px] uppercase tracking-widest text-slate-500 font-bold block mb-1">Gross Owner (70%)</span>
                                     <h3 id="internal-owner-kotor" class="text-xl font-bold text-slate-300 font-mono">Rp 0</h3>
@@ -640,7 +643,56 @@
         </tbody></table></div>
         <div class="mt-6"><h3 class="text-sm font-bold mb-2 underline">Rincian Pengeluaran Operasional:</h3><ul id="print-int-opex-list" class="list-disc pl-5 text-xs space-y-1"></ul></div>
     </div>
+    <div id="print-area-transfer" class="hidden bg-white text-black max-w-4xl mx-auto p-8">
+        <div class="text-center border-b-2 border-black pb-4 mb-6">
+            <h1 class="text-xl font-bold uppercase">SURAT PERINTAH MUTASI INTERNAL</h1>
+            <h2 class="text-lg font-bold">BOGA KARYA 86</h2>
+            <div class="mt-2 text-xs space-y-1">
+                <p>TANGGAL CETAK: <span id="tf-print-tanggal" class="font-semibold">-</span></p>
+                <p class="font-bold border border-black inline-block px-2 py-1 mt-1">DOKUMEN KASIR / KEUANGAN</p>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <h3 class="text-sm font-bold mb-2">A. RINGKASAN INSTRUKSI TRANSFER</h3>
+            <table class="w-full text-sm border-collapse border border-black text-black">
+                <tbody>
+                    <tr class="bg-gray-200"><td class="border border-black p-3 font-bold w-1/2">Total Pencairan Diinstruksikan</td><td id="tf-print-total" class="border border-black p-3 text-right font-bold text-lg">Rp 0</td></tr>
+                    <tr><td class="border border-black p-3 font-bold">1. Transfer ke Rek. Modal (HPP)</td><td id="tf-print-hpp" class="border border-black p-3 text-right font-bold">Rp 0</td></tr>
+                    <tr><td class="border border-black p-3 font-bold">2. Transfer ke Rek. Hak Owner (70%)</td><td id="tf-print-owner" class="border border-black p-3 text-right font-bold">Rp 0</td></tr>
+                    <tr><td class="border border-black p-3 font-bold">3. Transfer ke Rek. Hak Investor (30%)</td><td id="tf-print-invs" class="border border-black p-3 text-right font-bold">Rp 0</td></tr>
+                </tbody>
+            </table>
+        </div>
 
+        <div class="mb-6">
+            <h3 class="text-sm font-bold mb-2">B. LAMPIRAN BUKTI RESI (HISTORY DIPROSES)</h3>
+            <table class="w-full text-[11px] border border-black text-black">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="border border-black p-2 text-left">ID PESANAN / RESI</th>
+                        <th class="border border-black p-2 text-left">PRODUK</th>
+                        <th class="border border-black p-2 text-center">QTY</th>
+                        <th class="border border-black p-2 text-right">MODAL (HPP)</th>
+                        <th class="border border-black p-2 text-right">OWNER</th>
+                        <th class="border border-black p-2 text-right">INVS</th>
+                    </tr>
+                </thead>
+                <tbody id="tf-print-table-body"></tbody>
+            </table>
+        </div>
+        
+        <div class="flex justify-between items-end mt-12 pt-8">
+            <div class="text-center w-48">
+                <p class="text-xs mb-16">Diterima & Dieksekusi Oleh,</p>
+                <p class="text-xs font-bold border-b border-black pb-1">Bagian Keuangan / Kasir</p>
+            </div>
+            <div class="text-center w-48">
+                <p class="text-xs mb-16">Diinstruksikan Oleh,</p>
+                <p class="text-xs font-bold border-b border-black pb-1">Management Boga Karya 86</p>
+            </div>
+        </div>
+    </div>
     <script>
         const SUPABASE_URL = 'https://srnjmegvjszebhagallq.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNybmptZWd2anN6ZWJoYWdhbGxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDI1NTAsImV4cCI6MjA5NjU3ODU1MH0.1VPTLWIo-02Behop1k-JnzVBbo7D6ouI3cofgWaWM5Y';
@@ -655,8 +707,13 @@
         let targetBulanan = parseInt(localStorage.getItem("target_BogaKarya86")) || 300;
         let auditLog = [], systemAlerts = [], currentModalItem = null;
         let isInternalUnlocked = false;
+        
+        // GLOBAL VARIABLES (Ditambah HPP Paid & List HPP Paid)
         let currentOwnerGross = 0, currentSettleGlobal = 0, currentHPPGlobal = 0;
         let currentLabaKotorGlobal = 0, currentInvsGlobal = 0, currentVolAktif = 0;
+        let currentHPPPaid = 0; 
+        let listHPPPending = []; // Laci 1: Belum ditransfer
+        let listHPPCleared = []; // Laci 2: Sudah ditransfer (History)
 
         let currentUser = null;
 
@@ -750,7 +807,6 @@
             await fetchData();
         }
 
-      // --- SISTEM AKUN & AUTO-LOGIN (SUPABASE) ---
         document.addEventListener("DOMContentLoaded", async () => {
             initDarkMode();
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -953,9 +1009,15 @@
             if (isInternalUnlocked) renderManajemenArea();
         }
 
+        // LOGIKA PENAMBAHAN REALISASI HPP (PAID) ADA DI SINI
         function hitungDashboard() {
             let tOwner=0,tInvs=0,oReady=0,oPaid=0,oWait=0,iReady=0,iPaid=0,iWait=0;
-            let rQty=0,fQty=0,rSettle=0,rHPP=0,rLaba=0,tBank=0,dReady=0,dPaid=0,dWait=0;
+            let rQty=0,fQty=0,rSettle=0,rHPP=0,rLaba=0,tBank=0,dReady=0,dPaid=0,dWait=0, hppPaid=0;
+            
+            listHPPPending = []; 
+               listHPPCleared = [];
+               let memoriCleared = JSON.parse(localStorage.getItem("cleared_BogaKarya86") || "[]");
+
             filteredData.forEach(item => {
                 let st = String(item.status||"WAITING").toUpperCase(), qty = Number(item.qty||0);
                 if (st==="FAILED"||st==="RETUR"||st==="CANCELED") { fQty+=qty; return; }
@@ -964,12 +1026,32 @@
                 let laba = Number(item.labaKotor||item.LabaKotor||0);
                 let jO=laba*0.7, jI=laba*0.3;
                 rQty+=qty; rSettle+=settle; rHPP+=hpp; rLaba+=laba; tOwner+=jO; tInvs+=jI;
-                if (st==="READY") { dReady+=settle; oReady+=jO; iReady+=jI; }
-                else if (st==="PAID") { dPaid+=settle; oPaid+=jO; iPaid+=jI; if (item.idPesanan&&String(item.idPesanan).trim()!=="") tBank+=5500; }
-                else { dWait+=settle; oWait+=jO; iWait+=jI; }
+                
+                if (st==="READY") { 
+                    dReady+=settle; oReady+=jO; iReady+=jI; 
+                }
+                else if (st==="PAID") { 
+                       dPaid+=settle; oPaid+=jO; iPaid+=jI; 
+                       hppPaid+=hpp; 
+                       let dataResi = { idPesanan: item.idPesanan, namaProduk: item.namaProduk, hpp: hpp, qty: qty, jatahOwner: jO, jatahInvs: jI };
+                       
+                       // Sistem ngecek: Apakah resi ini ada di dalam memori 'Sudah Ditransfer'?
+                       if (item.idPesanan && memoriCleared.includes(item.idPesanan)) {
+                           listHPPCleared.push(dataResi); // Masuk Laci 2 (History)
+                       } else {
+                           listHPPPending.push(dataResi); // Masuk Laci 1 (Nunggu Eksekusi)
+                       }
+                       if (item.idPesanan&&String(item.idPesanan).trim()!=="") tBank+=5500; 
+                   }
+                else { 
+                    dWait+=settle; oWait+=jO; iWait+=jI; 
+                }
             });
+            
             currentOwnerGross=tOwner; currentSettleGlobal=rSettle; currentHPPGlobal=rHPP;
             currentLabaKotorGlobal=rLaba; currentInvsGlobal=tInvs; currentVolAktif=rQty;
+            currentHPPPaid=hppPaid; // Simpan ke variabel global
+            
             let pct = targetBulanan>0 ? (rQty/targetBulanan)*100 : 0;
             document.getElementById("progress-bar").style.width = Math.min(pct,100)+"%";
             document.getElementById("target-text").innerText = `${rQty} / ${targetBulanan}`;
@@ -979,8 +1061,140 @@
             document.getElementById("total-biaya-bank").innerText=formatRupiah(tBank); document.getElementById("dana-ready").innerText=formatRupiah(dReady); document.getElementById("dana-paid").innerText=formatRupiah(dPaid); document.getElementById("dana-waiting").innerText=formatRupiah(dWait);
         }
 
-        function renderManajemenArea() { renderOpexSystem(); kalkulasiForecasting(); kalkulasiVelocity(); }
+        // FUNGSI INJECT HTML & RENDER LIST HPP PAID
+        function renderHPPPaidList() {
+            let grid = document.querySelector("#internal .grid.grid-cols-1.md\\:grid-cols-4");
+            let oldWrapper = document.getElementById("hpp-paid-list-wrapper");
+            if (oldWrapper) oldWrapper.remove(); // Hapus laci versi lama kalau ada
 
+            // Buat kerangka 2 Laci (Pending & Cleared)
+            grid.insertAdjacentHTML('afterend', `
+                <div id="hpp-paid-list-wrapper" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-sky-900 shadow-[0_0_15px_rgba(14,165,233,0.1)] flex flex-col">
+                        <div class="flex justify-between items-start border-b border-slate-800 pb-3 mb-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-sky-400 uppercase tracking-widest flex items-center gap-2">
+                                    <span class="animate-pulse">🚨</span> MENUNGGU DISTRIBUSI
+                                </h3>
+                                <p class="text-[10px] text-slate-500 mt-1">Uang masuk, siap dipisah & ditransfer.</p>
+                            </div>
+                            <span class="text-[9px] bg-sky-500/10 border border-sky-500/20 text-sky-400 px-2 py-1 rounded font-bold">STATUS: PAID</span>
+                        </div>
+                        <div id="pending-summary" class="grid grid-cols-3 gap-2 mb-4 bg-slate-950 p-3 rounded-xl border border-slate-800 shadow-inner"></div>
+                        <div id="hpp-pending-list-container" class="space-y-2 max-h-64 overflow-y-auto pr-2 flex-1 mb-4"></div>
+                        <button onclick="tandaiSemuaCleared()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer">
+                            ✅ Tandai Semua Sudah Ditransfer
+                        </button>
+                    </div>
+
+                    
+
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex flex-col opacity-90">
+                        <div class="flex justify-between items-start border-b border-slate-800 pb-3 mb-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                    <span>📚</span> HISTORY SUDAH DIPISAH
+                                </h3>
+                                <p class="text-[10px] text-slate-500 mt-1">Arsip resi yang sudah beres dieksekusi.</p>
+                            </div>
+                            <span class="text-[9px] bg-slate-800 border border-slate-700 text-slate-400 px-2 py-1 rounded font-bold">CLEARED</span>
+                        </div>
+                        <div id="cleared-summary" class="grid grid-cols-3 gap-2 mb-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800/50"></div>
+                        <div id="hpp-cleared-list-container" class="space-y-2 max-h-64 overflow-y-auto pr-2 flex-1 mb-4"></div>
+                        <button onclick="cetakSuratTransfer()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition border border-slate-700 shadow-sm flex items-center justify-center gap-2 cursor-pointer mt-auto">
+                            🖨️ Cetak Surat Instruksi Transfer
+                        </button>
+                    </div>
+
+                </div>
+            `);
+
+            renderIsiLaci('pending', listHPPPending);
+            renderIsiLaci('cleared', listHPPCleared);
+        }
+
+        // Fungsi bantu untuk ngisi daftar resi ke dalam masing-masing Laci
+        function renderIsiLaci(type, dataList) {
+            let sumHPP = 0, sumOwner = 0, sumInvs = 0;
+            let container = document.getElementById(`hpp-${type}-list-container`);
+            container.innerHTML = "";
+
+            if (dataList.length === 0) {
+                container.innerHTML = `<div class="text-xs text-slate-500/50 font-medium p-6 text-center border border-dashed border-slate-800 rounded-xl">Data kosong.</div>`;
+            } else {
+                let dataTampil = type === 'cleared' ? [...dataList].reverse() : dataList; // Balik urutan history biar yg terbaru di atas
+                dataTampil.forEach(item => {
+                    sumHPP += item.hpp; sumOwner += item.jatahOwner; sumInvs += item.jatahInvs;
+                    let resiTampil = (item.idPesanan && String(item.idPesanan).trim() !== "") ? item.idPesanan : "Tanpa Resi";
+                    let warna = type === 'pending' ? 'sky' : 'slate';
+                    
+                    container.innerHTML += `
+                        <div class="flex flex-col bg-slate-950/50 border border-slate-800/80 p-3 rounded-xl text-xs hover:border-${warna}-500/30 transition shadow-sm">
+                            <div class="flex justify-between items-center border-b border-slate-800/50 pb-2 mb-2">
+                                <span class="text-${warna}-400 font-mono text-[10px]">${resiTampil}</span>
+                                <span class="text-slate-300 font-medium text-[10px] truncate max-w-[120px]" title="${item.namaProduk}">${item.namaProduk}</span>
+                            </div>
+                            <div class="flex justify-between items-center px-1">
+                                <div class="flex flex-col"><span class="text-[9px] text-slate-500 uppercase tracking-widest mb-0.5">Modal</span><span class="font-bold text-${warna}-400 font-mono">Rp ${Number(item.hpp).toLocaleString('id-ID')}</span></div>
+                                <div class="flex flex-col text-right"><span class="text-[9px] text-slate-500 uppercase tracking-widest mb-0.5">Owner</span><span class="font-bold text-${type==='pending'?'yellow-500':'slate-400'} font-mono">Rp ${Number(item.jatahOwner).toLocaleString('id-ID')}</span></div>
+                                <div class="flex flex-col text-right"><span class="text-[9px] text-slate-500 uppercase tracking-widest mb-0.5">Invs</span><span class="font-bold text-slate-300 font-mono">Rp ${Number(item.jatahInvs).toLocaleString('id-ID')}</span></div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Cetak angka Total Raksasa di atas kotaknya
+            document.getElementById(`${type}-summary`).innerHTML = `
+                <div class="flex flex-col"><span class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Tot Modal</span><span class="font-bold text-${type==='pending'?'sky':'slate'}-400 font-mono text-sm md:text-base">Rp ${sumHPP.toLocaleString('id-ID')}</span></div>
+                <div class="flex flex-col"><span class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Tot Owner</span><span class="font-bold text-${type==='pending'?'yellow-500':'slate-400'} font-mono text-sm md:text-base">Rp ${sumOwner.toLocaleString('id-ID')}</span></div>
+                <div class="flex flex-col"><span class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Tot Invs</span><span class="font-bold text-slate-300 font-mono text-sm md:text-base">Rp ${sumInvs.toLocaleString('id-ID')}</span></div>
+            `;
+        }
+        window.tandaiSemuaCleared = function() {
+            if (listHPPPending.length === 0) {
+                alert("Tidak ada dana yang menunggu distribusi.");
+                return;
+            }
+            
+            // Hitung total untuk dikonfirmasi ke Boss
+            let sumHPP = 0, sumOwner = 0, sumInvs = 0;
+            listHPPPending.forEach(i => { sumHPP += i.hpp; sumOwner += i.jatahOwner; sumInvs += i.jatahInvs; });
+            
+            let pesanConfirm = `KONFIRMASI EKSEKUSI TRANSFER:\n\nApakah Anda YAKIN sudah mentransfer dan memisahkan uang sejumlah:\n- Total Modal (HPP): Rp ${sumHPP.toLocaleString('id-ID')}\n- Total Jatah Owner: Rp ${sumOwner.toLocaleString('id-ID')}\n- Total Jatah Investor: Rp ${sumInvs.toLocaleString('id-ID')}\n\nUntuk ${listHPPPending.length} pesanan ini?`;
+            
+            if (confirm(pesanConfirm)) {
+                // Tarik memori lama
+                let memoriCleared = JSON.parse(localStorage.getItem("cleared_BogaKarya86") || "[]");
+                
+                // Masukkan ID Pesanan baru ke memori (jangan sampai double)
+                listHPPPending.forEach(item => {
+                    if (item.idPesanan && !memoriCleared.includes(item.idPesanan)) {
+                        memoriCleared.push(item.idPesanan);
+                    }
+                });
+                
+                // Simpan ke brankas browser
+                localStorage.setItem("cleared_BogaKarya86", JSON.stringify(memoriCleared));
+                
+                // Bikin log history
+                addAuditLog("FUNDS_CLEARED", `Mengeksekusi transfer pembagian dana untuk ${listHPPPending.length} resi.`, "success");
+                
+                // Render Ulang secara otomatis
+                hitungDashboard();
+                renderManajemenArea();
+                
+                toast.success("Berhasil! Semua resi telah dipindahkan ke History.");
+            }
+        }
+
+        function renderManajemenArea() { 
+            renderOpexSystem(); 
+            kalkulasiForecasting(); 
+            kalkulasiVelocity(); 
+            renderHPPPaidList(); // Panggil render List Resi HPP
+        }
         function renderOpexSystem() {
             let key=`opex_BogaKarya86_${bulanAktif}`, rawData=localStorage.getItem(key), listOpex=[], totalOpex=0;
             let container=document.getElementById("opex-list-container"); container.innerHTML="";
@@ -994,6 +1208,7 @@
                     container.innerHTML+=`<div class="flex justify-between items-center bg-slate-950 border border-slate-800/50 p-3 rounded-xl text-xs"><span class="text-slate-300 font-medium"><span class="text-slate-500 font-mono text-[10px] mr-1">${tglTampil}</span>${item.note}</span><span class="font-bold text-rose-400 font-mono flex items-center">Rp ${Number(item.nominal).toLocaleString('id-ID')}<button onclick="editOpex(${idx})" class="ml-4 text-slate-500 hover:text-yellow-400 transition cursor-pointer" title="Edit">✎</button><button onclick="hapusOpex(${idx})" class="ml-2 text-slate-500 hover:text-rose-500 transition cursor-pointer" title="Hapus">✕</button></span></div>`;
                 });
             }
+            if (document.getElementById("internal-hpp-paid")) document.getElementById("internal-hpp-paid").innerText=formatRupiah(currentHPPPaid);
             document.getElementById("internal-owner-kotor").innerText=formatRupiah(currentOwnerGross);
             document.getElementById("internal-opex-total").innerText="- "+formatRupiah(totalOpex);
             document.getElementById("internal-net-profit").innerText=formatRupiah(currentOwnerGross-totalOpex);
@@ -1281,18 +1496,87 @@
         }
 
         // ===== FUNGSI UTILITAS — JANGAN DIHAPUS! =====
-        // FIX #1: formatRupiah hilang di versi baru — ini yg bikin semua angka mati
         function formatRupiah(a) {
             return "Rp " + Math.round(Number(a || 0)).toLocaleString('id-ID');
         }
 
-        // FIX #2 & #3: prevPage/nextPage hilang — tombol Prev/Next tabel ga bisa diklik
         function prevPage() {
             if (currentPage > 1) { currentPage--; renderTabel(); }
         }
-
+        
+        
+        function renderTabel() {
+            const tbody=document.getElementById("tabel-body"); tbody.innerHTML="";
+            if (filteredData.length===0) { tbody.innerHTML=`<tr><td colspan="6" class="p-8 text-center text-slate-500 font-medium">Data tidak ditemukan.</td></tr>`; document.getElementById("page-info").innerText="Menampilkan 0 Data"; return; }
+            let start=(currentPage-1)*rowsPerPage, end=start+rowsPerPage;
+            filteredData.slice(start,end).forEach((item,index) => {
+                let statusUpper=String(item.status||"WAITING").toUpperCase();
+                let statusClass="bg-slate-800 text-amber-500 border-slate-700", labaTampil=formatRupiah(item.labaKotor||item.LabaKotor||0);
+                if (statusUpper==="READY") statusClass="bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                else if (statusUpper==="PAID") statusClass="bg-sky-500/10 text-sky-400 border-sky-500/20";
+                else if (statusUpper==="CANCELED") { statusClass="bg-slate-800 text-slate-400 border-slate-700"; labaTampil="Rp 0"; }
+                else if (statusUpper==="RETUR"||statusUpper==="FAILED") { statusClass="bg-rose-500/10 text-rose-500 border-rose-500/20"; labaTampil="Rp 0"; }
+                let displayTanggal=item.tanggal?(String(item.tanggal).includes("T")?item.tanggal.split("T")[0]:item.tanggal):"-";
+                let displayID=(item.idPesanan&&String(item.idPesanan).trim()!=="")?item.idPesanan:"Dlm Antrean";
+                let tr=document.createElement("tr"); tr.className="hover:bg-slate-800/50 cursor-pointer transition text-slate-300"; tr.setAttribute("onclick",`bukaModal(${start+index})`);
+                tr.innerHTML=`<td class="p-4 font-medium">${displayTanggal}</td><td class="p-4 font-mono text-slate-500 text-[11px]">${displayID}</td><td class="p-4 font-semibold text-slate-200">${item.namaProduk||"<span class='text-rose-500 font-bold'>[KOSONG]</span>"}</td><td class="p-4 text-center font-bold text-slate-100">${item.qty||0}</td><td class="p-4 text-right font-mono font-medium text-emerald-400">${labaTampil}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded text-[10px] font-bold tracking-wider border ${statusClass}">${statusUpper}</span></td>`;
+                tbody.appendChild(tr);
+            });
+            document.getElementById("page-info").innerText=`Halaman ${currentPage} (${start+1}-${Math.min(end,filteredData.length)} dari ${filteredData.length})`;
+            document.getElementById("btn-prev").disabled=currentPage===1; document.getElementById("btn-next").disabled=end>=filteredData.length;
+        }
+        
         function nextPage() {
             if ((currentPage * rowsPerPage) < filteredData.length) { currentPage++; renderTabel(); }
+        }
+        window.cetakSuratTransfer = function() {
+            if (listHPPCleared.length === 0) {
+                alert("Belum ada data History Transfer (Cleared) untuk dicetak.");
+                return;
+            }
+
+            let sumHPP = 0, sumOwner = 0, sumInvs = 0;
+            let tbodyHtml = "";
+
+            // Masukin data history ke tabel cetak
+            listHPPCleared.forEach(item => {
+                sumHPP += item.hpp;
+                sumOwner += item.jatahOwner;
+                sumInvs += item.jatahInvs;
+
+                let resi = (item.idPesanan && String(item.idPesanan).trim() !== "") ? item.idPesanan : "Tanpa Resi";
+                tbodyHtml += `<tr>
+                    <td class="border border-black p-2 font-mono text-xs">${resi}</td>
+                    <td class="border border-black p-2 text-xs">${item.namaProduk}</td>
+                    <td class="border border-black p-2 text-center text-xs">${item.qty}</td>
+                    <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.hpp)}</td>
+                    <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.jatahOwner)}</td>
+                    <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.jatahInvs)}</td>
+                </tr>`;
+            });
+
+            let totalSemua = sumHPP + sumOwner + sumInvs;
+
+            // Tempel angka ke template HTML cetak
+            document.getElementById("tf-print-tanggal").innerText = new Date().toLocaleString('id-ID');
+            document.getElementById("tf-print-total").innerText = formatRupiah(totalSemua);
+            document.getElementById("tf-print-hpp").innerText = formatRupiah(sumHPP);
+            document.getElementById("tf-print-owner").innerText = formatRupiah(sumOwner);
+            document.getElementById("tf-print-invs").innerText = formatRupiah(sumInvs);
+            document.getElementById("tf-print-table-body").innerHTML = tbodyHtml;
+
+            // Sembunyikan web, munculin kertas cetak
+            document.getElementById("app-layar").style.display = "none";
+            document.getElementById("print-area-transfer").classList.remove("hidden");
+            
+            // Panggil perintah print browser
+            window.print();
+            
+            // Balikin layar web seperti semula setelah print ditutup
+            document.getElementById("print-area-transfer").classList.add("hidden");
+            document.getElementById("app-layar").style.display = "flex";
+            
+            addAuditLog("PRINT_TRANSFER", "Mencetak Surat Perintah Mutasi Internal", "info");
         }
 
     </script>
