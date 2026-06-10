@@ -149,6 +149,7 @@
             #sonner-toaster { top: auto; bottom: 1rem; right: 1rem; left: 1rem; width: auto; }
             .sonner-toast { font-size: 0.75rem; }
         }
+        
     </style>
 </head>
 <body class="bg-slate-950 text-slate-300 antialiased overflow-hidden">
@@ -188,26 +189,57 @@
                     </div>
                     <div>
                         <h2 class="text-sm font-bold text-slate-200 tracking-wide">BOGA KARYA86</h2>
-                        <p class="text-[9px] text-slate-500 font-medium">ERP System v2.1</p>
+                        <p class="text-[9px] text-slate-500 font-medium">ERP System v2.2</p>
                     </div>
                 </div>
             </div>
             <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <!-- CLUSTER 1: MENU UTAMA (BISA DILIHAT SEMUA ORANG) -->
                 <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-2">Menu Utama</span>
-                <!-- FIX #4: tambah bg-slate-800/80 text-slate-200 biar tab Dashboard keliatan aktif saat pertama login -->
                 <button onclick="switchTab('dashboard', event)" class="tab-btn active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm bg-slate-800/80 text-slate-200">
                     <span class="text-lg opacity-70">📊</span> Overview Panel
                 </button>
                 <button onclick="switchTab('transactions', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
                     <span class="text-lg opacity-70">📋</span> Data Transaksi
                 </button>
-                <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Manajemen</span>
-                <button onclick="switchTab('logs', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
-                    <span class="text-lg opacity-70">⚡</span> Audit Log & Alert
-                </button>
-                <button id="tab-btn-internal" onclick="bukaTabInternal(event)" class="tab-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
-                    <div class="flex items-center gap-3"><span class="text-lg opacity-70">🔒</span> Dapur Finance</div>
-                </button>
+
+                <!-- BUNGKUS AREA TERTUTUP (KHUSUS OWNER & STAFF) -->
+                <div id="restricted-menus">
+                    
+                    <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Manajemen</span>
+                    <button id="tab-btn-internal" onclick="bukaTabInternal(event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
+                        <span class="text-lg opacity-70">🔒</span> Dapur Finance
+                    </button>
+                    <button onclick="alert('🔮 Coming Soon: Fitur Real-Time Valuasi Stok Gudang & Nilai Aset Mati Boga Karya 86.')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:text-slate-500 transition font-medium text-sm cursor-pointer">
+                        <div class="flex items-center gap-3"><span class="text-lg opacity-40">📦</span> Valuasi Stok</div>
+                        <span class="text-[9px] bg-slate-800/50 text-slate-500 border border-slate-700/50 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Soon</span>
+                    </button>
+                    <button onclick="alert('🔮 Coming Soon: Rapor Loyalitas Investor (Grafik Akumulasi Histori Dividen Terbanyak).')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:text-slate-500 transition font-medium text-sm cursor-pointer">
+                        <div class="flex items-center gap-3"><span class="text-lg opacity-40">💎</span> Rapor Investor</div>
+                        <span class="text-[9px] bg-slate-800/50 text-slate-500 border border-slate-700/50 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Soon</span>
+                    </button>
+                    <button onclick="alert('🔮 Coming Soon: Sistem Budgeting & Target Net Profit Tunai (Bukan Cuma Hitung Pcs).')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:text-slate-500 transition font-medium text-sm cursor-pointer">
+                        <div class="flex items-center gap-3"><span class="text-lg opacity-40">🎯</span> Budget Target</div>
+                        <span class="text-[9px] bg-slate-800/50 text-slate-500 border border-slate-700/50 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Soon</span>
+                    </button>
+
+                    <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Operasional Toko</span>
+                    <button onclick="switchTab('opex-panel', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
+                        <span class="text-lg opacity-70">💸</span> Input Data OPEX
+                    </button>
+                    <button onclick="alert('🔮 Fitur CS Coming Soon: Form Order Manual WhatsApp terintegrasi otomatis ke Supabase!')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:text-slate-500 transition font-medium text-sm cursor-pointer">
+                        <div class="flex items-center gap-3"><span class="text-lg opacity-40">📝</span> Input Penjualan</div>
+                        <span class="text-[9px] bg-slate-800/50 text-slate-500 border border-slate-700/50 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Soon</span>
+                    </button>
+
+                    <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Tracking Sistem</span>
+                    <button onclick="switchTab('logs', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
+                        <span class="text-lg opacity-70">⚡</span> Audit Log & Alert
+                    </button>
+
+                </div> <!-- PENUTUP BUNGKUS AREA TERTUTUP -->
+
+                <!-- CLUSTER 5: AKSI CEPAT (BISA DILIHAT SEMUA ORANG) -->
                 <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Aksi Cepat</span>
                 <button onclick="prosesCetakClosingFormal()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm cursor-pointer">
                     <span class="text-lg opacity-70">🖨️</span> Cetak Closing
@@ -232,10 +264,13 @@
                     <h1 class="text-xl font-bold text-slate-100 tracking-tight">Kinerja Bisnis Global</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <div id="sync-status" class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span class="text-[10px] text-slate-400 font-mono">Tersinkronisasi & Aktif</span>
-                        </div>
-                        <button onclick="handleUpload()" title="Sinkron ulang data" class="text-slate-500 hover:text-yellow-400 transition text-xs cursor-pointer ml-1">↻</button>
+                            <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                             <span class="text-[10px] text-slate-400 font-mono">Sistem Tersinkronisasi</span>
+                    </div>
+                        <button id="btn-sync-icon" onclick="handleUpload()" title="Sinkron ulang data" class="text-slate-500 hover:text-yellow-400 transition text-sm cursor-pointer ml-1 inline-block hover:rotate-180 duration-500 transform origin-center">↻</button>
                     </div>
                 </div>
                 <div class="flex items-center gap-6">
@@ -250,12 +285,56 @@
                         <button id="dark-mode-toggle" type="button" onclick="toggleDarkMode()" aria-label="Toggle dark mode" class="no-print"></button>
                     </div>
                     <div class="h-8 w-px bg-slate-800 hidden md:block"></div>
-                    <div class="flex items-center gap-3">
+                    
+                    <!-- FITUR JAM LIVE -->
+                    <div id="live-clock" class="text-xs font-mono text-slate-400 font-medium tracking-widest bg-slate-950/50 border border-slate-800 px-3 py-1.5 rounded-xl hidden md:block shadow-inner">
+                        00:00:00 WIB
+                    </div>
+
+                    <!-- KOSMETIK: LONCENG NOTIFIKASI BERDENYUT -->
+                    <div class="relative inline-block">
+                        <button onclick="toggleNotifikasi(event)" class="relative p-2 text-slate-400 hover:text-slate-200 transition rounded-full hover:bg-slate-800/50 cursor-pointer group focus:outline-none">
+                            <span class="text-lg group-hover:rotate-12 inline-block transition-transform duration-300">🔔</span>
+                            <span id="notif-ping-1" class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 border-2 border-slate-900 rounded-full animate-ping"></span>
+                            <span id="notif-ping-2" class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 border-2 border-slate-900 rounded-full"></span>
+                        </button>
+
+                        <div id="dropdown-notif" class="hidden absolute right-0 mt-2 w-80 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl z-50 py-2 overflow-hidden">
+                            <div class="px-4 py-2 border-b border-slate-900 flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-200 tracking-wide">Pemberitahuan Sistem</span>
+                                <span class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded-full font-mono">v2.2</span>
+                            </div>
+                            <div class="max-h-72 overflow-y-auto divide-y divide-slate-900/50">
+                                <div class="p-3.5 hover:bg-slate-900/40 transition">
+                                    <p class="text-[11px] font-bold text-slate-300">Siklus Sinkronisasi OPEX Selesai</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5">Input data dari laci operasional staff kini langsung memotong brankas keuangan utama milik owner secara real-time.</p>
+                                </div>
+                                <div class="p-3.5 hover:bg-slate-900/40 transition">
+                                    <p class="text-[11px] font-bold text-slate-300">Shortcut Global Ctrl + K Aktif</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5">Akses cepat ke modul pencarian data transaksi dari halaman mana pun langsung menggunakan kombinasi keyboard.</p>
+                                </div>
+                                <div class="p-3.5 hover:bg-slate-900/40 transition">
+                                    <p class="text-[11px] font-bold text-slate-300">Fitur Waktu & Auto Dark Mode</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5">Jam digital monospace terpasang di header. Tema aplikasi otomatis beralih ke mode gelap mulai pukul 18:00 WIB.</p>
+                                </div>
+                                <div class="p-3.5 hover:bg-slate-900/40 transition">
+                                    <p class="text-[11px] font-bold text-slate-300">Proteksi Menu & Sapaan Tampilan</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5">Sistem autentikasi diperketat untuk memisahkan area rahasia dapur keuangan dari akun ber-role Investor dan Admin.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KOSMETIK: PROFIL AVATAR PREMIUM -->
+                    <div class="flex items-center gap-3 ml-1 pl-3 border-l border-slate-800/50 cursor-pointer hover:opacity-80 transition group">
                         <div class="text-right hidden sm:block">
                             <div class="text-xs font-bold text-slate-200" id="header-user-name">Memuat...</div>
-                            <div class="text-[10px] text-slate-500 font-medium" id="header-user-role">Akses Sistem</div>
+                            <div class="text-[10px] text-slate-500 font-medium flex items-center justify-end gap-1">
+                                <span id="header-user-role">Akses Sistem</span>
+                                <span class="text-[8px] transition-transform duration-300 group-hover:translate-y-0.5">▼</span>
+                            </div>
                         </div>
-                        <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300 shadow-inner">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-800 to-slate-700 border border-slate-600 flex items-center justify-center font-bold text-slate-200 shadow-[0_0_10px_rgba(255,255,255,0.05)] ring-2 ring-slate-900">
                             <span id="header-user-initial">U</span>
                         </div>
                     </div>
@@ -379,14 +458,19 @@
                             </div>
                         </div>
                     </div>
-                    <!-- TAB: TRANSAKSI -->
+                   <!-- TAB: TRANSAKSI -->
                     <div id="transactions" class="tab-content space-y-6">
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 shadow-sm space-y-4">
                             <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between border-b border-slate-800 pb-4">
                                 <h3 class="text-sm font-bold text-slate-200">Database Transaksi</h3>
-                                <div class="relative w-full md:w-64">
-                                    <span class="absolute left-3 top-2.5 text-slate-500 text-sm">🔍</span>
-                                    <input type="text" id="input-cari" placeholder="Cari ID / Produk..." onkeyup="cariKetikProduk()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm pl-9 pr-3 py-2.5 rounded-xl focus:outline-none focus:border-yellow-500 transition shadow-inner">
+                                <div class="relative w-full md:w-64 group">
+                                    <span class="absolute left-3 top-2.5 text-slate-500 text-sm transition-colors group-focus-within:text-yellow-500">🔍</span>
+                                    <input type="text" id="input-cari" placeholder="Cari ID / Produk..." onkeyup="cariKetikProduk()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm pl-9 pr-14 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all shadow-inner placeholder-slate-600">
+                                    <!-- BADGE SHORTCUT CTRL+K -->
+                                    <div class="absolute right-2 top-2 hidden sm:flex items-center gap-1 bg-slate-800/80 border border-slate-700 px-2 py-1 rounded-md pointer-events-none shadow-sm">
+                                        <span class="text-[9px] font-bold text-slate-400">Ctrl</span>
+                                        <span class="text-[9px] font-bold text-slate-400">K</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="flex flex-col lg:flex-row gap-4">
@@ -415,9 +499,9 @@
                                             <th class="p-4 font-medium whitespace-nowrap">Tanggal</th>
                                             <th class="p-4 font-medium whitespace-nowrap">ID Pesanan</th>
                                             <th class="p-4 font-medium">Produk</th>
-                                            <th class="p-4 font-medium text-center">Qty</th>
-                                            <th class="p-4 font-medium text-right whitespace-nowrap">Laba Kotor</th>
-                                            <th class="p-4 font-medium text-center">Status</th>
+                                            <th class="p-4 text-center font-medium">Qty</th>
+                                            <th class="p-4 text-right whitespace-nowrap">Laba Kotor</th>
+                                            <th class="p-4 text-center">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tabel-body" class="divide-y divide-slate-800/50 text-slate-300">
@@ -433,9 +517,32 @@
                                 </div>
                             </div>
                         </div>
+                    </div> <!-- SEGAL KUNCI TAB TRANSAKSI AMAN -->
+                        <!-- TAB: OPEX PANEL (TEMPAT KERJA DIKI / STAFF) -->
+                    <div id="opex-panel" class="tab-content space-y-6">
+                        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm">
+                            <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-200">💸 Operasional Toko (Input Data OPEX)</h2>
+                                    <p class="text-[10px] text-slate-500 mt-1">Pencatatan pengeluaran harian, logistik, bensin, lakban, dan biaya operasional lainnya.</p>
+                                </div>
+                                <span class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-1 rounded font-bold uppercase tracking-wider">Akses Staff</span>
+                            </div>
+                            
+                            <!-- Form Input yang Selaras -->
+                            <div class="bg-slate-950 p-5 rounded-xl border border-slate-800">
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Input Pengeluaran Operasional</h3>
+                                <div class="flex flex-col lg:flex-row gap-3">
+                                    <input type="date" id="input-opex-panel-tanggal" class="bg-slate-900 border border-slate-700 text-slate-300 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none w-full lg:w-40 cursor-pointer">
+                                    <input type="number" id="input-opex-panel-nominal" class="w-full lg:w-48 bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none" placeholder="Nominal (Rp)">
+                                    <input type="text" id="input-opex-panel-note" class="flex-1 bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none" placeholder="Rincian Biaya (Misal: Iklan IG, Kardus)">
+                                    <button onclick="tambahOpexDariPanel()" class="bg-slate-200 hover:bg-white text-slate-900 font-bold text-sm px-6 py-2.5 rounded-lg transition shadow-md cursor-pointer whitespace-nowrap">Simpan Data</button>
+                                </div>
+                               <div id="opex-panel-list-container" class="space-y-2 mt-5 max-h-64 overflow-y-auto pr-2"></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- TAB: LOGS -->
                     <div id="logs" class="tab-content space-y-6">
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm">
                             <h3 class="text-sm font-bold text-slate-200 mb-4 border-b border-slate-800 pb-3">Sistem Alert (Peringatan Dini)</h3>
@@ -449,7 +556,6 @@
                         </div>
                     </div>
 
-                    <!-- TAB: INTERNAL -->
                     <div id="internal" class="tab-content space-y-6">
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6">
                             <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
@@ -529,16 +635,7 @@
                                     <h3 id="internal-net-profit" class="text-2xl font-bold text-emerald-400 font-mono relative z-10">Rp 0</h3>
                                 </div>
                             </div>
-                            <div class="bg-slate-950 p-5 rounded-xl border border-slate-800">
-                                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Input Pengeluaran Operasional</h3>
-                                <div class="flex flex-col lg:flex-row gap-3">
-                                    <input type="date" id="input-opex-tanggal" class="bg-slate-900 border border-slate-700 text-slate-300 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none w-full lg:w-40 cursor-pointer">
-                                    <input type="number" id="input-opex-nominal" class="w-full lg:w-48 bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none" placeholder="Nominal (Rp)">
-                                    <input type="text" id="input-opex-note" class="flex-1 bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none" placeholder="Rincian Biaya (Misal: Iklan IG, Kardus)">
-                                    <button onclick="tambahOpex()" class="bg-slate-200 hover:bg-white text-slate-900 font-bold text-sm px-6 py-2.5 rounded-lg transition shadow-md cursor-pointer whitespace-nowrap">Simpan Data</button>
-                                </div>
-                                <div id="opex-list-container" class="space-y-2 mt-5 max-h-48 overflow-y-auto pr-2"></div>
-                            </div>
+                            
                         </div>
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -753,8 +850,11 @@
             toast.success(message || "Data berhasil diperbarui!");
         };
 
-        window.handleUpload = async function handleUpload() {
+        window.handleUpload = window.handleUpload = async function handleUpload() {
             const loadingToast = toast.loading("Menyinkronkan data...");
+            const syncIcon = document.getElementById("btn-sync-icon");
+            if (syncIcon) syncIcon.classList.add("animate-spin", "text-yellow-400");
+            
             try {
                 await fetchData(true);
                 loadingToast.dismiss();
@@ -762,6 +862,8 @@
             } catch (error) {
                 loadingToast.dismiss();
                 toast.error("Gagal memuat data dari Supabase.");
+            } finally {
+                if (syncIcon) syncIcon.classList.remove("animate-spin", "text-yellow-400");
             }
         };
 
@@ -777,7 +879,25 @@
 
         function initDarkMode() {
             const saved = localStorage.getItem(DARK_MODE_KEY);
-            applyDarkMode(saved === "1");
+            if (saved !== null) {
+                applyDarkMode(saved === "1");
+            } else {
+                // Auto Dark Mode: Otomatis gelap kalau jam 6 sore (18:00) sampai jam 6 pagi (05:59)
+                const hour = new Date().getHours();
+                const isNight = hour >= 18 || hour < 6;
+                applyDarkMode(isNight);
+            }
+        }
+
+        // Mesin Penggerak Jam Live
+        function mulaiJamLive() {
+            const elJam = document.getElementById("live-clock");
+            if (!elJam) return;
+            setInterval(() => {
+                const now = new Date();
+                const waktu = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                elJam.innerText = waktu + " WIB";
+            }, 1000);
         }
 
         function buildCurrentUser(user) {
@@ -809,6 +929,17 @@
 
         document.addEventListener("DOMContentLoaded", async () => {
             initDarkMode();
+            mulaiJamLive();
+            // OTAK SHORTCUT: Ctrl + K (Global Search Shortcut)
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault(); // Cegah browser buka search engine bawaan
+                    switchTab('transactions', null); // Langsung lempar ke tab Transaksi
+                    setTimeout(() => {
+                        document.getElementById('input-cari').focus(); // Kursor langsung nangkring di kotak
+                    }, 100);
+                }
+            });
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) await handleAuthSuccess(session.user);
             initAuditLog();
@@ -849,15 +980,37 @@
             document.getElementById("app-layar").classList.add("hidden");
         };
 
-        function aturTampilanBerdasarkanRole() {
-            document.getElementById("tab-btn-internal").style.display = "flex";
+       function aturTampilanBerdasarkanRole() {
+            let areaTertutup = document.getElementById("restricted-menus");
+            let namaPanggilan = currentUser.nama.split(" ")[0]; // Ambil kata pertama aja biar akrab
+            
             if (currentUser.role === "INVESTOR") {
-                document.getElementById("tab-btn-internal").style.display = "none";
+                // Sembunyikan total semua fitur manajemen & operasional
+                if (areaTertutup) areaTertutup.style.display = "none";
+                switchTab('dashboard', null);
+                
+                // Munculin notifikasi hangat buat Investor
+                setTimeout(() => toast.success(`👋 Halo Mitra Investor ${namaPanggilan}! Selamat memantau performa hari ini. ✨📈`), 700);
+                
             } else if (currentUser.role === "ADMIN") {
-                switchTab('internal', null);
+                // Munculin bungkusnya, tapi Dapur Finance dimatikan buat staff
+                if (areaTertutup) areaTertutup.style.display = "block";
+                document.getElementById("tab-btn-internal").style.display = "none"; 
+                switchTab('opex-panel', null); // Langsung lempar Diki ke ruang kerjanya
+                
+                // Munculin sapaan semangat buat staff
+                setTimeout(() => toast.success(`🔥 Semangat pagi, ${namaPanggilan}! Yuk hajar orderan hari ini. 📦💪`), 700);
+                
+            } else {
+                // Ini Owner (Lu). Semua gerbang dibuka!
+                if (areaTertutup) areaTertutup.style.display = "block";
+                document.getElementById("tab-btn-internal").style.display = "flex";
+                switchTab('dashboard', null);
+                
+                // Munculin sapaan VVIP Boss
+                setTimeout(() => toast.success(`👑 Selamat datang Bos ${namaPanggilan}! Dashboard VVIP siap digunakan. ☕💸`), 700);
             }
         }
-
         function mapTransaksiRow(row) {
             return {
                 tanggal: row.tanggal ?? row.Tanggal ?? "",
@@ -948,8 +1101,16 @@
         function switchTab(tabName, event) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('bg-slate-800/80', 'text-slate-200'));
-            document.getElementById(tabName).classList.add('active');
+            
+            let targetTab = document.getElementById(tabName);
+            if (targetTab) targetTab.classList.add('active');
+            
             if (event) { event.currentTarget.classList.add('bg-slate-800/80', 'text-slate-200'); }
+            
+            // Trigger otomatis narik data opex saat tab opex-panel aktif
+            if (tabName === 'opex-panel') {
+                renderOpexDariPanel();
+            }
         }
 
         function buatTombolFilterDinamis() {
@@ -1194,24 +1355,31 @@
             kalkulasiForecasting(); 
             kalkulasiVelocity(); 
             renderHPPPaidList(); // Panggil render List Resi HPP
+            renderOpexDariPanel(); // Pemicu sinkronisasi panel opex baru lu agar otomatis termuat
         }
         function renderOpexSystem() {
-            let key=`opex_BogaKarya86_${bulanAktif}`, rawData=localStorage.getItem(key), listOpex=[], totalOpex=0;
-            let container=document.getElementById("opex-list-container"); container.innerHTML="";
-            if (rawData) { try { let p=JSON.parse(rawData); if (Array.isArray(p)) listOpex=p; else if (p.nominal) listOpex=[p]; } catch(e) { localStorage.removeItem(key); } }
-            let inputTgl=document.getElementById("input-opex-tanggal"); if (inputTgl&&!inputTgl.value) inputTgl.value=new Date().toISOString().split('T')[0];
-            if (listOpex.length===0) {
-                container.innerHTML=`<div class="text-xs text-slate-600 font-medium p-4 text-center border border-dashed border-slate-800 rounded-xl">Belum ada pengeluaran operasional.</div>`;
-            } else {
-                listOpex.forEach((item,idx) => {
-                    totalOpex+=Number(item.nominal); let tglTampil=item.tanggal?`[${item.tanggal}] `:"";
-                    container.innerHTML+=`<div class="flex justify-between items-center bg-slate-950 border border-slate-800/50 p-3 rounded-xl text-xs"><span class="text-slate-300 font-medium"><span class="text-slate-500 font-mono text-[10px] mr-1">${tglTampil}</span>${item.note}</span><span class="font-bold text-rose-400 font-mono flex items-center">Rp ${Number(item.nominal).toLocaleString('id-ID')}<button onclick="editOpex(${idx})" class="ml-4 text-slate-500 hover:text-yellow-400 transition cursor-pointer" title="Edit">✎</button><button onclick="hapusOpex(${idx})" class="ml-2 text-slate-500 hover:text-rose-500 transition cursor-pointer" title="Hapus">✕</button></span></div>`;
-                });
+            let key = `opex_BogaKarya86_${bulanAktif}`;
+            let rawData = localStorage.getItem(key);
+            let totalOpex = 0;
+            
+            // Cukup hitung total OPEX dari memori, nggak usah ngerender HTML lagi
+            if (rawData) { 
+                try { 
+                    let p = JSON.parse(rawData); 
+                    let listOpex = Array.isArray(p) ? p : (p.nominal ? [p] : []);
+                    listOpex.forEach(item => {
+                        totalOpex += Number(item.nominal);
+                    });
+                } catch(e) { 
+                    localStorage.removeItem(key); 
+                } 
             }
-            if (document.getElementById("internal-hpp-paid")) document.getElementById("internal-hpp-paid").innerText=formatRupiah(currentHPPPaid);
-            document.getElementById("internal-owner-kotor").innerText=formatRupiah(currentOwnerGross);
-            document.getElementById("internal-opex-total").innerText="- "+formatRupiah(totalOpex);
-            document.getElementById("internal-net-profit").innerText=formatRupiah(currentOwnerGross-totalOpex);
+
+            // Update angka-angka di Laporan Laba/Rugi (Net Profit)
+            if (document.getElementById("internal-hpp-paid")) document.getElementById("internal-hpp-paid").innerText = formatRupiah(currentHPPPaid);
+            if (document.getElementById("internal-owner-kotor")) document.getElementById("internal-owner-kotor").innerText = formatRupiah(currentOwnerGross);
+            if (document.getElementById("internal-opex-total")) document.getElementById("internal-opex-total").innerText = "- " + formatRupiah(totalOpex);
+            if (document.getElementById("internal-net-profit")) document.getElementById("internal-net-profit").innerText = formatRupiah(currentOwnerGross - totalOpex);
         }
 
         function tambahOpex() {
@@ -1303,7 +1471,9 @@
                 else if (statusUpper==="RETUR"||statusUpper==="FAILED") { statusClass="bg-rose-500/10 text-rose-500 border-rose-500/20"; labaTampil="Rp 0"; }
                 let displayTanggal=item.tanggal?(String(item.tanggal).includes("T")?item.tanggal.split("T")[0]:item.tanggal):"-";
                 let displayID=(item.idPesanan&&String(item.idPesanan).trim()!=="")?item.idPesanan:"Dlm Antrean";
-                let tr=document.createElement("tr"); tr.className="hover:bg-slate-800/50 cursor-pointer transition text-slate-300"; tr.setAttribute("onclick",`bukaModal(${start+index})`);
+                let tr = document.createElement("tr"); 
+                tr.className = "hover:bg-slate-900/80 hover:shadow-[inset_4px_0_0_0_#eab308] cursor-pointer transition-all duration-150 text-slate-300 border-b border-slate-900"; 
+                tr.setAttribute("onclick", `bukaModal(${start+index})`);
                 tr.innerHTML=`<td class="p-4 font-medium">${displayTanggal}</td><td class="p-4 font-mono text-slate-500 text-[11px]">${displayID}</td><td class="p-4 font-semibold text-slate-200">${item.namaProduk||"<span class='text-rose-500 font-bold'>[KOSONG]</span>"}</td><td class="p-4 text-center font-bold text-slate-100">${item.qty||0}</td><td class="p-4 text-right font-mono font-medium text-emerald-400">${labaTampil}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded text-[10px] font-bold tracking-wider border ${statusClass}">${statusUpper}</span></td>`;
                 tbody.appendChild(tr);
             });
@@ -1495,6 +1665,108 @@
             if (elProyeksi) elProyeksi.innerText=formatRupiah(rataHppHarian*daysInMonth);
         }
 
+        // ===== LOGIC OPERASIONAL INPUT OPEX PANEL BARU =====
+        window.renderOpexDariPanel = function() {
+            let key = `opex_BogaKarya86_${bulanAktif}`, rawData = localStorage.getItem(key), listOpex = [], totalOpex = 0;
+            let container = document.getElementById("opex-panel-list-container");
+            if (!container) return;
+            container.innerHTML = "";
+            
+            if (rawData) { 
+                try { 
+                    let p = JSON.parse(rawData); 
+                    if (Array.isArray(p)) listOpex = p; 
+                } catch(e) { localStorage.removeItem(key); } 
+            }
+            
+            let inputTgl = document.getElementById("input-opex-panel-tanggal"); 
+            if (inputTgl && !inputTgl.value) inputTgl.value = new Date().toISOString().split('T')[0];
+            
+            if (listOpex.length === 0) {
+                container.innerHTML = `<div class="text-xs text-slate-600 font-medium p-4 text-center border border-dashed border-slate-800 rounded-xl">Belum ada pengeluaran operasional di periode ini.</div>`;
+            } else {
+                listOpex.forEach((item, idx) => {
+                    totalOpex += Number(item.nominal); 
+                    let tglTampil = item.tanggal ? `[${item.tanggal}] ` : "";
+                    container.innerHTML += `
+                        <div class="flex justify-between items-center bg-slate-950 border border-slate-800/50 p-3 rounded-xl text-xs">
+                            <span class="text-slate-300 font-medium"><span class="text-slate-500 font-mono text-[10px] mr-1">${tglTampil}</span>${item.note}</span>
+                            <span class="font-bold text-rose-400 font-mono flex items-center">
+                                Rp ${Number(item.nominal).toLocaleString('id-ID')}
+                                <button onclick="editOpexDariPanel(${idx})" class="ml-4 text-slate-500 hover:text-yellow-400 transition cursor-pointer" title="Edit">✎</button>
+                                <button onclick="hapusOpexDariPanel(${idx})" class="ml-2 text-slate-500 hover:text-rose-500 transition cursor-pointer" title="Hapus">✕</button>
+                            </span>
+                        </div>`;
+                });
+            }
+            
+            // Otomatis sinkronkan angka opex ke dalam Dapur Finance utama biar ga putus hubungannya
+            if (document.getElementById("opex-list-container")) {
+                renderOpexSystem();
+            }
+        }
+
+        window.tambahOpexDariPanel = function() {
+            let tgl = document.getElementById("input-opex-panel-tanggal").value;
+            let n = document.getElementById("input-opex-panel-nominal").value;
+            let note = document.getElementById("input-opex-panel-note").value;
+            
+            if (!tgl || !n || !note) { alert("Mohon lengkapi Tanggal, Nominal, dan Rincian!"); return; }
+            
+            let key = `opex_BogaKarya86_${bulanAktif}`, list = [];
+            try { let p = JSON.parse(localStorage.getItem(key)); if (Array.isArray(p)) list = p; } catch(e){}
+            
+            list.push({ tanggal: tgl, nominal: n, note: note }); 
+            localStorage.setItem(key, JSON.stringify(list));
+            
+            document.getElementById("input-opex-panel-nominal").value = ""; 
+            document.getElementById("input-opex-panel-note").value = "";
+            
+            renderOpexDariPanel(); 
+            addAuditLog("OPEX_ADDED_STAFF", `Staff mencatat biaya ${note} (Rp ${n})`, "warning");
+            handleUpdate("Data operasional berhasil disimpan!");
+        }
+
+        window.hapusOpexDariPanel = function(idx) {
+            let key = `opex_BogaKarya86_${bulanAktif}`, rawData = localStorage.getItem(key), list = [];
+            if (rawData) { try { let p = JSON.parse(rawData); if (Array.isArray(p)) list = p; } catch(e){} }
+            if (list.length > idx) { 
+                list.splice(idx, 1); 
+                localStorage.setItem(key, JSON.stringify(list)); 
+                
+                // Sinkronisasi ganda ke dua halaman sekaligus
+                renderOpexDariPanel(); 
+                renderOpexSystem(); 
+                
+                addAuditLog("OPEX_DELETED_STAFF", "Staff menghapus data biaya operasional", "danger"); 
+                handleUpdate("Data berhasil dihapus.");
+            }
+        }
+
+        window.editOpexDariPanel = function(idx) {
+            let key = `opex_BogaKarya86_${bulanAktif}`, rawData = localStorage.getItem(key), list = [];
+            if (rawData) { try { let p = JSON.parse(rawData); if (Array.isArray(p)) list = p; } catch(e){} }
+            if (list.length > idx) {
+                let item = list[idx]; 
+                let newNote = prompt("Edit Rincian Biaya:", item.note); if (newNote === null) return;
+                let newNominal = prompt("Edit Nominal (Rp):", item.nominal); if (newNominal === null) return;
+                
+                if (newNote.trim() !== "" && !isNaN(newNominal) && newNominal !== "") { 
+                    list[idx] = { note: newNote, nominal: newNominal, tanggal: item.tanggal }; 
+                    localStorage.setItem(key, JSON.stringify(list)); 
+                    
+                    // Sinkronisasi ganda ke dua halaman sekaligus
+                    renderOpexDariPanel(); 
+                    renderOpexSystem(); 
+                    
+                    addAuditLog("OPEX_EDITED_STAFF", `Staff mengedit biaya menjadi ${newNote}`, "warning"); 
+                    handleUpdate("Data operasional diperbarui!"); 
+                } else { 
+                    toast.error("Data input tidak valid!"); 
+                }
+            }
+        }
+
         // ===== FUNGSI UTILITAS — JANGAN DIHAPUS! =====
         function formatRupiah(a) {
             return "Rp " + Math.round(Number(a || 0)).toLocaleString('id-ID');
@@ -1579,6 +1851,38 @@
             addAuditLog("PRINT_TRANSFER", "Mencetak Surat Perintah Mutasi Internal", "info");
         }
 
+        // Fungsi pemicu buka/tutup notifikasi
+        window.toggleNotifikasi = function(e) {
+            if (e) e.stopPropagation();
+            const dd = document.getElementById("dropdown-notif");
+            const ping1 = document.getElementById("notif-ping-1");
+            const ping2 = document.getElementById("notif-ping-2");
+            
+            if (dd) {
+                dd.classList.toggle("hidden");
+                // Tandai sudah dibaca: hilangkan bintik merah berdenyut
+                if (!dd.classList.contains("hidden")) {
+                    if (ping1) ping1.style.display = "none";
+                    if (ping2) ping2.style.display = "none";
+                }
+            }
+        }
+
+        // Penutup otomatis jika pengguna klik di area luar dropdown
+        document.addEventListener("click", function(e) {
+            const dd = document.getElementById("dropdown-notif");
+            if (dd && !dd.classList.contains("hidden")) {
+                // Pastikan yang diklik bukan bagian dalam dropdown itu sendiri
+                if (!e.target.closest('#dropdown-notif')) {
+                    dd.classList.add("hidden");
+                }
+            }
+        });
+        // Auto-refresh data tiap 5 menit (300.000 milidetik)
+setInterval(() => {
+    console.log("Auto-sync data dimulai...");
+    handleUpload(); // Memanggil fungsi sync yang udah lu punya
+}, 300000);
     </script>
 </body>
 </html>
