@@ -94,9 +94,66 @@
         }
         body.extra-dark ::-webkit-scrollbar-track { background: #000000; }
         body.extra-dark ::-webkit-scrollbar-thumb { background: #1e293b; }
+
+        /* Sonner-style Toast */
+        #sonner-toaster {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: min(360px, calc(100vw - 2rem));
+            pointer-events: none;
+        }
+        .sonner-toast {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            color: #f1f5f9;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            line-height: 1.4;
+            pointer-events: auto;
+            transform: translateX(calc(100% + 1.5rem));
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.21, 1.02, 0.73, 1), opacity 0.35s ease;
+        }
+        .sonner-toast-visible { transform: translateX(0); opacity: 1; }
+        .sonner-toast-exit { transform: translateX(calc(100% + 1.5rem)); opacity: 0; }
+        .sonner-icon {
+            flex-shrink: 0;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+        .sonner-toast-success .sonner-icon { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .sonner-toast-error .sonner-icon { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
+        .sonner-toast-info .sonner-icon { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .sonner-toast-warning .sonner-icon { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+        .sonner-toast-loading .sonner-icon { background: rgba(148, 163, 184, 0.15); color: #94a3b8; animation: sonner-spin 0.8s linear infinite; }
+        @keyframes sonner-spin { to { transform: rotate(360deg); } }
+        @media (max-width: 640px) {
+            #sonner-toaster { top: auto; bottom: 1rem; right: 1rem; left: 1rem; width: auto; }
+            .sonner-toast { font-size: 0.75rem; }
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-300 antialiased overflow-hidden">
+
+    <div id="sonner-toaster" class="no-print" aria-live="polite" aria-label="Notifikasi"></div>
 
     <div id="login-layar" class="min-h-screen bg-slate-950 flex items-center justify-center absolute w-full h-full z-[100] no-print">
         <div class="bg-slate-900/80 backdrop-blur-xl p-10 rounded-2xl border border-slate-800 shadow-[0_0_40px_rgba(0,0,0,0.5)] w-11/12 max-w-sm text-center">
@@ -173,9 +230,12 @@
             <header class="h-20 bg-slate-900/60 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-8 sticky top-0 z-20">
                 <div>
                     <h1 class="text-xl font-bold text-slate-100 tracking-tight">Kinerja Bisnis Global</h1>
-                    <div id="sync-status" class="flex items-center gap-2 mt-0.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span class="text-[10px] text-slate-400 font-mono">Tersinkronisasi & Aktif</span>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <div id="sync-status" class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="text-[10px] text-slate-400 font-mono">Tersinkronisasi & Aktif</span>
+                        </div>
+                        <button onclick="handleUpload()" title="Sinkron ulang data" class="text-slate-500 hover:text-yellow-400 transition text-xs cursor-pointer ml-1">↻</button>
                     </div>
                 </div>
                 <div class="flex items-center gap-6">
@@ -602,6 +662,52 @@
 
         const DARK_MODE_KEY = "bk86_dark_mode";
 
+        const toast = (() => {
+            const icons = { success: "✓", error: "✕", info: "i", warning: "!", loading: "↻" };
+
+            function show(message, type = "default", duration = 4000) {
+                const toaster = document.getElementById("sonner-toaster");
+                const el = document.createElement("div");
+                el.className = `sonner-toast sonner-toast-${type}`;
+                el.innerHTML = `<span class="sonner-icon">${icons[type] || ""}</span><span>${message}</span>`;
+                toaster.appendChild(el);
+                requestAnimationFrame(() => el.classList.add("sonner-toast-visible"));
+
+                const dismiss = () => {
+                    el.classList.remove("sonner-toast-visible");
+                    el.classList.add("sonner-toast-exit");
+                    setTimeout(() => el.remove(), 350);
+                };
+
+                if (type !== "loading" && duration > 0) setTimeout(dismiss, duration);
+                return { dismiss };
+            }
+
+            return {
+                success: (msg) => show(msg, "success"),
+                error: (msg) => show(msg, "error"),
+                info: (msg) => show(msg, "info"),
+                warning: (msg) => show(msg, "warning"),
+                loading: (msg) => show(msg, "loading", 0)
+            };
+        })();
+
+        window.handleUpdate = function handleUpdate(message) {
+            toast.success(message || "Data berhasil diperbarui!");
+        };
+
+        window.handleUpload = async function handleUpload() {
+            const loadingToast = toast.loading("Menyinkronkan data...");
+            try {
+                await fetchData(true);
+                loadingToast.dismiss();
+                toast.success("Data berhasil diperbarui!");
+            } catch (error) {
+                loadingToast.dismiss();
+                toast.error("Gagal memuat data dari Supabase.");
+            }
+        };
+
         function applyDarkMode(isDark) {
             document.body.classList.toggle("extra-dark", isDark);
         }
@@ -723,7 +829,7 @@
             return null;
         }
 
-        async function fetchData() {
+        async function fetchData(silent = false) {
             const syncStatus = document.getElementById("sync-status");
             if (syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span> <span class="text-[10px] text-slate-400 font-mono">Menyinkronkan...</span>`;
             try {
@@ -742,10 +848,13 @@
                 DAFTAR_BULAN = Array.from(setBulan).sort().reverse();
                 buatDropdownBulan(); buatTombolFilterDinamis(); aplikasikanFilter();
                 if (syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> <span class="text-[10px] text-slate-400 font-mono">Tersinkronisasi</span>`;
+                if (!silent) toast.success("Data berhasil dimuat!");
             } catch (error) {
                 console.error("Supabase fetch error:", error);
                 document.getElementById("tabel-body").innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-500 font-medium">Gagal memuat data dari Supabase.</td></tr>`;
                 if (syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> <span class="text-[10px] text-rose-400 font-mono">Terputus</span>`;
+                toast.error("Gagal memuat data dari Supabase.");
+                throw error;
             }
         }
 
@@ -767,6 +876,7 @@
             if (input !== null && !isNaN(parseInt(input)) && parseInt(input) > 0) {
                 targetBulanan = parseInt(input); localStorage.setItem("target_BogaKarya86", targetBulanan);
                 hitungDashboard(); addAuditLog("UPDATE_TARGET", `Target diubah menjadi ${targetBulanan} Pcs`, "info");
+                handleUpdate("Target bulanan berhasil diperbarui!");
             }
         }
 
@@ -897,6 +1007,7 @@
             list.push({tanggal:tgl,nominal:n,note:note}); localStorage.setItem(key,JSON.stringify(list));
             document.getElementById("input-opex-nominal").value=""; document.getElementById("input-opex-note").value="";
             renderOpexSystem(); addAuditLog("OPEX_ADDED",`Catat biaya ${note} (Rp ${n}) pada ${tgl}`,"warning");
+            handleUpdate("Data berhasil diperbarui!");
         }
 
         function hapusOpex(idx) {
@@ -911,8 +1022,8 @@
             if (list.length>idx) {
                 let item=list[idx]; let newNote=prompt("Edit Rincian Biaya:",item.note); if (newNote===null) return;
                 let newNominal=prompt("Edit Nominal (Rp):",item.nominal); if (newNominal===null) return;
-                if (newNote.trim()!==""&&!isNaN(newNominal)&&newNominal!=="") { list[idx]={note:newNote,nominal:newNominal}; localStorage.setItem(key,JSON.stringify(list)); renderOpexSystem(); addAuditLog("OPEX_EDITED",`Edit biaya menjadi ${newNote} (Rp ${newNominal})`,"warning"); }
-                else alert("Data tidak valid!");
+                if (newNote.trim()!==""&&!isNaN(newNominal)&&newNominal!=="") { list[idx]={note:newNote,nominal:newNominal}; localStorage.setItem(key,JSON.stringify(list)); renderOpexSystem(); addAuditLog("OPEX_EDITED",`Edit biaya menjadi ${newNote} (Rp ${newNominal})`,"warning"); handleUpdate("Data berhasil diperbarui!"); }
+                else { toast.error("Data tidak valid!"); }
             }
         }
 
