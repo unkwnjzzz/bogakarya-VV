@@ -866,9 +866,31 @@
     function mulaiJamLive() {
         const elJam = document.getElementById("live-clock");
         if (!elJam) return;
-        setInterval(() => { elJam.innerText = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB"; }, 1000);
-    }
+        
+        setInterval(() => { 
+            const now = new Date();
+            elJam.innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB"; 
 
+            // --- ROBOT AUTO DARK MODE (Pengecekan Tiap Detik) ---
+            const jam = now.getHours();
+            const menit = now.getMinutes();
+            const detik = now.getSeconds();
+
+            // Pemicu tepat jam 18:00:00 (Otomatis Gelap)
+            if (jam === 18 && menit === 0 && detik === 0) {
+                applyDarkMode(true);
+                localStorage.setItem(DARK_MODE_KEY, "1");
+                toast.info("🌙 Memasuki waktu malam, Auto Dark Mode diaktifkan.");
+            }
+            
+            // Pemicu tepat jam 06:00:00 (Otomatis Terang)
+            if (jam === 6 && menit === 0 && detik === 0) {
+                applyDarkMode(false);
+                localStorage.setItem(DARK_MODE_KEY, "0");
+                toast.info("☀️ Selamat pagi, mode terang diaktifkan otomatis.");
+            }
+        }, 1000);
+    }
     function buildCurrentUser(user) {
         const meta = user.user_metadata || {};
         return { email: user.email, nama: meta.nama || meta.full_name || (user.email ? user.email.split("@")[0] : "User"), role: String(meta.role || "ADMIN").toUpperCase() };
