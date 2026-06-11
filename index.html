@@ -189,7 +189,7 @@
                     </div>
                     <div>
                         <h2 class="text-sm font-bold text-slate-200 tracking-wide">BOGA KARYA86</h2>
-                        <p class="text-[9px] text-slate-500 font-medium">ERP System v2.3</p>
+                        <p class="text-[9px] text-slate-500 font-medium">ERP System v2.4</p>
                     </div>
                 </div>
             </div>
@@ -210,13 +210,11 @@
                     <button id="tab-btn-internal" onclick="bukaTabInternal(event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
                         <span class="text-lg opacity-70">🔒</span> Dapur Finance
                     </button>
-                    <button onclick="alert('🔮 Coming Soon: Fitur Real-Time Valuasi Stok Gudang & Nilai Aset Mati Boga Karya 86.')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:text-slate-500 transition font-medium text-sm cursor-pointer">
-                        <div class="flex items-center gap-3"><span class="text-lg opacity-40">📦</span> Valuasi Stok</div>
-                        <span class="text-[9px] bg-slate-800/50 text-slate-500 border border-slate-700/50 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Soon</span>
+                    <button onclick="switchTab('valuasi-stok', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
+                        <span class="text-lg opacity-70">📦</span> Valuasi Stok
                     </button>
-                    <button onclick="alert('🔮 Coming Soon: Rapor Loyalitas Investor (Grafik Akumulasi Histori Dividen Terbanyak).')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:text-slate-500 transition font-medium text-sm cursor-pointer">
-                        <div class="flex items-center gap-3"><span class="text-lg opacity-40">💎</span> Rapor Investor</div>
-                        <span class="text-[9px] bg-slate-800/50 text-slate-500 border border-slate-700/50 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Soon</span>
+                    <button onclick="switchTab('rapor-investor', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
+                        <span class="text-lg opacity-70">💎</span> Rapor Investor
                     </button>
                     <button onclick="alert('🔮 Coming Soon: Sistem Budgeting & Target Net Profit Tunai (Bukan Cuma Hitung Pcs).')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:text-slate-500 transition font-medium text-sm cursor-pointer">
                         <div class="flex items-center gap-3"><span class="text-lg opacity-40">🎯</span> Budget Target</div>
@@ -302,25 +300,11 @@
                         <div id="dropdown-notif" class="hidden absolute right-0 mt-2 w-80 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl z-50 py-2 overflow-hidden">
                             <div class="px-4 py-2 border-b border-slate-900 flex justify-between items-center">
                                 <span class="text-xs font-bold text-slate-200 tracking-wide">Pemberitahuan Sistem</span>
-                                <span class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded-full font-mono">v2.2</span>
+                                <span class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded-full font-mono">v2.4</span>
                             </div>
-                            <div class="max-h-72 overflow-y-auto divide-y divide-slate-900/50">
-                                <div class="p-3.5 hover:bg-slate-900/40 transition">
-                                    <p class="text-[11px] font-bold text-slate-300">Siklus Sinkronisasi OPEX Selesai</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5">Input data dari laci operasional staff kini langsung memotong brankas keuangan utama milik owner secara real-time.</p>
-                                </div>
-                                <div class="p-3.5 hover:bg-slate-900/40 transition">
-                                    <p class="text-[11px] font-bold text-slate-300">Shortcut Global Ctrl + K Aktif</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5">Akses cepat ke modul pencarian data transaksi dari halaman mana pun langsung menggunakan kombinasi keyboard.</p>
-                                </div>
-                                <div class="p-3.5 hover:bg-slate-900/40 transition">
-                                    <p class="text-[11px] font-bold text-slate-300">Fitur Waktu & Auto Dark Mode</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5">Jam digital monospace terpasang di header. Tema aplikasi otomatis beralih ke mode gelap mulai pukul 18:00 WIB.</p>
-                                </div>
-                                <div class="p-3.5 hover:bg-slate-900/40 transition">
-                                    <p class="text-[11px] font-bold text-slate-300">Proteksi Menu & Sapaan Tampilan</p>
-                                    <p class="text-[10px] text-slate-500 mt-0.5">Sistem autentikasi diperketat untuk memisahkan area rahasia dapur keuangan dari akun ber-role Investor dan Admin.</p>
-                                </div>
+                            <!-- WADAH KOSONG BUAT ROBOT -->
+                            <div id="dropdown-notif-list" class="max-h-72 overflow-y-auto divide-y divide-slate-900/50">
+                                <!-- Nanti diisi otomatis oleh Robot JS -->
                             </div>
                         </div>
                     </div>
@@ -680,10 +664,153 @@
                         </div>
                     </div>
 
+                        <!-- TAB: VALUASI STOK (GUDANG) -->
+                    <div id="valuasi-stok" class="tab-content space-y-6">
+                        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6">
+                            <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-200">📦 Manajemen Gudang & Valuasi Aset</h2>
+                                    <p class="text-[10px] text-slate-500 mt-1">Pantau sisa fisik barang dan total uang mati di gudang.</p>
+                                </div>
+                                <button onclick="tambahStokMasuk()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer">
+                                    + Input Stok Masuk
+                                </button>
+                            </div>
+                            <!-- TAB: RAPOR INVESTOR (v2.4) -->
+                    <div id="rapor-investor" class="tab-content space-y-6">
+                        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6">
+                            <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-200">💎 Rapor Loyalitas Investor</h2>
+                                    <p class="text-[10px] text-slate-500 mt-1">Histori pencairan dividen dan akumulasi profit Mitra Investor.</p>
+                                </div>
+                                <button onclick="tambahDividen()" class="bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer">
+                                    + Catat Pencairan
+                                </button>
+                            </div>
+                            
+                            <div class="bg-slate-950 p-5 rounded-xl border border-violet-900/30 shadow-[0_0_15px_rgba(139,92,246,0.05)] mb-6 relative overflow-hidden">
+                                <div class="absolute right-0 top-0 w-16 h-16 bg-violet-500/5 rounded-bl-full"></div>
+                                <span class="text-[10px] uppercase tracking-widest text-violet-500 font-bold block mb-1 relative z-10">Total Dividen Dicairkan (All Time)</span>
+                                <h3 id="rapor-total-dividen" class="text-3xl font-bold text-violet-400 font-mono relative z-10">Rp 0</h3>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-slate-950 border-b border-slate-800 text-slate-500 text-xs text-left">
+                                        <tr>
+                                            <th class="p-4 font-medium rounded-tl-xl">Tanggal Cair</th>
+                                            <th class="p-4 font-medium">Periode Bagi Hasil</th>
+                                            <th class="p-4 font-medium">Keterangan</th>
+                                            <th class="p-4 text-right font-medium">Nominal Dividen</th>
+                                            <th class="p-4 text-center font-medium rounded-tr-xl">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabel-rapor" class="divide-y divide-slate-800/50 text-slate-300">
+                                        <tr><td colspan="5" class="p-8 text-center text-slate-500 text-xs">Memuat data rapor investor...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                            
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50">
+                                    <span class="text-[10px] uppercase tracking-widest text-slate-500 font-bold block mb-1">Total Item Tersisa</span>
+                                    <h3 id="gudang-total-item" class="text-2xl font-bold text-slate-200 font-mono">0 Pcs</h3>
+                                </div>
+                                <div class="bg-slate-950 p-5 rounded-xl border border-yellow-900/30 shadow-[0_0_15px_rgba(234,179,8,0.05)] relative overflow-hidden">
+                                    <div class="absolute right-0 top-0 w-16 h-16 bg-yellow-500/5 rounded-bl-full"></div>
+                                    <span class="text-[10px] uppercase tracking-widest text-yellow-500 font-bold block mb-1 relative z-10">Total Valuasi Uang Mati</span>
+                                    <h3 id="gudang-total-valuasi" class="text-2xl font-bold text-yellow-400 font-mono relative z-10">Rp 0</h3>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-slate-950 border-b border-slate-800 text-slate-500 text-xs text-left">
+                                        <tr>
+                                            <th class="p-4 font-medium rounded-tl-xl">Nama Produk</th>
+                                            <th class="p-4 text-center font-medium">Masuk (Modal/Pcs)</th>
+                                            <th class="p-4 text-center font-medium">Laku (Terjual)</th>
+                                            <th class="p-4 text-center font-medium">Sisa Fisik</th>
+                                            <th class="p-4 text-right font-medium">Valuasi (Aset)</th>
+                                            <th class="p-4 text-center font-medium rounded-tr-xl">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabel-gudang" class="divide-y divide-slate-800/50 text-slate-300">
+                                        <tr><td colspan="6" class="p-8 text-center text-slate-500 text-xs">Memuat data gudang...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
+
+    
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50">
+                                    <span class="text-[10px] uppercase tracking-widest text-slate-500 font-bold block mb-1">Total Item Tersisa</span>
+                                    <h3 id="gudang-total-item" class="text-2xl font-bold text-slate-200 font-mono">0 Pcs</h3>
+                                </div>
+                                <div class="bg-slate-950 p-5 rounded-xl border border-yellow-900/30 shadow-[0_0_15px_rgba(234,179,8,0.05)] relative overflow-hidden">
+                                    <div class="absolute right-0 top-0 w-16 h-16 bg-yellow-500/5 rounded-bl-full"></div>
+                                    <span class="text-[10px] uppercase tracking-widest text-yellow-500 font-bold block mb-1 relative z-10">Total Valuasi Uang Mati</span>
+                                    <h3 id="gudang-total-valuasi" class="text-2xl font-bold text-yellow-400 font-mono relative z-10">Rp 0</h3>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-slate-950 border-b border-slate-800 text-slate-500 text-xs text-left">
+                                        <tr>
+                                            <th class="p-4 font-medium rounded-tl-xl">Nama Produk</th>
+                                            <th class="p-4 text-center font-medium">Masuk (Modal/Pcs)</th>
+                                            <th class="p-4 text-center font-medium">Laku (Terjual)</th>
+                                            <th class="p-4 text-center font-medium">Sisa Fisik</th>
+                                            <th class="p-4 text-right font-medium">Valuasi (Aset)</th>
+                                            <th class="p-4 text-center font-medium rounded-tr-xl">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabel-gudang" class="divide-y divide-slate-800/50 text-slate-300">
+                                        <tr><td colspan="6" class="p-8 text-center text-slate-500 text-xs">Memuat data gudang...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                            
+                            <div class="bg-slate-950 p-5 rounded-xl border border-violet-900/30 shadow-[0_0_15px_rgba(139,92,246,0.05)] mb-6 relative overflow-hidden">
+                                <div class="absolute right-0 top-0 w-16 h-16 bg-violet-500/5 rounded-bl-full"></div>
+                                <span class="text-[10px] uppercase tracking-widest text-violet-500 font-bold block mb-1 relative z-10">Total Dividen Dicairkan (All Time)</span>
+                                <h3 id="rapor-total-dividen" class="text-3xl font-bold text-violet-400 font-mono relative z-10">Rp 0</h3>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-slate-950 border-b border-slate-800 text-slate-500 text-xs text-left">
+                                        <tr>
+                                            <th class="p-4 font-medium rounded-tl-xl">Tanggal Cair</th>
+                                            <th class="p-4 font-medium">Periode Bagi Hasil</th>
+                                            <th class="p-4 font-medium">Keterangan</th>
+                                            <th class="p-4 text-right font-medium">Nominal Dividen</th>
+                                            <th class="p-4 text-center font-medium rounded-tr-xl">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabel-rapor" class="divide-y divide-slate-800/50 text-slate-300">
+                                        <tr><td colspan="5" class="p-8 text-center text-slate-500 text-xs">Memuat data rapor investor...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
 
     <!-- MODAL TRANSAKSI -->
     <div id="modal-transaksi" class="modal no-print">
@@ -891,6 +1018,7 @@
             }
         }, 1000);
     }
+
     function buildCurrentUser(user) {
         const meta = user.user_metadata || {};
         return { email: user.email, nama: meta.nama || meta.full_name || (user.email ? user.email.split("@")[0] : "User"), role: String(meta.role || "ADMIN").toUpperCase() };
@@ -1080,7 +1208,11 @@
         let targetTab = document.getElementById(tabName);
         if (targetTab) targetTab.classList.add('active');
         if (event) { event.currentTarget.classList.add('bg-slate-800/80', 'text-slate-200'); }
+        
+        // --- TRIGGER OTOMATIS SAAT TAB DIKLIK ---
         if (tabName === 'opex-panel') { renderOpexDariPanel(); }
+        if (tabName === 'valuasi-stok') { loadDanRenderGudang(); } 
+        if (tabName === 'rapor-investor') { loadRaporInvestor(); }
     }
 
     function buatTombolFilterDinamis() {
@@ -1209,18 +1341,67 @@
         await supabaseClient.from('audit_log').insert([newLog]);
     }
 
+    // --- DATABASE UPDATE FITUR (Otomatis Masuk Lonceng v2.4) ---
+    const CHANGELOG_APP = [
+        { tgl: "v2.4", judul: "💎 Rapor Investor Rilis!", desc: "Menu Rapor Investor kini aktif. Tracking histori pencairan dividen & akumulasi profit mitra secara real-time." },
+        { tgl: "v2.3", judul: "🚀 Valuasi Stok Gudang", desc: "Menu Gudang kini terintegrasi langsung dengan Supabase untuk hitung uang mati." },
+        { tgl: "Sistem", judul: "☁️ Migrasi Database Cloud", desc: "Data aman tersimpan di awan secara real-time." }
+    ];
+
     function renderAuditLog() {
         const c = document.getElementById("audit-log-container");
         c.innerHTML = "";
-        if (auditLog.length === 0) { c.innerHTML='<div class="text-xs text-slate-500 font-medium">Belum ada rekam jejak aktivitas.</div>'; return; }
-        auditLog.slice(0, 30).forEach(log => {
-            let icon = log.type==="warning"?"⚠️":(log.type==="danger"?"🛑":(log.type==="success"?"✅":"ℹ️"));
-            let time = new Date(log.timestamp).toLocaleTimeString('id-ID'), pelaporTampil = log.pelapor ? log.pelapor : "System";
-            let div = document.createElement("div"); 
-            div.className = "bg-slate-950/50 border border-slate-800/50 p-3 rounded-xl text-xs";
-            div.innerHTML = `<div class="flex justify-between items-start mb-1"><span class="font-medium text-slate-300">${icon} <strong class="text-slate-400">[${pelaporTampil}]</strong> ${log.action}</span><span class="text-slate-500 font-mono text-[10px]">${time}</span></div><div class="text-slate-500 ml-5 mt-1">${log.details}</div>`;
-            c.appendChild(div);
+        if (auditLog.length === 0) { c.innerHTML='<div class="text-xs text-slate-500 font-medium">Belum ada rekam jejak aktivitas.</div>'; }
+        else {
+            auditLog.slice(0, 30).forEach(log => {
+                let icon = log.type==="warning"?"⚠️":(log.type==="danger"?"🛑":(log.type==="success"?"✅":"ℹ️"));
+                let time = new Date(log.timestamp).toLocaleTimeString('id-ID'), pelaporTampil = log.pelapor ? log.pelapor : "System";
+                let div = document.createElement("div"); 
+                div.className = "bg-slate-950/50 border border-slate-800/50 p-3 rounded-xl text-xs";
+                div.innerHTML = `<div class="flex justify-between items-start mb-1"><span class="font-medium text-slate-300">${icon} <strong class="text-slate-400">[${pelaporTampil}]</strong> ${log.action}</span><span class="text-slate-500 font-mono text-[10px]">${time}</span></div><div class="text-slate-500 ml-5 mt-1">${log.details}</div>`;
+                c.appendChild(div);
+            });
+        }
+        
+        // --- PANGGIL ROBOT LONCENG PINTAR ---
+        renderLoncengPintar();
+    }
+
+    function renderLoncengPintar() {
+        const listContainer = document.getElementById("dropdown-notif-list");
+        if (!listContainer) return;
+        listContainer.innerHTML = "";
+        
+        // 1. Suntik Pemberitahuan Update Versi Kodingan (Selalu di atas)
+        CHANGELOG_APP.forEach(info => {
+            listContainer.innerHTML += `
+                <div class="p-3.5 bg-yellow-500/5 hover:bg-yellow-500/10 transition border-l-2 border-yellow-500">
+                    <div class="flex justify-between items-start mb-0.5">
+                        <p class="text-[11px] font-bold text-yellow-500">${info.judul}</p>
+                        <span class="text-[8px] bg-yellow-500/20 text-yellow-600 px-1 rounded font-mono">${info.tgl}</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 leading-relaxed mt-1">${info.desc}</p>
+                </div>
+            `;
         });
+
+        // 2. Suntik 4 Aktivitas Log Terbaru dari Staff/Owner
+        if (auditLog && auditLog.length > 0) {
+            let logTerbaru = auditLog.slice(0, 4);
+            logTerbaru.forEach(log => {
+                let p = log.pelapor || "System";
+                let w = new Date(log.timestamp).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                listContainer.innerHTML += `
+                    <div class="p-3.5 hover:bg-slate-900/40 transition">
+                        <div class="flex justify-between items-start mb-0.5">
+                            <p class="text-[11px] font-bold text-slate-300">Aktivitas: ${p}</p>
+                            <span class="text-[8px] text-slate-500">${w}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1">${log.action}: ${log.details}</p>
+                    </div>
+                `;
+            });
+        }
     }
 
     async function editTargetBulanan() {
@@ -1764,6 +1945,223 @@
     });
 
     setInterval(() => { console.log("Auto-sync data dimulai..."); handleUpload(); }, 300000);
+    // =========================================================================
+    // BIG PROJECT 1: SISTEM VALUASI STOK (MANAJEMEN GUDANG)
+    // =========================================================================
+    
+    let masterGudang = [];
+
+    async function loadDanRenderGudang() {
+        let loadingInstance = toast.loading("Menyinkronkan Gudang...");
+        // Tarik data stok dari Supabase
+        const { data, error } = await supabaseClient.from('stok_gudang').select('*').order('id', { ascending: false });
+        if (error) { 
+            loadingInstance.dismiss(); 
+            toast.error("Gagal memuat data gudang!"); 
+            return; 
+        }
+        masterGudang = data || [];
+        renderTabelGudang();
+        loadingInstance.dismiss();
+    }
+
+    function renderTabelGudang() {
+        const tbody = document.getElementById("tabel-gudang");
+        tbody.innerHTML = "";
+        let totalItemSemua = 0;
+        let totalValuasiSemua = 0;
+
+        // 1. Hitung total barang LAKU (Cuma status READY & PAID)
+        let terjualMap = {};
+        filteredData.forEach(item => {
+            let st = String(item.status || "WAITING").toUpperCase();
+            if (st === "READY" || st === "PAID") {
+                let prod = String(item.namaProduk || "").trim().toUpperCase();
+                if (prod !== "") {
+                    terjualMap[prod] = (terjualMap[prod] || 0) + Number(item.qty || 0);
+                }
+            }
+        });
+
+        if (masterGudang.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500 text-xs">Belum ada data stok masuk. Klik "+ Input Stok Masuk" di pojok kanan atas.</td></tr>`;
+        } else {
+            // 2. Render dan kalkulasi sisa fisik per produk
+            masterGudang.forEach(item => {
+                let namaProd = String(item.nama_produk).trim().toUpperCase();
+                let laku = terjualMap[namaProd] || 0;
+                let sisaFisik = Number(item.stok_masuk) - laku;
+                
+                // Cegah minus kalau admin belum update stok tapi barang udah laku jalan
+                if (sisaFisik < 0) sisaFisik = 0; 
+                
+                let valuasi = sisaFisik * Number(item.hpp_satuan);
+
+                totalItemSemua += sisaFisik;
+                totalValuasiSemua += valuasi;
+
+                let tr = document.createElement("tr");
+                tr.className = "border-b border-slate-800/50 hover:bg-slate-800/40 transition text-slate-300";
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-200">${item.nama_produk}</td>
+                    <td class="p-4 text-center font-bold text-sky-400 bg-sky-500/5">${item.stok_masuk} <span class="text-[10px] text-slate-500 font-normal block mt-0.5">Modal: Rp ${Number(item.hpp_satuan).toLocaleString('id-ID')}</span></td>
+                    <td class="p-4 text-center font-bold text-emerald-400 bg-emerald-500/5">${laku}</td>
+                    <td class="p-4 text-center font-bold text-yellow-500 text-lg bg-yellow-500/5">${sisaFisik}</td>
+                    <td class="p-4 text-right font-mono font-bold text-slate-200">Rp ${valuasi.toLocaleString('id-ID')}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="hapusStok(${item.id})" class="text-[10px] uppercase font-bold tracking-wider bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded transition border border-rose-500/20 cursor-pointer">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 3. Tembak total angka ke UI Raksasa di atas
+        document.getElementById("gudang-total-item").innerText = `${totalItemSemua} Pcs`;
+        document.getElementById("gudang-total-valuasi").innerText = "Rp " + totalValuasiSemua.toLocaleString('id-ID');
+    }
+
+    async function tambahStokMasuk() {
+        let namaProd = prompt("Masukkan NAMA PRODUK:\n(Penting: Ketik persis sesuai dengan nama produk di Data Transaksi biar sistem bisa nyambungin datanya)");
+        if (!namaProd) return;
+        
+        let stok = prompt(`Berapa total STOK AWAL / MASUK untuk [ ${namaProd.toUpperCase()} ]?`);
+        if (!stok || isNaN(stok)) return;
+        
+        let hpp = prompt(`Berapa harga MODAL (HPP) SATUAN untuk [ ${namaProd.toUpperCase()} ]?\nKetik angka saja, tanpa titik/koma (Contoh: 150000)`);
+        if (!hpp || isNaN(hpp)) return;
+
+        let payload = {
+            nama_produk: namaProd.trim().toUpperCase(),
+            stok_masuk: parseInt(stok),
+            hpp_satuan: parseFloat(hpp)
+        };
+
+        let loadingInstance = toast.loading("Merekam ke Gudang Cloud...");
+        const { error } = await supabaseClient.from('stok_gudang').insert([payload]);
+        
+        if (!error) {
+            addAuditLog("GUDANG_ADDED", `Stok masuk ${namaProd.toUpperCase()}: ${stok} Pcs`, "warning");
+            await loadDanRenderGudang();
+            loadingInstance.dismiss();
+            toast.success("Stok berhasil ditambahkan ke Gudang!");
+        } else {
+            loadingInstance.dismiss();
+            toast.error("Gagal menyimpan stok ke Supabase!");
+        }
+    }
+
+    async function hapusStok(id) {
+        if (!confirm("Yakin ingin menghapus catatan stok ini?")) return;
+        
+        let loadingInstance = toast.loading("Menghapus dari Gudang...");
+        const { error } = await supabaseClient.from('stok_gudang').delete().eq('id', id);
+        
+        if (!error) {
+            addAuditLog("GUDANG_DELETED", `Hapus catatan stok (ID: ${id})`, "danger");
+            await loadDanRenderGudang();
+            loadingInstance.dismiss();
+            toast.success("Data stok berhasil dihapus!");
+        } else {
+            loadingInstance.dismiss();
+            toast.error("Gagal menghapus data!");
+        }
+    }
+    // =========================================================================
+    // BIG PROJECT 2: RAPOR INVESTOR (V2.4)
+    // =========================================================================
+    
+    let masterRaporInvestor = [];
+
+    async function loadRaporInvestor() {
+        let loadingInstance = toast.loading("Menarik data Investor...");
+        const { data, error } = await supabaseClient.from('rapor_investor').select('*').order('tanggal', { ascending: false });
+        
+        if (error) { 
+            loadingInstance.dismiss(); toast.error("Gagal memuat rapor investor!"); return; 
+        }
+        
+        masterRaporInvestor = data || [];
+        renderTabelRapor();
+        loadingInstance.dismiss();
+    }
+
+    function renderTabelRapor() {
+        const tbody = document.getElementById("tabel-rapor");
+        tbody.innerHTML = "";
+        let totalAllTime = 0;
+
+        if (masterRaporInvestor.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 text-xs">Belum ada catatan pencairan dividen. Klik "+ Catat Pencairan".</td></tr>`;
+        } else {
+            masterRaporInvestor.forEach(item => {
+                totalAllTime += Number(item.nominal);
+                
+                let tr = document.createElement("tr");
+                tr.className = "border-b border-slate-800/50 hover:bg-slate-800/40 transition text-slate-300";
+                tr.innerHTML = `
+                    <td class="p-4 font-medium text-slate-400">${item.tanggal}</td>
+                    <td class="p-4 font-bold text-slate-200"><span class="bg-slate-800 px-2 py-1 rounded text-xs border border-slate-700">${item.periode}</span></td>
+                    <td class="p-4 text-slate-300">${item.keterangan}</td>
+                    <td class="p-4 text-right font-mono font-bold text-violet-400">Rp ${Number(item.nominal).toLocaleString('id-ID')}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="hapusDividen(${item.id})" class="text-[10px] uppercase font-bold tracking-wider text-rose-500 hover:text-rose-400 transition cursor-pointer">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        document.getElementById("rapor-total-dividen").innerText = "Rp " + totalAllTime.toLocaleString('id-ID');
+    }
+
+    async function tambahDividen() {
+        let tgl = prompt("Tanggal Cair (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+        if (!tgl) return;
+        
+        let periode = prompt("Periode Bagi Hasil (Misal: Mei 2026):");
+        if (!periode) return;
+
+        let nominal = prompt("Nominal Dividen (Rp)\nKetik angka saja tanpa titik (Contoh: 1500000):");
+        if (!nominal || isNaN(nominal)) return;
+        
+        let ket = prompt("Keterangan Tambahan (Misal: Transfer via BCA):", "Transfer Dividen");
+        if (!ket) return;
+
+        let payload = {
+            tanggal: tgl,
+            periode: periode,
+            nominal: parseFloat(nominal),
+            keterangan: ket
+        };
+
+        let loadingInstance = toast.loading("Menyimpan rekam jejak...");
+        const { error } = await supabaseClient.from('rapor_investor').insert([payload]);
+        
+        if (!error) {
+            addAuditLog("DIVIDEN_PAID", `Mencatat dividen cair: ${periode} (Rp ${nominal})`, "success");
+            await loadRaporInvestor();
+            loadingInstance.dismiss();
+            toast.success("Dividen berhasil dicatat!");
+        } else {
+            loadingInstance.dismiss(); toast.error("Gagal mencatat dividen!");
+        }
+    }
+
+    async function hapusDividen(id) {
+        if (!confirm("Hapus histori pencairan ini? Nominal akan dikurangi dari Total All Time.")) return;
+        
+        let loadingInstance = toast.loading("Menghapus histori...");
+        const { error } = await supabaseClient.from('rapor_investor').delete().eq('id', id);
+        
+        if (!error) {
+            addAuditLog("DIVIDEN_DELETED", `Menghapus catatan dividen (ID: ${id})`, "danger");
+            await loadRaporInvestor();
+            loadingInstance.dismiss();
+            toast.success("Histori berhasil dihapus!");
+        } else {
+            loadingInstance.dismiss(); toast.error("Gagal menghapus data!");
+        }
+    }
     </script>
 </body>
 </html>
