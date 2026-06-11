@@ -189,7 +189,7 @@
                     </div>
                     <div>
                         <h2 class="text-sm font-bold text-slate-200 tracking-wide">BOGA KARYA86</h2>
-                        <p class="text-[9px] text-slate-500 font-medium">ERP System v2.4</p>
+                        <p class="text-[9px] text-slate-500 font-medium">ERP System v2.7</p>
                     </div>
                 </div>
             </div>
@@ -216,20 +216,14 @@
                     <button onclick="switchTab('rapor-investor', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
                         <span class="text-lg opacity-70">💎</span> Rapor Investor
                     </button>
-                    <button onclick="alert('🔮 Coming Soon: Sistem Budgeting & Target Net Profit Tunai (Bukan Cuma Hitung Pcs).')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:text-slate-500 transition font-medium text-sm cursor-pointer">
-                        <div class="flex items-center gap-3"><span class="text-lg opacity-40">🎯</span> Budget Target</div>
-                        <span class="text-[9px] bg-slate-800/50 text-slate-500 border border-slate-700/50 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Soon</span>
+                    <button onclick="switchTab('budget-target', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
+                        <span class="text-lg opacity-70">🎯</span> Budget Target
                     </button>
-
                     <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Operasional Toko</span>
-                    <button onclick="switchTab('opex-panel', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
-                        <span class="text-lg opacity-70">💸</span> Input Data OPEX
+                    <button onclick="switchTab('opex-panel', event)" class="tab-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
+                        <div class="flex items-center gap-3"><span class="text-lg opacity-70">📝</span> Input Opex & Sales</div>
+                        
                     </button>
-                    <button onclick="alert('🔮 Fitur CS Coming Soon: Form Order Manual WhatsApp terintegrasi otomatis ke Supabase!')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 hover:text-slate-500 transition font-medium text-sm cursor-pointer">
-                        <div class="flex items-center gap-3"><span class="text-lg opacity-40">📝</span> Input Penjualan</div>
-                        <span class="text-[9px] bg-slate-800/50 text-slate-500 border border-slate-700/50 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Soon</span>
-                    </button>
-
                     <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Tracking Sistem</span>
                     <button onclick="switchTab('logs', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
                         <span class="text-lg opacity-70">⚡</span> Audit Log & Alert
@@ -300,7 +294,7 @@
                         <div id="dropdown-notif" class="hidden absolute right-0 mt-2 w-80 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl z-50 py-2 overflow-hidden">
                             <div class="px-4 py-2 border-b border-slate-900 flex justify-between items-center">
                                 <span class="text-xs font-bold text-slate-200 tracking-wide">Pemberitahuan Sistem</span>
-                                <span class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded-full font-mono">v2.4</span>
+                                <span class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded-full font-mono">v2.7</span>
                             </div>
                             <!-- WADAH KOSONG BUAT ROBOT -->
                             <div id="dropdown-notif-list" class="max-h-72 overflow-y-auto divide-y divide-slate-900/50">
@@ -522,10 +516,63 @@
                                     <input type="text" id="input-opex-panel-note" class="flex-1 bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none" placeholder="Rincian Biaya (Misal: Iklan IG, Kardus)">
                                     <button onclick="tambahOpexDariPanel()" class="bg-slate-200 hover:bg-white text-slate-900 font-bold text-sm px-6 py-2.5 rounded-lg transition shadow-md cursor-pointer whitespace-nowrap">Simpan Data</button>
                                 </div>
-                               <div id="opex-panel-list-container" class="space-y-2 mt-5 max-h-64 overflow-y-auto pr-2"></div>
+                              <div id="opex-panel-list-container" class="space-y-2 mt-5 max-h-64 overflow-y-auto pr-2"></div>
                             </div>
                         </div>
-                    </div>
+
+                        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mt-6">
+                            <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-200">🛒 Form Input Penjualan Manual</h2>
+                                    <p class="text-[10px] text-slate-500 mt-1">Tambahkan pesanan dari WA/Toko langsung ke database utama.</p>
+                                </div>
+                                <span class="text-[9px] bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-1 rounded font-bold uppercase tracking-wider">Transaksi Baru</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tanggal Pesanan</label>
+                                    <input type="date" id="input-jual-tgl" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">ID Pesanan / Resi</label>
+                                    <input type="text" id="input-jual-id" placeholder="Misal: INV-2026..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Nama Produk</label>
+                                    <input type="text" id="input-jual-produk" placeholder="Ketik persis nama di Gudang..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Status Awal</label>
+                                    <select id="input-jual-status" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none cursor-pointer">
+                                        <option value="WAITING">WAITING (Diproses)</option>
+                                        <option value="READY">READY (Dana Cair)</option>
+                                        <option value="PAID">PAID (Sudah Transfer)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Qty (Volume)</label>
+                                    <input type="number" id="input-jual-qty" value="1" min="1" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Harga Jual / Settle (Satuan)</label>
+                                    <input type="number" id="input-jual-settle" placeholder="Harga pencairan Rp" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Modal / HPP (TOTAL)</label>
+                                    <input type="number" id="input-jual-hpp" placeholder="Total Modal Rp" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                </div>
+                            </div>
+                            <div class="flex justify-end border-t border-slate-800 pt-4">
+                                <button onclick="simpanPenjualanManual()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-lg cursor-pointer flex items-center gap-2">
+                                    <span>💾</span> Simpan ke Database
+                                </button>
+                            </div>
+                        </div>
+
+                    </div> ```
+
 
                     <div id="logs" class="tab-content space-y-6">
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm">
@@ -744,6 +791,47 @@
                             </div>
                         </div>
                     </div>
+                    <!-- ========================================== -->
+                    <!-- TAB: BUDGET TARGET (v2.7)                  -->
+                    <!-- ========================================== -->
+                    <div id="budget-target" class="tab-content space-y-6">
+                        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6">
+                            <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-200">🎯 Target Net Profit (Budgeting)</h2>
+                                    <p class="text-[10px] text-slate-500 mt-1">Pantau realisasi laba bersih tunai dibandingkan dengan target bulanan.</p>
+                                </div>
+                                <button onclick="setBudgetTarget()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer">
+                                    ⚙️ Set Target Laba
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                                <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50 flex flex-col justify-center relative overflow-hidden">
+                                    <span class="text-[10px] uppercase tracking-widest text-slate-500 font-bold block mb-1 relative z-10">Target Net Profit (<span id="budget-label-bulan">Bulan Ini</span>)</span>
+                                    <h3 id="budget-angka-target" class="text-2xl font-bold text-slate-300 font-mono relative z-10">Rp 0</h3>
+                                </div>
+                                <div class="bg-slate-950 p-5 rounded-xl border border-emerald-900/30 shadow-[0_0_15px_rgba(16,185,129,0.05)] relative overflow-hidden flex flex-col justify-center">
+                                    <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-500/5 rounded-bl-full"></div>
+                                    <span class="text-[10px] uppercase tracking-widest text-emerald-500 font-bold block mb-1 relative z-10">Realisasi Laba Terkumpul</span>
+                                    <h3 id="budget-angka-realisasi" class="text-3xl font-bold text-emerald-400 font-mono relative z-10">Rp 0</h3>
+                                </div>
+                                <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50 flex flex-col justify-center items-center text-center">
+                                     <span class="text-[10px] uppercase tracking-widest text-slate-500 font-bold block mb-2">Pencapaian Target</span>
+                                     <div class="relative w-24 h-24 flex items-center justify-center rounded-full border-4 border-slate-800 bg-slate-900 shadow-inner">
+                                         <span id="budget-persentase" class="text-xl font-bold text-slate-200">0%</span>
+                                     </div>
+                                </div>
+                            </div>
+                            
+                            <div class="w-full bg-slate-950 rounded-full h-4 border border-slate-800 overflow-hidden relative">
+                                <div id="budget-progress-bar" class="bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 h-full transition-all duration-1000 relative w-0">
+                                    <div class="absolute top-0 right-0 bottom-0 w-10 bg-white opacity-20"></div>
+                                </div>
+                            </div>
+                            <p id="budget-sisa-text" class="text-xs text-center text-slate-400 mt-4 font-medium">Belum ada target yang diatur untuk bulan ini.</p>
+                        </div>
+                    </div>
 
                 </div> <!-- PENUTUP KANDANG UTAMA (max-w-6xl) -->
             </div> <!-- PENUTUP main-content-scroll -->
@@ -871,7 +959,7 @@
     let currentPage = 1;
     const rowsPerPage = 10;
     let varianAktif = "ALL", kataKunciCari = "", statusAktif = "ALL", bulanAktif = "ALL";
-    let targetBulanan = 300; 
+    let targetBulanan = 300; let targetProfitBulanan = 0;
 
     // Wadah Master Data Cloud
     let auditLog = [], systemAlerts = [], currentModalItem = null;
@@ -1075,6 +1163,8 @@
                 if (pTarget) targetBulanan = parseInt(pTarget.nilai);
                 let pPin = pengData.find(p => p.kunci === 'PIN_RAHASIA');
                 if (pPin) PIN_RAHASIA = pPin.nilai;
+                let pProfit = pengData.find(p => p.kunci === 'TARGET_PROFIT_BULANAN');
+                if (pProfit) targetProfitBulanan = parseFloat(pProfit.nilai);
             }
 
             // 3. Tarik Data OPEX - DARI CLOUD!
@@ -1152,6 +1242,7 @@
         if (tabName === 'opex-panel') { renderOpexDariPanel(); }
         if (tabName === 'valuasi-stok') { loadDanRenderGudang(); } 
         if (tabName === 'rapor-investor') { loadRaporInvestor(); }
+        if (tabName === 'budget-target') { renderBudgetTarget(); }
     }
 
     function buatTombolFilterDinamis() {
@@ -1228,6 +1319,7 @@
         hitungClosingFormal(); 
         hitungRadarModal();
         if (isInternalUnlocked) renderManajemenArea();
+        if (typeof renderBudgetTarget === "function") renderBudgetTarget();
     }
 
     function hitungDashboard() {
@@ -1300,11 +1392,71 @@
         await supabaseClient.from('audit_log').insert([newLog]);
     }
 
-    // --- DATABASE UPDATE FITUR (Otomatis Masuk Lonceng v2.5) ---
+    // =========================================================================
+    // BIG PROJECT 3: BUDGET TARGET (NET PROFIT) v2.7
+    // =========================================================================
+    function renderBudgetTarget() {
+        let labelBulan = document.getElementById("filter-bulan");
+        if (!labelBulan) return;
+        let teksBulan = labelBulan.options[labelBulan.selectedIndex].text;
+        let elBulan = document.getElementById("budget-label-bulan");
+        if (elBulan) elBulan.innerText = teksBulan;
+
+        let opexAktif = bulanAktif === "ALL" ? masterOpex : masterOpex.filter(o => o.periode === bulanAktif);
+        let totalOpex = 0;
+        opexAktif.forEach(item => { totalOpex += Number(item.nominal); });
+        
+        // Hitung Laba Bersih Tunai
+        let netProfit = currentOwnerGross - totalOpex;
+        
+        let elTarget = document.getElementById("budget-angka-target");
+        let elRealisasi = document.getElementById("budget-angka-realisasi");
+        if (elTarget) elTarget.innerText = formatRupiah(targetProfitBulanan);
+        if (elRealisasi) elRealisasi.innerText = formatRupiah(netProfit);
+
+        // Hitung Persentase
+        let pct = targetProfitBulanan > 0 ? (netProfit / targetProfitBulanan) * 100 : 0;
+        let pBar = document.getElementById("budget-progress-bar");
+        let pTxt = document.getElementById("budget-persentase");
+        if (pTxt) pTxt.innerText = pct.toFixed(1) + "%";
+        if (pBar) pBar.style.width = Math.min(Math.max(pct, 0), 100) + "%";
+
+        // Ubah Notifikasi Teks Bawah
+        let sisaText = document.getElementById("budget-sisa-text");
+        if (sisaText) {
+            if (targetProfitBulanan === 0) {
+                sisaText.innerText = "Belum ada target yang diatur. Klik '⚙️ Set Target Laba'.";
+                sisaText.className = "text-xs text-center text-slate-400 mt-4 font-medium";
+            } else if (netProfit >= targetProfitBulanan) {
+                let surplus = netProfit - targetProfitBulanan;
+                sisaText.innerHTML = `🎉 <strong>TARGET TERCAPAI!</strong> Surplus: <span class="text-emerald-400 font-bold">${formatRupiah(surplus)}</span>`;
+                sisaText.className = "text-xs text-center text-emerald-500 mt-4 font-medium";
+            } else {
+                let sisa = targetProfitBulanan - netProfit;
+                sisaText.innerHTML = `⚠️ Butuh <span class="text-amber-400 font-bold">${formatRupiah(sisa)}</span> lagi untuk mencapai target.`;
+                sisaText.className = "text-xs text-center text-amber-500 mt-4 font-medium";
+            }
+        }
+    }
+
+    async function setBudgetTarget() {
+        let input = prompt("Masukkan Target Net Profit Tunai (Rp):\nKetik angka saja tanpa titik/koma (Contoh: 5000000)", targetProfitBulanan);
+        if (input !== null && !isNaN(parseInt(input)) && parseInt(input) >= 0) {
+            targetProfitBulanan = parseInt(input);
+            renderBudgetTarget(); 
+            handleUpdate("Target Net Profit berhasil diperbarui!");
+            addAuditLog("UPDATE_BUDGET", `Target Net Profit diatur menjadi Rp ${targetProfitBulanan.toLocaleString('id-ID')}`, "warning");
+            
+            // Simpan Permanen ke Database Cloud (Supabase)
+            await supabaseClient.from('pengaturan').upsert([{ kunci: 'TARGET_PROFIT_BULANAN', nilai: targetProfitBulanan.toString() }]);
+        }
+    }
+
+    // --- DATABASE UPDATE FITUR (Otomatis Masuk Lonceng v2.7) ---
     const CHANGELOG_APP = [
-        { tgl: "v2.5", judul: "🔧 Bug Fix HTML & Tab", desc: "Operasi pengangkatan kanker kode HTML duplikat agar layout kembali sempurna." },
-        { tgl: "v2.4", judul: "💎 Rapor Investor Rilis!", desc: "Menu Rapor Investor kini aktif. Tracking histori pencairan dividen & akumulasi profit mitra secara real-time." },
-        { tgl: "v2.3", judul: "🚀 Valuasi Stok Gudang", desc: "Menu Gudang kini terintegrasi langsung dengan Supabase untuk hitung uang mati." }
+        { tgl: "v2.7", judul: "🛒 Input Penjualan Manual", desc: "Form input pesanan manual dari WA/Toko Fisik aktif. Terhubung ke Cloud dan auto-potong stok Gudang." },
+        { tgl: "v2.6", judul: "🎯 Budget Target Rilis!", desc: "Sistem Budgeting Net Profit kini aktif. Pantau realisasi laba bersih vs target bulanan." },
+        { tgl: "v2.5", judul: "🔧 Bug Fix HTML & Tab", desc: "Operasi pengangkatan kanker kode HTML duplikat agar layout kembali sempurna." }
     ];
 
     function renderAuditLog() {
@@ -2027,7 +2179,7 @@
         }
     }
     // =========================================================================
-    // BIG PROJECT 2: RAPOR INVESTOR (V2.4)
+    // BIG PROJECT 2: RAPOR INVESTOR (V2.7)
     // =========================================================================
     
     let masterRaporInvestor = [];
@@ -2119,6 +2271,74 @@
             toast.success("Histori berhasil dihapus!");
         } else {
             loadingInstance.dismiss(); toast.error("Gagal menghapus data!");
+        }
+    }
+    // =========================================================================
+    // BIG PROJECT 4: INPUT PENJUALAN MANUAL (v2.7)
+    // =========================================================================
+    async function simpanPenjualanManual() {
+        // 1. Ambil semua data dari inputan form
+        let tgl = document.getElementById("input-jual-tgl").value;
+        let idResi = document.getElementById("input-jual-id").value.trim();
+        let produk = document.getElementById("input-jual-produk").value.trim().toUpperCase();
+        let status = document.getElementById("input-jual-status").value;
+        let qty = parseInt(document.getElementById("input-jual-qty").value);
+        let settleSatuan = parseFloat(document.getElementById("input-jual-settle").value);
+        let hppTotal = parseFloat(document.getElementById("input-jual-hpp").value);
+
+        // 2. Validasi biar gak ada data kosong masuk ke Database
+        if (!tgl || !produk || isNaN(qty) || isNaN(settleSatuan) || isNaN(hppTotal)) {
+            toast.error("Mohon lengkapi Tanggal, Nama Produk, Qty, Harga Settle, dan Total HPP!");
+            return;
+        }
+
+        // Kalau ID Resi kosong (misal COD toko offline), sistem bikinin ID otomatis
+        if (idResi === "") {
+            let dateStr = tgl.replace(/-/g, "");
+            let randomNum = Math.floor(1000 + Math.random() * 9000);
+            idResi = `MNL-${dateStr}-${randomNum}`;
+        }
+
+        // 3. Kalkulasi Laba Kotor Otomatis (Total Uang Cair - Total Modal)
+        let totalSettle = settleSatuan * qty;
+        let labaKotorTotal = totalSettle - hppTotal;
+
+        // 4. Bungkus data buat dikirim ke Supabase
+        let payload = {
+            tanggal: tgl,
+            id_pesanan: idResi,
+            nama_produk: produk,
+            status: status,
+            qty: qty,
+            settlement: settleSatuan,
+            hpp: hppTotal,
+            laba_kotor: labaKotorTotal
+        };
+
+        let loadingInstance = toast.loading("Merekam ke Database Transaksi...");
+        
+        // 5. Tembak ke Supabase (Tabel: transaksi)
+        const { error } = await supabaseClient.from('transaksi').insert([payload]);
+
+        if (!error) {
+            addAuditLog("MANUAL_SALES", `Input order manual: ${produk} (${qty} Pcs)`, "success");
+            
+            // Bersihkan form setelah sukses
+            document.getElementById("input-jual-id").value = "";
+            document.getElementById("input-jual-produk").value = "";
+            document.getElementById("input-jual-qty").value = "1";
+            document.getElementById("input-jual-settle").value = "";
+            document.getElementById("input-jual-hpp").value = "";
+            
+            loadingInstance.dismiss();
+            toast.success("Transaksi manual berhasil ditambahkan!");
+            
+            // Trigger refresh sinkronisasi biar Dashboard, Gudang, & Tabel langsung Update!
+            handleUpload(); 
+        } else {
+            loadingInstance.dismiss();
+            toast.error("Gagal menyimpan ke Supabase! Cek koneksi.");
+            console.error(error);
         }
     }
     </script>
