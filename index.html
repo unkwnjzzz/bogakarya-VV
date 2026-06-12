@@ -219,6 +219,9 @@
                     <button onclick="switchTab('budget-target', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
                         <span class="text-lg opacity-70">🎯</span> Budget Target
                     </button>
+                    <button onclick="switchTab('procurement-panel', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm mt-2">
+    <span class="text-lg opacity-70">🔮</span> Cenayang Belanja
+</button>
                     <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Operasional Toko</span>
                     <button onclick="switchTab('opex-panel', event)" class="tab-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
                         <div class="flex items-center gap-3"><span class="text-lg opacity-70">📝</span> Input Opex & Sales</div>
@@ -496,6 +499,34 @@
                             </div>
                         </div>
                     </div> <!-- SEGAL KUNCI TAB TRANSAKSI AMAN -->
+                    <div id="procurement-panel" class="tab-content hidden space-y-6">
+    <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-xl font-black text-slate-100 tracking-wide">🔮 PROYEKSI BELANJA VENDOR</h2>
+                <p class="text-xs text-slate-400 mt-1" id="info-umur-toko">Menyedot data dari dimensi Supabase...</p>
+            </div>
+            <span class="text-[10px] bg-emerald-900/40 text-emerald-400 border border-emerald-700/50 px-2 py-1 rounded font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(52,211,153,0.2)]">Auto-Sync Global</span>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-slate-300">
+                <thead class="bg-slate-950/80 text-slate-500 text-[11px] uppercase tracking-wider font-bold border-b-2 border-slate-800">
+                    <tr>
+                        <th class="p-4 text-left">Nama Produk</th>
+                        <th class="p-4 text-center">Sisa Fisik</th>
+                        <th class="p-4 text-center">Velocity/Hari</th>
+                        <th class="p-4 text-center">Target Beli <span class="text-[9px] text-slate-600 block">(30 Hari + 5 Hari Buffer)</span></th>
+                        <th class="p-4 text-right text-emerald-400">Budget Modal (Rp)</th>
+                    </tr>
+                </thead>
+                <tbody id="tabel-procurement" class="divide-y divide-slate-800/50">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
                         <!-- TAB: OPEX PANEL (TEMPAT KERJA DIKI / STAFF) -->
                     <div id="opex-panel" class="tab-content space-y-6">
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm">
@@ -1194,7 +1225,7 @@
             
             buatDropdownBulan(); buatTombolFilterDinamis(); aplikasikanFilter();
             renderAuditLog(); // Render log yang ditarik dari Cloud
-            
+            loadIngatanFilter();
             if (syncStatus) syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> <span class="text-[10px] text-slate-400 font-mono">Tersinkronisasi</span>`;
             if (!silent) toast.success("Data Server berhasil dimuat 100%!");
         } catch (error) {
@@ -1243,6 +1274,10 @@
         if (tabName === 'valuasi-stok') { loadDanRenderGudang(); } 
         if (tabName === 'rapor-investor') { loadRaporInvestor(); }
         if (tabName === 'budget-target') { renderBudgetTarget(); }
+        // Trigger Otak Cenayang
+    if (tabName === 'procurement-panel') {
+        renderProcurement();
+    }
     }
 
     function buatTombolFilterDinamis() {
@@ -2341,6 +2376,154 @@
             console.error(error);
         }
     }
+    // ==========================================
+// 🔥 OTAK CENAYANG BELANJA (KEBAL FILTER UI)
+// ==========================================
+function renderProcurement() {
+    const tbody = document.getElementById("tabel-procurement");
+    const infoUmur = document.getElementById("info-umur-toko");
+    if (!tbody) return;
+    
+    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 animate-pulse">Menghitung masa depan... 🔮</td></tr>`;
+    let totalBudget = 0;
+    
+    // ASUMSI DATA GLOBAL LU NAMANYA 'allData'
+    let sumberDataGlobal = typeof allData !== 'undefined' ? allData : [];
+    
+    if (sumberDataGlobal.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">⚠️ Data Transaksi Belum Terload / Kosong!</td></tr>`;
+        return;
+    }
+
+    let rekapLakuAllTime = {};
+    
+    // 1. CARI UMUR TOKO (Dari orderan paling purba sampai detik ini)
+    let waktuPertama = new Date(sumberDataGlobal[0].created_at).getTime();
+    sumberDataGlobal.forEach(item => {
+        let waktuItem = new Date(item.created_at).getTime();
+        if (waktuItem < waktuPertama) waktuPertama = waktuItem;
+    });
+
+    let selisihWaktu = Math.abs(new Date().getTime() - waktuPertama);
+    let totalHariOperasional = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24)); 
+    if (totalHariOperasional < 1) totalHariOperasional = 1; // Minimal 1 hari biar gak error
+
+    infoUmur.innerHTML = `Dianalisis dari total <span class="font-bold text-slate-200">${totalHariOperasional} hari</span> operasional toko. Kebal filter UI.`;
+
+    // 2. SEDOT SEMUA PENJUALAN (Abaikan Filter)
+    sumberDataGlobal.forEach(item => {
+        let status = String(item.status || "").toUpperCase();
+        if (status === "READY" || status === "PAID") {
+            let nama = String(item.namaProduk).trim().toUpperCase();
+            rekapLakuAllTime[nama] = (rekapLakuAllTime[nama] || 0) + Number(item.qty || 0);
+        }
+    });
+
+    // 3. KALKULASI DEWA KE DATA GUDANG
+    tbody.innerHTML = ""; // Bersihin loading
+    if (typeof masterGudang !== 'undefined') {
+        masterGudang.forEach(g => {
+            let nama = String(g.nama_produk).trim().toUpperCase();
+            let totalTerjualAllTime = rekapLakuAllTime[nama] || 0;
+            
+            // Logika Sisa Stok Fisik
+            let sisaFisik = Number(g.stok_masuk) - totalTerjualAllTime;
+            
+            // True Velocity (Barang laku per hari secara total)
+            let jualPerHari = totalTerjualAllTime / totalHariOperasional; 
+            
+            // Kebutuhan 35 Hari (30 Hari Jualan + 5 Hari Buffer Aman)
+            let kebutuhanBulanDepan = Math.ceil(jualPerHari * 35); 
+            
+            // Berapa yang harus disetok?
+            let saranBeli = Math.max(0, kebutuhanBulanDepan - sisaFisik);
+            let hpp = Number(g.hpp_satuan) || 0;
+            let budget = saranBeli * hpp;
+            
+            totalBudget += budget;
+
+            // HANYA TAMPILKAN BARANG YANG HARUS DIBELI!
+            if (saranBeli > 0) {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40 transition-colors border-b border-slate-800/50">
+                        <td class="p-4 font-bold text-slate-200">${g.nama_produk}</td>
+                        <td class="p-4 text-center font-medium text-slate-400">${sisaFisik}</td>
+                        <td class="p-4 text-center font-medium text-slate-400">${jualPerHari.toFixed(2)}</td>
+                        <td class="p-4 text-center">
+                            <span class="bg-yellow-900/30 text-yellow-500 border border-yellow-700/50 px-3 py-1 rounded-lg font-black text-sm shadow-sm">${saranBeli} <span class="text-[10px] font-normal">Pcs</span></span>
+                        </td>
+                        <td class="p-4 text-right font-black text-emerald-400 tracking-wide">Rp ${budget.toLocaleString('id-ID')}</td>
+                    </tr>`;
+            }
+        });
+    }
+
+    // 4. MUNCULIN TOTAL BUDGET LUAR BIASA
+    if (totalBudget > 0) {
+        tbody.innerHTML += `
+            <tr class="bg-slate-900 border-t-4 border-slate-800">
+                <td colspan="4" class="p-5 text-right font-black text-slate-400 uppercase tracking-widest text-xs">Total Dana Modal Disiapkan:</td>
+                <td class="p-5 text-right font-black text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">Rp ${totalBudget.toLocaleString('id-ID')}</td>
+            </tr>`;
+    } else {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">🎉 STOK LUAR BIASA AMAN! Belum ada proyeksi belanja vendor untuk 35 hari ke depan. Duit lu aman Bos! 🍻</td></tr>`;
+    }
+}
+// ==========================================
+// 🔥 FITUR ANTI-AMNESIA (SAVE FILTER UI)
+// ==========================================
+
+// 1. MESIN PENYEDOT INGATAN (Jalan pas baru login/refresh)
+async function loadIngatanFilter() {
+    // Cek siapa yang lagi login. Kalau belum ada sistem login, defaultnya "Guest"
+    let namaAkun = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.nama : "Guest";
+    
+    try {
+        const { data, error } = await supabaseClient
+            .from('pengaturan_user')
+            .select('filter_bulan')
+            .eq('nama_akun', namaAkun)
+            .maybeSingle();
+
+        let selectBulan = document.getElementById("filter-bulan");
+        
+        // Kalau ingetannya ada di Supabase, pakai itu. Kalau kosong, pake "ALL".
+        if (data && data.filter_bulan) {
+            bulanAktif = data.filter_bulan;
+        } else {
+            bulanAktif = "ALL"; 
+        }
+
+        // Setel ke layar dan ubah grafiknya
+        if (selectBulan) selectBulan.value = bulanAktif;
+        if (typeof aplikasikanFilter === "function") aplikasikanFilter(); // Pastikan nama fungsi render lu ini
+        
+    } catch (err) {
+        console.error("Gagal nyedot ingatan dari Supabase:", err);
+    }
+}
+
+// 2. MESIN PENYIMPAN INGATAN (Dipanggil pas user ganti filter)
+// Catatan: Kodingan ini bakal NIMPA fungsi lu yang lama, jadi ini versi updatenya!
+async function terapkanFilterBulan() { 
+    let selectBulan = document.getElementById("filter-bulan");
+    if (!selectBulan) return;
+    
+    bulanAktif = selectBulan.value; 
+    
+    // Langsung ubah tampilan grafik & tabel biar user gak nunggu
+    if (typeof aplikasikanFilter === "function") aplikasikanFilter(); 
+    
+    // Simpan ingatan ke Supabase secara diam-diam di belakang layar
+    let namaAkun = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.nama : "Guest";
+    if (namaAkun !== "Guest") {
+        const { error } = await supabaseClient
+            .from('pengaturan_user')
+            .upsert({ nama_akun: namaAkun, filter_bulan: bulanAktif });
+            
+        if (error) console.error("Gagal menyimpan ingatan filter:", error);
+    }
+}
     </script>
 </body>
 </html>
