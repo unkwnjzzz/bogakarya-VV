@@ -952,8 +952,8 @@
             <table class="w-full text-[11px] border border-black text-black">
                 <thead class="bg-gray-200">
                     <tr>
+                        <th class="border border-black p-2 text-left">TANGGAL</th>
                         <th class="border border-black p-2 text-left">ID PESANAN / RESI</th>
-                        <th class="border border-black p-2 text-left">PRODUK</th>
                         <th class="border border-black p-2 text-center">QTY</th>
                         <th class="border border-black p-2 text-right">MODAL (HPP)</th>
                         <th class="border border-black p-2 text-right">OWNER</th>
@@ -1711,10 +1711,17 @@
                     </div>
                     <div id="pending-summary" class="grid grid-cols-3 gap-2 mb-4 bg-slate-950 p-3 rounded-xl border border-slate-800 shadow-inner"></div>
                     <div id="hpp-pending-list-container" class="space-y-2 max-h-64 overflow-y-auto pr-2 flex-1 mb-4"></div>
-                    <button onclick="tandaiSemuaCleared()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer">
-                        ✅ Tandai Semua Sudah Ditransfer
-                    </button>
+                    
+                    <div class="flex flex-col gap-2 mt-auto">
+                        <button onclick="tandaiSemuaCleared()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2 cursor-pointer">
+                            ✅ Tandai Semua Sudah Ditransfer
+                        </button>
+                        <button onclick="hapusSemuaTransaksiMenunggu()" class="w-full bg-transparent hover:bg-rose-500/10 text-rose-500 font-bold py-2.5 rounded-xl transition border border-rose-500/30 hover:border-rose-500 flex items-center justify-center gap-2 cursor-pointer text-xs">
+                            🗑️ Hapus Semua Transaksi Ini (Salah Input)
+                        </button>
+                    </div>
                 </div>
+
                 <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex flex-col opacity-90">
                     <div class="flex justify-between items-start border-b border-slate-800 pb-3 mb-4">
                         <div>
@@ -1725,9 +1732,15 @@
                     </div>
                     <div id="cleared-summary" class="grid grid-cols-3 gap-2 mb-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800/50"></div>
                     <div id="hpp-cleared-list-container" class="space-y-2 max-h-64 overflow-y-auto pr-2 flex-1 mb-4"></div>
-                    <button onclick="cetakSuratTransfer()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition border border-slate-700 shadow-sm flex items-center justify-center gap-2 cursor-pointer mt-auto">
-                        🖨️ Cetak Surat Instruksi Transfer
-                    </button>
+                    
+                    <div class="flex flex-col gap-2 mt-auto">
+                        <button onclick="cetakSuratTransfer()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition border border-slate-700 shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+                            🖨️ Cetak Surat Instruksi Transfer
+                        </button>
+                        <button onclick="batalSemuaTransferBatch()" class="w-full bg-transparent hover:bg-amber-500/10 text-amber-500 font-bold py-2.5 rounded-xl transition border border-amber-500/30 hover:border-amber-500 flex items-center justify-center gap-2 cursor-pointer text-xs">
+                            ↩️ Batalkan Semua Transfer Batch Ini (Kembali ke Menunggu)
+                        </button>
+                    </div>
                 </div>
             </div>
         `);
@@ -1739,6 +1752,7 @@
         let sumHPP = 0, sumOwner = 0, sumInvs = 0;
         let container = document.getElementById(`hpp-${type}-list-container`);
         container.innerHTML = "";
+        
         if (dataList.length === 0) {
             container.innerHTML = `<div class="text-xs text-slate-500/50 font-medium p-6 text-center border border-dashed border-slate-800 rounded-xl">Data kosong.</div>`;
         } else {
@@ -1747,10 +1761,22 @@
                 sumHPP += item.hpp; sumOwner += item.jatahOwner; sumInvs += item.jatahInvs;
                 let resiTampil = (item.idPesanan && String(item.idPesanan).trim() !== "") ? item.idPesanan : "Tanpa Resi";
                 let warna = type === 'pending' ? 'sky' : 'slate';
+                
+                // --- INJEKSI TOMBOL HAPUS & BATAL ---
+                let tombolAksi = "";
+                if (type === 'pending') {
+                    tombolAksi = `<button onclick="hapusTransaksiMenunggu('${resiTampil}')" class="text-[9px] bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white px-2 py-0.5 rounded border border-rose-500/20 transition ml-2 cursor-pointer" title="Hapus Permanen Transaksi Ini">✕ Hapus</button>`;
+                } else if (type === 'cleared') {
+                    tombolAksi = `<button onclick="batalTransfer('${resiTampil}')" class="text-[9px] bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white px-2 py-0.5 rounded border border-amber-500/20 transition ml-2 cursor-pointer" title="Kembalikan ke Antrean Menunggu">↩️ Batal</button>`;
+                }
+                
                 container.innerHTML += `
-                    <div class="flex flex-col bg-slate-950/50 border border-slate-800/80 p-3 rounded-xl text-xs hover:border-${warna}-500/30 transition shadow-sm">
+                    <div class="flex flex-col bg-slate-950/50 border border-slate-800/80 p-3 rounded-xl text-xs hover:border-${warna}-500/30 transition shadow-sm group">
                         <div class="flex justify-between items-center border-b border-slate-800/50 pb-2 mb-2">
-                            <span class="text-${warna}-400 font-mono text-[10px]">${resiTampil}</span>
+                            <div class="flex items-center">
+                                <span class="text-${warna}-400 font-mono text-[10px]">${resiTampil}</span>
+                                ${tombolAksi}
+                            </div>
                             <span class="text-slate-300 font-medium text-[10px] truncate max-w-[120px]" title="${item.namaProduk}">${item.namaProduk}</span>
                         </div>
                         <div class="flex justify-between items-center px-1">
@@ -1762,11 +1788,130 @@
                 `;
             });
         }
+        
         document.getElementById(`${type}-summary`).innerHTML = `
             <div class="flex flex-col"><span class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Tot Modal</span><span class="font-bold text-${type==='pending'?'sky':'slate'}-400 font-mono text-sm md:text-base">Rp ${sumHPP.toLocaleString('id-ID')}</span></div>
             <div class="flex flex-col"><span class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Tot Owner</span><span class="font-bold text-${type==='pending'?'yellow-500':'slate-400'} font-mono text-sm md:text-base">Rp ${sumOwner.toLocaleString('id-ID')}</span></div>
             <div class="flex flex-col"><span class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Tot Invs</span><span class="font-bold text-slate-300 font-mono text-sm md:text-base">Rp ${sumInvs.toLocaleString('id-ID')}</span></div>
         `;
+    }
+    // FITUR BARU: BATAL TRANSFER (UNDO)
+    window.batalTransfer = async function(idPesanan) {
+        if(!confirm(`Yakin ingin membatalkan resi ${idPesanan} dari History dan mengembalikannya ke antrean?`)) return;
+        let loadingInstance = toast.loading("Membatalkan dari Cloud...");
+        
+        // Hapus dari tabel hpp_cleared di Supabase
+        const { error } = await supabaseClient.from('hpp_cleared').delete().eq('id_pesanan', idPesanan);
+        
+        if (!error) {
+            masterHppCleared = masterHppCleared.filter(id => id !== idPesanan); // Hapus dari memori
+            addAuditLog("UNDO_TRANSFER", `Membatalkan transfer untuk resi ${idPesanan}`, "warning");
+            hitungDashboard(); renderManajemenArea(); // Refresh UI langsung
+            loadingInstance.dismiss(); toast.success("Resi berhasil dikembalikan ke antrean Menunggu Distribusi!");
+        } else {
+            loadingInstance.dismiss(); toast.error("Gagal membatalkan dari database!");
+        }
+    }
+
+    // FITUR BARU: HAPUS TRANSAKSI BODONG
+    window.hapusTransaksiMenunggu = async function(idPesanan) {
+        if(!confirm(`⚠️ BAHAYA: Yakin ingin MENGHAPUS PERMANEN transaksi ${idPesanan} dari database?\n(Gunakan ini hanya jika data tersebut salah input)`)) return;
+        let loadingInstance = toast.loading("Menghapus Transaksi dari Cloud...");
+        
+        // Hapus langsung dari tabel transaksi utama
+        const { error } = await supabaseClient.from('transaksi').delete().eq('id_pesanan', idPesanan);
+        
+        if (!error) {
+            addAuditLog("DELETE_TRANSACTION", `Menghapus permanen resi ${idPesanan} karena salah data`, "danger");
+            handleUpload(); // Force sync supaya seluruh dashboard update
+            loadingInstance.dismiss(); toast.success("Transaksi berhasil dihapus permanen!");
+        } else {
+            loadingInstance.dismiss(); toast.error("Gagal menghapus transaksi dari database!");
+        }
+    }
+    // FITUR BARU: HAPUS SEMUA MASSAL (SAPU BERSIH SALAH INPUT)
+    window.hapusSemuaTransaksiMenunggu = async function() {
+        if (listHPPPending.length === 0) {
+            alert("Aman! Tidak ada transaksi yang menunggu distribusi.");
+            return;
+        }
+
+        let pesanConfirm = `⚠️ PERINGATAN FATAL: \n\nAnda akan MENGHAPUS PERMANEN ${listHPPPending.length} transaksi ini dari database!\n\nApakah Anda YAKIN ini adalah data yang salah input dan ingin menghapusnya secara massal?`;
+        
+        if (confirm(pesanConfirm)) {
+            // Konfirmasi Lapis Kedua (Mencegah kepencet Enter)
+            if (!confirm("Tindakan ini TIDAK BISA DIBATALKAN. Tekan OK sekali lagi jika Anda benar-benar yakin ingin menyapu bersih data ini.")) return;
+
+            let loadingInstance = toast.loading(`Sapu bersih ${listHPPPending.length} transaksi dari Cloud...`);
+            
+            // Ekstrak semua ID Pesanan untuk dihapus massal
+            let idsToDelete = listHPPPending.map(item => item.idPesanan).filter(id => id && id.trim() !== "");
+            
+            if (idsToDelete.length === 0) {
+                 loadingInstance.dismiss();
+                 toast.error("Tidak ada ID Resi valid yang bisa dihapus.");
+                 return;
+            }
+
+            // Eksekusi penghapusan massal ke Supabase menggunakan operator .in()
+            const { error } = await supabaseClient
+                .from('transaksi')
+                .delete()
+                .in('id_pesanan', idsToDelete);
+            
+            if (!error) {
+                addAuditLog("BULK_DELETE_TRANSACTION", `Menghapus massal ${idsToDelete.length} transaksi (Status PAID) karena salah data`, "danger");
+                handleUpload(); // Force sync supaya dashboard mereset total omset dsb
+                loadingInstance.dismiss(); 
+                toast.success(`Berhasil menyapu bersih ${idsToDelete.length} transaksi secara permanen!`);
+            } else {
+                loadingInstance.dismiss(); 
+                toast.error("Gagal menghapus transaksi secara massal! Cek koneksi.");
+                console.error(error);
+            }
+        }
+    }
+    // FITUR REVISI: BATALKAN SATU BATCH MASSAL (DIKEMBALIKAN KE MENUGGU DISTRIBUSI, BUKAN ILANG)
+    window.batalSemuaTransferBatch = async function() {
+        if (listHPPCleared.length === 0) {
+            alert("Aman! Riwayat arsip history sudah kosong.");
+            return;
+        }
+
+        let pesanConfirm = `⚠️ KONFIRMASI PEMBATALAN MASSAL: \n\nAnda akan membatalkan status transfer untuk ${listHPPCleared.length} transaksi di History ini.\n\nSemua data ini akan DIKEMBALIKAN ke antrean sebelah kiri (Menunggu Distribusi). Apakah Anda yakin?`;
+        
+        if (confirm(pesanConfirm)) {
+            let loadingInstance = toast.loading(`Mengembalikan ${listHPPCleared.length} riwayat ke antrean kiri...`);
+            
+            // Ekstrak semua ID Pesanan yang ada di laci history saat ini
+            let idsToUndo = listHPPCleared.map(item => item.idPesanan).filter(id => id && id.trim() !== "");
+            
+            if (idsToUndo.length === 0) {
+                 loadingInstance.dismiss();
+                 toast.error("Tidak ada ID Pesanan valid untuk dikembalikan.");
+                 return;
+            }
+
+            // Hapus dari tabel hpp_cleared di Supabase (sehingga statusnya otomatis kembali dianggap 'belum ditransfer' di UI)
+            const { error } = await supabaseClient
+                .from('hpp_cleared')
+                .delete()
+                .in('id_pesanan', idsToUndo);
+            
+            if (!error) {
+                // Hapus ID dari memori cache lokal
+                masterHppCleared = masterHppCleared.filter(id => !idsToUndo.includes(id));
+                
+                addAuditLog("BULK_UNDO_TRANSFER", `Membatalkan massal ${idsToUndo.length} resi dari History kembali ke Menunggu Distribusi`, "warning");
+                hitungDashboard(); renderManajemenArea(); // Refresh UI total secara realtime
+                loadingInstance.dismiss(); 
+                toast.success(`Berhasil mengembalikan ${idsToUndo.length} transaksi ke antrean Menunggu!`);
+            } else {
+                loadingInstance.dismiss(); 
+                toast.error("Gagal menarik kembali data history ke antrean!");
+                console.error(error);
+            }
+        }
     }
 
     function renderManajemenArea() { 
@@ -1987,33 +2132,84 @@
         window.print();
         document.getElementById("print-area-closing").classList.add("hidden"); document.getElementById("app-layar").style.display="flex";
     }
+function hitungRadarModal() {
+        let totalHppTertahan = 0, totalHppCair = 0;
 
-    function hitungRadarModal() {
-        let totalHariSiklus=0, jumlahTransaksiValid=0, totalHppTertahan=0, totalHppAktif=0;
+        // 1. Kumpulkan Data Real-Time
         filteredData.forEach(item => {
-            let st=String(item.status||item.STATUS||"WAITING").toUpperCase();
-            let hpp=Number(item.hpp||item.HPP||item["HPP (MODAL)"]||item["hpp (modal)"]||0);
-            if (st!=="CANCELED"&&st!=="FAILED"&&st!=="RETUR") totalHppAktif+=hpp;
-            if (st==="WAITING") totalHppTertahan+=hpp;
-            let tglOrderRaw=item.tanggal||item.TANGGAL, tglSettleRaw=item.estimatedSettleTime||item["ESTIMATED SETTLE TIME"]||item["estimated settle time"];
-            if (tglOrderRaw&&tglSettleRaw&&(st==="READY"||st==="WAITING")) {
-                let dOrder=new Date(tglOrderRaw), textSettle=String(tglSettleRaw).toLowerCase().trim(), dSettle=null;
-                if (textSettle.includes("delivered")||textSettle.includes("days")) dSettle=new Date(dOrder.getTime()+(10*24*60*60*1000));
-                else { let parts=textSettle.split("/"); if (parts.length===3) dSettle=new Date(`${parts[2]}/${parts[1]}/${parts[0]}`); }
-                if (dSettle&&!isNaN(dSettle.getTime())) { let diffDays=Math.ceil(Math.abs(dSettle-dOrder)/(1000*60*60*24)); if (diffDays>0&&diffDays<=30) { totalHariSiklus+=diffDays; jumlahTransaksiValid++; } }
+            let st = String(item.status || item.STATUS || "WAITING").toUpperCase();
+            let hpp = Number(item.hpp || item.HPP || item["HPP (MODAL)"] || item["hpp (modal)"] || 0);
+            
+            if (st === "WAITING") {
+                totalHppTertahan += hpp; // Uang yang masih nyangkut di kurir (Aspal)
+            } else if (st === "READY" || st === "PAID") {
+                totalHppCair += hpp; // Uang yang beneran udah cair atau ditransfer
             }
         });
-        let rataSiklus=jumlahTransaksiValid>0?(totalHariSiklus/jumlahTransaksiValid):5;
-        let daysPassed=30, daysInMonth=30, today=new Date();
-        if (bulanAktif!=="ALL") { let parts=bulanAktif.split("-"), year=parseInt(parts[0]), month=parseInt(parts[1])-1; daysInMonth=new Date(year,month+1,0).getDate(); daysPassed=(today.getFullYear()===year&&today.getMonth()===month)?today.getDate()||1:daysInMonth; }
-        else { daysPassed=today.getDate()||1; daysInMonth=daysPassed; }
-        let rataHppHarian=totalHppAktif/daysPassed;
-        let elSiklus=document.getElementById("radar-siklus"), elHppGantung=document.getElementById("radar-hpp-gantung");
-        let elBuffer=document.getElementById("radar-buffer"), elProyeksi=document.getElementById("radar-proyeksi-modal");
-        if (elSiklus) elSiklus.innerText=rataSiklus.toFixed(1)+" Hari";
-        if (elHppGantung) elHppGantung.innerText=formatRupiah(totalHppTertahan);
-        if (elBuffer) elBuffer.innerText=formatRupiah(rataSiklus*rataHppHarian);
-        if (elProyeksi) elProyeksi.innerText=formatRupiah(rataHppHarian*daysInMonth);
+
+        // 2. Tentukan Hari Berjalan (Buat cari rata-rata harian)
+        let daysPassed = 30, daysInMonth = 30, today = new Date();
+        if (bulanAktif !== "ALL") {
+            let parts = bulanAktif.split("-"), year = parseInt(parts[0]), month = parseInt(parts[1]) - 1;
+            daysInMonth = new Date(year, month + 1, 0).getDate();
+            daysPassed = (today.getFullYear() === year && today.getMonth() === month) ? (today.getDate() || 1) : daysInMonth;
+        } else {
+            daysPassed = today.getDate() || 1;
+        }
+
+        // 3. RUMUS DEWA (Siklus Kas Dinamis Ngikut Penjualan)
+        let rataHppCairHarian = totalHppCair / daysPassed;
+        
+        // Berapa hari yang dibutuhkan untuk mencairkan seluruh uang gantung saat ini?
+        let rataSiklus = rataHppCairHarian > 0 ? (totalHppTertahan / rataHppCairHarian) : 0;
+        
+        // Kasus spesial: Uang gantung banyak, tapi belum ada yang cair sama sekali (Macet Total)
+        if (rataHppCairHarian === 0 && totalHppTertahan > 0) {
+            rataSiklus = 99; // Set ke angka krisis
+        }
+
+        let rataHppHarian = (totalHppCair + totalHppTertahan) / daysPassed; // Kecepatan putaran uang kotor
+        let bufferTunai = rataSiklus * rataHppHarian;
+        let proyeksiModal = rataHppHarian * daysInMonth;
+
+        // 4. TEMBAK KE UI DENGAN KOSMETIK (Biar Kerasa Pentingnya)
+        let elSiklus = document.getElementById("radar-siklus");
+        let elHppGantung = document.getElementById("radar-hpp-gantung");
+        let elBuffer = document.getElementById("radar-buffer");
+        let elProyeksi = document.getElementById("radar-proyeksi-modal");
+
+        // Ganti Warna Kotak Secara Dinamis!
+        if (elSiklus && elSiklus.parentElement) {
+            let siklusContainer = elSiklus.parentElement;
+            
+            if (rataSiklus === 0) {
+                // Aman banget / Kosong
+                elSiklus.innerHTML = `<span class="text-slate-400">0</span> <span class="text-[10px] text-slate-500 font-sans">Hari</span>`;
+                siklusContainer.className = "bg-slate-950 p-4 rounded-xl border border-slate-800/50 relative group transition-all duration-300";
+            } else if (rataSiklus <= 5) {
+                // Sehat (Hijau)
+                elSiklus.innerHTML = `<span class="text-emerald-400">${rataSiklus.toFixed(1)}</span> <span class="text-[10px] text-emerald-600/50 font-sans">Hari</span>`;
+                siklusContainer.className = "bg-emerald-950/20 p-4 rounded-xl border border-emerald-500/30 relative group transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.05)]";
+            } else if (rataSiklus <= 10) {
+                // Warning (Kuning)
+                elSiklus.innerHTML = `<span class="text-amber-400">${rataSiklus.toFixed(1)}</span> <span class="text-[10px] text-amber-600/50 font-sans">Hari</span>`;
+                siklusContainer.className = "bg-amber-950/20 p-4 rounded-xl border border-amber-500/40 relative group transition-all duration-300 shadow-[0_0_15px_rgba(245,158,11,0.05)]";
+            } else {
+                // KRITIS! (Merah & Berdenyut)
+                elSiklus.innerHTML = `<span class="text-rose-400">${rataSiklus.toFixed(1)}</span> <span class="text-[10px] text-rose-600/50 font-sans">Hari</span>`;
+                siklusContainer.className = "bg-rose-950/30 p-4 rounded-xl border border-rose-500/50 relative group transition-all duration-300 shadow-[0_0_20px_rgba(244,63,94,0.2)] animate-pulse";
+            }
+        }
+        
+        if (elHppGantung) elHppGantung.innerText = formatRupiah(totalHppTertahan);
+        
+        if (elBuffer) {
+            // Buffer tunai ngikutin warna krisis
+            let bufferColor = rataSiklus > 10 ? "text-rose-400" : "text-yellow-400";
+            elBuffer.innerHTML = `<span class="${bufferColor}">${formatRupiah(bufferTunai)}</span>`;
+        }
+        
+        if (elProyeksi) elProyeksi.innerText = formatRupiah(proyeksiModal);
     }
 
     function formatRupiah(a) { return "Rp " + Math.round(Number(a || 0)).toLocaleString('id-ID'); }
@@ -2045,18 +2241,58 @@
     window.cetakSuratTransfer = function() {
         if (listHPPCleared.length === 0) { alert("Belum ada data History Transfer (Cleared) untuk dicetak."); return; }
         let sumHPP = 0, sumOwner = 0, sumInvs = 0, tbodyHtml = "";
+
+        // 1. KELOMPOKKAN DATA BERDASARKAN NAMA PRODUK
+        let groupedData = {};
         listHPPCleared.forEach(item => {
             sumHPP += item.hpp; sumOwner += item.jatahOwner; sumInvs += item.jatahInvs;
-            let resi = (item.idPesanan && String(item.idPesanan).trim() !== "") ? item.idPesanan : "Tanpa Resi";
+            let prod = item.namaProduk || "PRODUK LAINNYA";
+            
+            if (!groupedData[prod]) {
+                groupedData[prod] = { items: [], subQty: 0, subHpp: 0, subOwner: 0, subInvs: 0 };
+            }
+            groupedData[prod].items.push(item);
+            groupedData[prod].subQty += item.qty;
+            groupedData[prod].subHpp += item.hpp;
+            groupedData[prod].subOwner += item.jatahOwner;
+            groupedData[prod].subInvs += item.jatahInvs;
+        });
+
+        // 2. RENDER HTML PER KELOMPOK
+        Object.keys(groupedData).sort().forEach(prod => {
+            let group = groupedData[prod];
+            
+            // Baris Judul Grup (Sub-Header)
+            tbodyHtml += `<tr><td colspan="6" class="border border-black p-2 bg-gray-200 font-bold text-[11px] uppercase tracking-widest">📦 PRODUK: ${prod} (Subtotal Qty: ${group.subQty})</td></tr>`;
+            
+            // Baris Rincian Resi
+            group.items.forEach(item => {
+                let resiTampil = (item.idPesanan && String(item.idPesanan).trim() !== "") ? item.idPesanan : "Tanpa Resi";
+                
+                // Tarik info tanggal dari master data
+                let itemMaster = filteredData.find(x => x.idPesanan === item.idPesanan);
+                let tglTampil = itemMaster && itemMaster.tanggal ? (String(itemMaster.tanggal).includes("T") ? itemMaster.tanggal.split("T")[0] : itemMaster.tanggal) : "-";
+                
+                tbodyHtml += `<tr>
+                    <td class="border border-black p-2 text-xs">${tglTampil}</td>
+                    <td class="border border-black p-2 font-mono text-xs">${resiTampil}</td>
+                    <td class="border border-black p-2 text-center text-xs">${item.qty}</td>
+                    <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.hpp)}</td>
+                    <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.jatahOwner)}</td>
+                    <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.jatahInvs)}</td>
+                </tr>`;
+            });
+
+            // Baris Sub-Total per Produk
             tbodyHtml += `<tr>
-                <td class="border border-black p-2 font-mono text-xs">${resi}</td>
-                <td class="border border-black p-2 text-xs">${item.namaProduk}</td>
-                <td class="border border-black p-2 text-center text-xs">${item.qty}</td>
-                <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.hpp)}</td>
-                <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.jatahOwner)}</td>
-                <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.jatahInvs)}</td>
+                <td colspan="2" class="border border-black p-2 text-right font-bold text-xs">TOTAL ${prod} :</td>
+                <td class="border border-black p-2 text-center font-bold text-xs">${group.subQty}</td>
+                <td class="border border-black p-2 text-right font-bold text-xs">${formatRupiah(group.subHpp)}</td>
+                <td class="border border-black p-2 text-right font-bold text-xs">${formatRupiah(group.subOwner)}</td>
+                <td class="border border-black p-2 text-right font-bold text-xs">${formatRupiah(group.subInvs)}</td>
             </tr>`;
         });
+
         let totalSemua = sumHPP + sumOwner + sumInvs;
         document.getElementById("tf-print-tanggal").innerText = new Date().toLocaleString('id-ID');
         document.getElementById("tf-print-total").innerText = formatRupiah(totalSemua);
@@ -2064,11 +2300,14 @@
         document.getElementById("tf-print-owner").innerText = formatRupiah(sumOwner);
         document.getElementById("tf-print-invs").innerText = formatRupiah(sumInvs);
         document.getElementById("tf-print-table-body").innerHTML = tbodyHtml;
+        
+        // 3. EKSEKUSI CETAK
         document.getElementById("app-layar").style.display = "none";
         document.getElementById("print-area-transfer").classList.remove("hidden");
         window.print();
         document.getElementById("print-area-transfer").classList.add("hidden");
         document.getElementById("app-layar").style.display = "flex";
+        
         addAuditLog("PRINT_TRANSFER", "Mencetak Surat Perintah Mutasi Internal", "info");
     }
 
