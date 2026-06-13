@@ -150,6 +150,23 @@
             .sonner-toast { font-size: 0.75rem; }
         }
         
+        /* 🍎 APPLE iOS GLASSMORPHISM & AMBIENT GLOW 🍎 */
+        body { position: relative; z-index: 0; }
+        
+        /* Bikin efek bias cahaya di background biar kacanya kelihatan hidup */
+        body::before { content: ''; position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
+        body::after { content: ''; position: fixed; bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(16,185,129,0.05) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
+        
+        /* Merubah kotak kaku jadi widget kaca melengkung ala iOS */
+        .bg-slate-900 {
+            background: rgba(15, 23, 42, 0.4) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 28px !important;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3) !important;
+        }
+
     </style>
 </head>
 <body class="bg-slate-950 text-slate-300 antialiased overflow-hidden">
@@ -181,7 +198,7 @@
     </div>
 
     <div id="app-layar" class="flex h-screen w-full hidden no-print">
-        <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-50 shadow-2xl relative">
+        <aside class="hidden lg:flex flex-col w-64 bg-slate-900 border-r border-slate-800 z-50 shadow-2xl relative">
             <div class="h-20 flex items-center px-6 border-b border-slate-800">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 bg-gradient-to-tr from-yellow-500 to-amber-300 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/20">
@@ -322,7 +339,7 @@
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-6 md:p-8" id="main-content-scroll">
+            <div class="flex-1 overflow-y-auto p-6 pb-32 md:p-8" id="main-content-scroll"></div>
                 <div class="max-w-6xl mx-auto">
 
                     <!-- TAB: DASHBOARD -->
@@ -1032,6 +1049,36 @@
             </div>
             
             <button onclick="simpanBudgetTarget()" class="w-full mt-6 bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl transition shadow-[0_4px_14px_0_rgba(225,29,72,0.39)] cursor-pointer">💾 Update Target</button>
+        </div>
+    </div>
+
+    <div class="lg:hidden fixed bottom-6 left-4 right-4 z-[99]">
+        <div class="bg-slate-900/60 backdrop-blur-3xl border border-white/10 rounded-full p-2 flex justify-between items-center shadow-[0_20px_40px_rgba(0,0,0,0.6)] px-5">
+            
+            <button onclick="switchTab('overview', event)" class="flex flex-col items-center p-2 text-slate-400 hover:text-white transition group">
+                <span class="text-2xl group-hover:-translate-y-1 transition duration-300">📊</span>
+                <span class="text-[9px] font-bold mt-1 opacity-0 group-hover:opacity-100 transition absolute -bottom-4">Overview</span>
+            </button>
+            
+            <button onclick="switchTab('transaksi', event)" class="flex flex-col items-center p-2 text-slate-400 hover:text-white transition group">
+                <span class="text-2xl group-hover:-translate-y-1 transition duration-300">📋</span>
+                <span class="text-[9px] font-bold mt-1 opacity-0 group-hover:opacity-100 transition absolute -bottom-4">Data</span>
+            </button>
+            
+            <button onclick="switchTab('internal', event); if(!isInternalUnlocked) { bukaTabInternal(event); }" class="flex flex-col items-center p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-full text-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/20 transition group relative -mt-6 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                <span class="text-3xl drop-shadow-[0_0_8px_rgba(234,179,8,0.5)] transition duration-300">🛡️</span>
+            </button>
+            
+            <button onclick="switchTab('opex-panel', event)" class="flex flex-col items-center p-2 text-slate-400 hover:text-white transition group">
+                <span class="text-2xl group-hover:-translate-y-1 transition duration-300">🛒</span>
+                <span class="text-[9px] font-bold mt-1 opacity-0 group-hover:opacity-100 transition absolute -bottom-4">Input</span>
+            </button>
+
+            <button onclick="keluarSistem()" class="flex flex-col items-center p-2 text-rose-500 hover:text-rose-400 transition group">
+                <span class="text-2xl group-hover:-translate-y-1 transition duration-300">🚪</span>
+                <span class="text-[9px] font-bold mt-1 opacity-0 group-hover:opacity-100 transition absolute -bottom-4">Keluar</span>
+            </button>
+
         </div>
     </div>
 
