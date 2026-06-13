@@ -1951,21 +1951,86 @@
         });
     }
 
-    function cetakLaporanInternal() {
-        let sb=document.getElementById("filter-bulan"); document.getElementById("internal-print-periode").innerText=sb.options[sb.selectedIndex].text.toUpperCase();
+   function cetakLaporanInternal() {
+        let sb = document.getElementById("filter-bulan"); 
+        document.getElementById("internal-print-periode").innerText = sb.options[sb.selectedIndex].text.toUpperCase();
+        
         let opexAktif = bulanAktif === "ALL" ? masterOpex : masterOpex.filter(o => o.periode === bulanAktif);
-        let totalOpex=0, opexListHtml="";
-        opexAktif.forEach(item => { totalOpex+=Number(item.nominal); opexListHtml+=`<li>${item.note}: Rp ${Number(item.nominal).toLocaleString('id-ID')}</li>`; });
-        if (opexAktif.length===0) opexListHtml="<li>Tidak ada catatan biaya operasional khusus di periode ini.</li>";
+        let totalOpex = 0;
         
-        document.getElementById("print-int-omset").innerText=formatRupiah(currentSettleGlobal); document.getElementById("print-int-hpp").innerText=formatRupiah(currentHPPGlobal);
-        document.getElementById("print-int-laba-kotor").innerText=formatRupiah(currentLabaKotorGlobal); document.getElementById("print-int-invs").innerText=formatRupiah(currentInvsGlobal);
-        document.getElementById("print-int-owner-gross").innerText=formatRupiah(currentOwnerGross); document.getElementById("print-int-opex").innerText="- "+formatRupiah(totalOpex);
-        document.getElementById("print-int-opex-list").innerHTML=opexListHtml; document.getElementById("print-int-net").innerText=formatRupiah(currentOwnerGross-totalOpex);
+        // --- LOGIKA BARU: GABUNGIN OPEX YANG NAMANYA SAMA ---
+        let groupedOpex = {};
+        opexAktif.forEach(item => { 
+            totalOpex += Number(item.nominal); 
+            // Samain huruf besar/kecil biar gak dobel
+            let namaOpex = String(item.note || "LAIN-LAIN").trim().toUpperCase();
+            groupedOpex[namaOpex] = (groupedOpex[namaOpex] || 0) + Number(item.nominal);
+        });
+
+        let opexListHtml = "";
+        // Urutkan dari biaya yang paling besar
+        let listOpexKeys = Object.keys(groupedOpex).sort((a,b) => groupedOpex[b] - groupedOpex[a]); 
         
-        document.getElementById("app-layar").style.display="none"; document.getElementById("print-area-internal").classList.remove("hidden");
+        if (listOpexKeys.length === 0) {
+            opexListHtml = "<li class='col-span-2'>Tidak ada catatan biaya operasional khusus di periode ini.</li>";
+        } else {
+            listOpexKeys.forEach(k => {
+                opexListHtml += `<li>${k}: Rp ${groupedOpex[k].toLocaleString('id-ID')}</li>`; 
+            });
+        }
+        
+        document.getElementById("print-int-omset").innerText = formatRupiah(currentSettleGlobal);
+        document.getElementById("print-int-hpp").innerText = formatRupiah(currentHPPGlobal);
+        document.getElementById("print-int-laba-kotor").innerText = formatRupiah(currentLabaKotorGlobal); 
+        document.getElementById("print-int-invs").innerText = formatRupiah(currentInvsGlobal);
+        document.getElementById("print-int-owner-gross").innerText = formatRupiah(currentOwnerGross); 
+        document.getElementById("print-int-opex").innerText = "- " + formatRupiah(totalOpex);
+        
+        // TEMBAK KE HTML DAN JADIKAN 2 KOLOM (Biar gak manjang ke bawah)
+        let listContainer = document.getElementById("print-int-opex-list");
+        listContainer.className = "list-disc pl-5 text-xs grid grid-cols-2 gap-x-8 gap-y-1";
+        listContainer.innerHTML = opexListHtml; 
+        
+        document.getElementById("print-int-net").innerText = formatRupiah(currentOwnerGross - totalOpex);
+        
+        // --- MESIN SKOR KESEHATAN OTOMATIS ---
+        let totalHppTertahan = 0, totalHppCair = 0;
+        filteredData.forEach(item => { 
+            let st = String(item.status || "WAITING").toUpperCase();
+            let hpp = Number(item.hpp || item.HPP || 0);
+            if (st === "WAITING") totalHppTertahan += hpp;
+            else if (st === "READY" || st === "PAID") totalHppCair += hpp;
+        });
+
+        let daysPassed = 30, today = new Date();
+        if (bulanAktif !== "ALL") {
+            let parts = bulanAktif.split("-"), year = parseInt(parts[0]), month = parseInt(parts[1]) - 1;
+            daysPassed = (today.getFullYear() === year && today.getMonth() === month) ? (today.getDate() || 1) : new Date(year, month + 1, 0).getDate();
+        } else {
+            daysPassed = today.getDate() || 1;
+        }
+
+        let rataHppCairHarian = totalHppCair / daysPassed;
+        let rataSiklus = rataHppCairHarian > 0 ? (totalHppTertahan / rataHppCairHarian) : (totalHppTertahan > 0 ? 99 : 0);
+        
+        let statusKesehatan = "";
+        if (rataSiklus === 0) statusKesehatan = "🟢 AMAN (0 Hari) - Tidak ada antrean dana macet.";
+        else if (rataSiklus <= 5) statusKesehatan = `🟢 SEHAT (${rataSiklus.toFixed(1)} Hari) - Perputaran uang cepat.`;
+        else if (rataSiklus <= 10) statusKesehatan = `🟡 WASPADA (${rataSiklus.toFixed(1)} Hari) - Uang mulai melambat di kurir.`;
+        else statusKesehatan = `🔴 RAWAN (${rataSiklus.toFixed(1)} Hari) - Arus kas macet! Tarik dana segera.`;
+
+        let boxId = "box-skor-internal";
+        let oldBox = document.getElementById(boxId);
+        if(oldBox) oldBox.remove();
+        
+        let boxHTML = `<div id="${boxId}" class="mt-8 p-4 border-2 border-black bg-gray-100 text-center"><p class="text-xs mb-1">KESIMPULAN KESEHATAN CASHFLOW:</p><h2 class="text-lg font-bold">${statusKesehatan}</h2></div>`;
+        document.getElementById("print-area-internal").insertAdjacentHTML('beforeend', boxHTML);
+
+        document.getElementById("app-layar").style.display = "none"; 
+        document.getElementById("print-area-internal").classList.remove("hidden");
         window.print();
-        document.getElementById("print-area-internal").classList.add("hidden"); document.getElementById("app-layar").style.display="flex";
+        document.getElementById("print-area-internal").classList.add("hidden"); 
+        document.getElementById("app-layar").style.display = "flex";
     }
 
     function bukaModal(index) {
@@ -2116,38 +2181,110 @@
     }
 
     function prosesCetakClosingFormal() {
-        let totalSettle=0, totalLaba=0, totalGagal=0, totalVolAktif=0;
-        filteredData.forEach(item => { let status=String(item.status||"WAITING").toUpperCase(), qty=Number(item.qty||0); if (status==="RETUR"||status==="FAILED"||status==="CANCELED") { totalGagal+=qty; } else { totalVolAktif+=qty; totalSettle+=(Number(item.settlement||item.Settlement||0)*qty); totalLaba+=Number(item.labaKotor||item.LabaKotor||0); } });
-        let marginAvg=totalSettle>0?((totalLaba/totalSettle)*100).toFixed(1):0;
-        let persentaseTarget=targetBulanan>0?((totalVolAktif/targetBulanan)*100).toFixed(1):0;
-        let rajaProdukElement=document.getElementById("the-king-product").innerText, namaRaja=rajaProdukElement!=="-"?rajaProdukElement.split(" (")[0]:"Belum Ada";
-        let selectBox=document.getElementById("filter-bulan"), labelBulan=selectBox.options[selectBox.selectedIndex].text;
-        document.getElementById("laporan-periode").innerText=labelBulan.toUpperCase();
-        let drafEvaluasi=`Periode ${labelBulan}, total volume penjualan aktif mencapai ${totalVolAktif} unit, yang berarti menyentuh ${persentaseTarget}% dari target kita (${targetBulanan} unit). \n\nSecara performa, operasional berjalan stabil dengan rata-rata margin keuntungan di angka ${marginAvg}%. Penjualan didominasi oleh varian ${namaRaja} yang menunjukkan minat pasar yang sangat baik. `;
-        if (totalGagal>0) drafEvaluasi+=`Namun, menjadi catatan penting bahwa terdapat ${totalGagal} unit pesanan yang mengalami Retur/Gagal Antar.\n`; else drafEvaluasi+=`Tidak ada kendala Retur atau Gagal Antar yang signifikan pada periode ini.\n`;
-        drafEvaluasi+=`Seluruh dana tertahan (Waiting) akan dipantau ketat proses pencairannya agar bisa masuk ke buku kas.`;
-        let evalText=prompt("Sistem telah membuat Draf Evaluasi. Silakan edit jika perlu, lalu tekan OK untuk mencetak:",drafEvaluasi); if (evalText===null) return;
-        document.getElementById("print-catatan").innerText=evalText.trim()===""?"Tidak ada catatan evaluasi.":evalText;
-        document.getElementById("app-layar").style.display="none"; document.getElementById("print-area-closing").classList.remove("hidden");
+        let totalSettle = 0, totalLaba = 0, totalGagal = 0, totalVolAktif = 0;
+        let totalHppTertahan = 0, totalHppCair = 0; // Tambahan mesin pencari kesehatan
+
+        // 1. Ekstrak Semua Data
+        filteredData.forEach(item => { 
+            let status = String(item.status || "WAITING").toUpperCase();
+            let qty = Number(item.qty || 0); 
+            let hpp = Number(item.hpp || item.HPP || 0);
+
+            if (status === "RETUR" || status === "FAILED" || status === "CANCELED") { 
+                totalGagal += qty; 
+            } else { 
+                totalVolAktif += qty; 
+                totalSettle += (Number(item.settlement || item.Settlement || 0) * qty); 
+                totalLaba += Number(item.labaKotor || item.LabaKotor || 0); 
+            }
+
+            // Pisahkan metrik uang cair dan nyangkut untuk radar kesehatan
+            if (status === "WAITING") {
+                totalHppTertahan += hpp;
+            } else if (status === "READY" || status === "PAID") {
+                totalHppCair += hpp;
+            }
+        });
+
+        let marginAvg = totalSettle > 0 ? ((totalLaba / totalSettle) * 100).toFixed(1) : 0;
+        let persentaseTarget = targetBulanan > 0 ? ((totalVolAktif / targetBulanan) * 100).toFixed(1) : 0;
+        
+        let rajaProdukElement = document.getElementById("the-king-product").innerText;
+        let namaRaja = rajaProdukElement !== "-" ? rajaProdukElement.split(" (")[0] : "Belum Ada";
+        
+        let selectBox = document.getElementById("filter-bulan");
+        let labelBulan = selectBox.options[selectBox.selectedIndex].text;
+        document.getElementById("laporan-periode").innerText = labelBulan.toUpperCase();
+
+        // --- 2. KALKULASI SKOR KESEHATAN BISNIS ---
+        let daysPassed = 30;
+        let today = new Date();
+        if (bulanAktif !== "ALL") {
+            let parts = bulanAktif.split("-"), year = parseInt(parts[0]), month = parseInt(parts[1]) - 1;
+            daysPassed = (today.getFullYear() === year && today.getMonth() === month) ? (today.getDate() || 1) : new Date(year, month + 1, 0).getDate();
+        } else {
+            daysPassed = today.getDate() || 1;
+        }
+
+        let rataHppCairHarian = totalHppCair / daysPassed;
+        let rataSiklus = rataHppCairHarian > 0 ? (totalHppTertahan / rataHppCairHarian) : (totalHppTertahan > 0 ? 99 : 0);
+        
+        let statusKesehatan = "";
+        if (rataSiklus === 0) statusKesehatan = "⚪ AMAN/KOSONG (Belum ada antrean dana macet di ekspedisi)";
+        else if (rataSiklus <= 5) statusKesehatan = "🟢 SEHAT (Modal berputar cepat, kas tunai aman terkendali)";
+        else if (rataSiklus <= 10) statusKesehatan = "🟡 WASPADA (Uang mulai melambat nyangkut di kurir, rem pengeluaran!)";
+        else statusKesehatan = "🔴 RAWAN (Arus kas macet parah! Indikasi bahaya operasional, segera tarik dana!)";
+
+        // --- 3. BIKIN DRAF TEKS EVALUASI ---
+        let drafEvaluasi = `Periode ${labelBulan}, total volume penjualan aktif mencapai ${totalVolAktif} unit, yang berarti menyentuh ${persentaseTarget}% dari target kita (${targetBulanan} unit). \n\nSecara performa, operasional berjalan stabil dengan rata-rata margin keuntungan di angka ${marginAvg}%. Penjualan didominasi oleh varian ${namaRaja} yang menunjukkan minat pasar yang sangat baik. `;
+        
+        if (totalGagal > 0) drafEvaluasi += `Namun, menjadi catatan penting bahwa terdapat ${totalGagal} unit pesanan yang mengalami Retur/Gagal Antar.\n`; 
+        else drafEvaluasi += `Tidak ada kendala Retur atau Gagal Antar yang signifikan pada periode ini.\n`;
+        
+        drafEvaluasi += `Seluruh dana tertahan (Waiting) akan dipantau ketat proses pencairannya agar bisa masuk ke buku kas.`;
+
+        // 4. SUNTIK SKOR KESEHATAN KE BAWAH DRAF
+        drafEvaluasi += `\n\n===========================\n📊 SKOR KESEHATAN CASHFLOW\n===========================\n`;
+        drafEvaluasi += `Siklus Pencairan : ${rataSiklus.toFixed(1)} Hari\nStatus : ${statusKesehatan}`;
+
+        // 5. TAMPILKAN PROMPT EDIT DAN EKSEKUSI CETAK
+        let evalText = prompt("Sistem telah membuat Draf Evaluasi & Skor Kesehatan. Silakan edit jika perlu, lalu tekan OK untuk mencetak:", drafEvaluasi); 
+        if (evalText === null) return;
+        
+        document.getElementById("print-catatan").innerText = evalText.trim() === "" ? "Tidak ada catatan evaluasi." : evalText;
+        
+        document.getElementById("app-layar").style.display = "none"; 
+        document.getElementById("print-area-closing").classList.remove("hidden");
         window.print();
-        document.getElementById("print-area-closing").classList.add("hidden"); document.getElementById("app-layar").style.display="flex";
+        document.getElementById("print-area-closing").classList.add("hidden"); 
+        document.getElementById("app-layar").style.display = "flex";
+        // SUNTIK KOTAK KE KERTAS PRINT CLOSING FORMAL
+        let boxId = "box-skor-closing";
+        let oldBox = document.getElementById(boxId);
+        if(oldBox) oldBox.remove();
+        
+        let boxHTML = `<div id="${boxId}" class="mt-6 p-4 border-2 border-black bg-gray-100 text-center"><p class="text-xs mb-1">KESIMPULAN KESEHATAN CASHFLOW:</p><h2 class="text-lg font-bold">${statusKesehatan}</h2></div>`;
+        document.getElementById("print-catatan").insertAdjacentHTML('afterend', boxHTML);
+        // -------------------------------------
+
+        document.getElementById("app-layar").style.display = "none"; 
+        document.getElementById("print-area-closing").classList.remove("hidden");
+        window.print();
+        document.getElementById("print-area-closing").classList.add("hidden"); 
+        document.getElementById("app-layar").style.display = "flex";
     }
+    
 function hitungRadarModal() {
         let totalHppTertahan = 0, totalHppCair = 0;
 
-        // 1. Kumpulkan Data Real-Time
         filteredData.forEach(item => {
             let st = String(item.status || item.STATUS || "WAITING").toUpperCase();
             let hpp = Number(item.hpp || item.HPP || item["HPP (MODAL)"] || item["hpp (modal)"] || 0);
             
-            if (st === "WAITING") {
-                totalHppTertahan += hpp; // Uang yang masih nyangkut di kurir (Aspal)
-            } else if (st === "READY" || st === "PAID") {
-                totalHppCair += hpp; // Uang yang beneran udah cair atau ditransfer
-            }
+            if (st === "WAITING") totalHppTertahan += hpp;
+            else if (st === "READY" || st === "PAID") totalHppCair += hpp;
         });
 
-        // 2. Tentukan Hari Berjalan (Buat cari rata-rata harian)
         let daysPassed = 30, daysInMonth = 30, today = new Date();
         if (bulanAktif !== "ALL") {
             let parts = bulanAktif.split("-"), year = parseInt(parts[0]), month = parseInt(parts[1]) - 1;
@@ -2157,59 +2294,91 @@ function hitungRadarModal() {
             daysPassed = today.getDate() || 1;
         }
 
-        // 3. RUMUS DEWA (Siklus Kas Dinamis Ngikut Penjualan)
         let rataHppCairHarian = totalHppCair / daysPassed;
-        
-        // Berapa hari yang dibutuhkan untuk mencairkan seluruh uang gantung saat ini?
         let rataSiklus = rataHppCairHarian > 0 ? (totalHppTertahan / rataHppCairHarian) : 0;
-        
-        // Kasus spesial: Uang gantung banyak, tapi belum ada yang cair sama sekali (Macet Total)
-        if (rataHppCairHarian === 0 && totalHppTertahan > 0) {
-            rataSiklus = 99; // Set ke angka krisis
-        }
+        if (rataHppCairHarian === 0 && totalHppTertahan > 0) rataSiklus = 99; 
 
-        let rataHppHarian = (totalHppCair + totalHppTertahan) / daysPassed; // Kecepatan putaran uang kotor
+        let rataHppHarian = (totalHppCair + totalHppTertahan) / daysPassed; 
         let bufferTunai = rataSiklus * rataHppHarian;
         let proyeksiModal = rataHppHarian * daysInMonth;
 
-        // 4. TEMBAK KE UI DENGAN KOSMETIK (Biar Kerasa Pentingnya)
         let elSiklus = document.getElementById("radar-siklus");
         let elHppGantung = document.getElementById("radar-hpp-gantung");
         let elBuffer = document.getElementById("radar-buffer");
         let elProyeksi = document.getElementById("radar-proyeksi-modal");
 
-        // Ganti Warna Kotak Secara Dinamis!
+        let statusKesehatan = "", bannerClass = "", iconStatus = "";
+
         if (elSiklus && elSiklus.parentElement) {
             let siklusContainer = elSiklus.parentElement;
             
             if (rataSiklus === 0) {
-                // Aman banget / Kosong
                 elSiklus.innerHTML = `<span class="text-slate-400">0</span> <span class="text-[10px] text-slate-500 font-sans">Hari</span>`;
                 siklusContainer.className = "bg-slate-950 p-4 rounded-xl border border-slate-800/50 relative group transition-all duration-300";
+                statusKesehatan = "AMAN - Kas lancar, tidak ada antrean dana macet.";
+                bannerClass = "bg-slate-900 border-slate-700 text-slate-400";
+                iconStatus = "⚪";
             } else if (rataSiklus <= 5) {
-                // Sehat (Hijau)
                 elSiklus.innerHTML = `<span class="text-emerald-400">${rataSiklus.toFixed(1)}</span> <span class="text-[10px] text-emerald-600/50 font-sans">Hari</span>`;
                 siklusContainer.className = "bg-emerald-950/20 p-4 rounded-xl border border-emerald-500/30 relative group transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.05)]";
+                statusKesehatan = "SEHAT - Modal muter cepat, kas tunai aman terkendali.";
+                bannerClass = "bg-emerald-950/40 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]";
+                iconStatus = "🟢";
             } else if (rataSiklus <= 10) {
-                // Warning (Kuning)
                 elSiklus.innerHTML = `<span class="text-amber-400">${rataSiklus.toFixed(1)}</span> <span class="text-[10px] text-amber-600/50 font-sans">Hari</span>`;
                 siklusContainer.className = "bg-amber-950/20 p-4 rounded-xl border border-amber-500/40 relative group transition-all duration-300 shadow-[0_0_15px_rgba(245,158,11,0.05)]";
+                statusKesehatan = "WASPADA - Uang mulai melambat di kurir, rem belanja aset!";
+                bannerClass = "bg-amber-950/40 border-amber-500/50 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]";
+                iconStatus = "🟡";
             } else {
-                // KRITIS! (Merah & Berdenyut)
                 elSiklus.innerHTML = `<span class="text-rose-400">${rataSiklus.toFixed(1)}</span> <span class="text-[10px] text-rose-600/50 font-sans">Hari</span>`;
                 siklusContainer.className = "bg-rose-950/30 p-4 rounded-xl border border-rose-500/50 relative group transition-all duration-300 shadow-[0_0_20px_rgba(244,63,94,0.2)] animate-pulse";
+                statusKesehatan = "RAWAN - Arus kas macet! Indikasi bahaya operasional, segera tarik dana!";
+                bannerClass = "bg-rose-950/40 border-rose-500/50 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-pulse";
+                iconStatus = "🔴";
             }
         }
         
         if (elHppGantung) elHppGantung.innerText = formatRupiah(totalHppTertahan);
-        
         if (elBuffer) {
-            // Buffer tunai ngikutin warna krisis
             let bufferColor = rataSiklus > 10 ? "text-rose-400" : "text-yellow-400";
             elBuffer.innerHTML = `<span class="${bufferColor}">${formatRupiah(bufferTunai)}</span>`;
         }
-        
         if (elProyeksi) elProyeksi.innerText = formatRupiah(proyeksiModal);
+
+        // --- INJEKSI BANNER STATUS CASHFLOW KE LAYAR UI ---
+        let badgeHTML = `<div class="flex items-center gap-3"><span class="text-2xl">${iconStatus}</span><div><p class="text-[10px] uppercase tracking-widest opacity-80 mb-0.5">Kesimpulan Kesehatan Cashflow</p><h3 class="text-sm font-bold md:text-base">${statusKesehatan}</h3></div></div><div class="text-right hidden sm:block"><p class="text-xs font-mono font-bold opacity-80">Siklus Kas: ${rataSiklus.toFixed(1)} Hari</p></div>`;
+
+        // 1. Pasang di Tab Dashboard (Paling Atas)
+        let dashBanner = document.getElementById("banner-kesehatan-dashboard");
+        if (!dashBanner) {
+            let dashContent = document.getElementById("dashboard");
+            if (dashContent) {
+                dashContent.insertAdjacentHTML('afterbegin', `<div id="banner-kesehatan-dashboard" class="mb-6 p-4 rounded-2xl border flex justify-between items-center transition-all duration-500"></div>`);
+                dashBanner = document.getElementById("banner-kesehatan-dashboard");
+            }
+        }
+        if (dashBanner) {
+            dashBanner.className = `mb-6 p-4 rounded-2xl border flex justify-between items-center transition-all duration-500 ${bannerClass}`;
+            dashBanner.innerHTML = badgeHTML;
+        }
+
+        // 2. Pasang di Tab Internal (Dapur Finance)
+        let intBanner = document.getElementById("banner-kesehatan-internal");
+        if (!intBanner) {
+            let internalCard = document.querySelector("#internal .bg-slate-900.rounded-2xl");
+            if (internalCard) {
+                let headerBorder = internalCard.querySelector(".border-b.border-slate-800");
+                if (headerBorder) {
+                    headerBorder.insertAdjacentHTML('afterend', `<div id="banner-kesehatan-internal" class="mb-5 p-4 rounded-xl border flex justify-between items-center transition-all duration-500"></div>`);
+                    intBanner = document.getElementById("banner-kesehatan-internal");
+                }
+            }
+        }
+        if (intBanner) {
+            intBanner.className = `mb-5 p-4 rounded-xl border flex justify-between items-center transition-all duration-500 ${bannerClass}`;
+            intBanner.innerHTML = badgeHTML;
+        }
     }
 
     function formatRupiah(a) { return "Rp " + Math.round(Number(a || 0)).toLocaleString('id-ID'); }
