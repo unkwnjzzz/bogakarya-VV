@@ -937,6 +937,68 @@
         </div>
     </div>
 
+<!-- MODAL PIN DAPUR FINANCE -->
+    <div id="modal-pin-finance" class="modal no-print">
+        <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-sm shadow-[0_0_40px_rgba(0,0,0,0.5)] relative text-center">
+            <button onclick="document.getElementById('modal-pin-finance').classList.remove('active')" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button>
+            <div class="w-16 h-16 bg-slate-950 rounded-2xl mx-auto mb-4 flex items-center justify-center border border-slate-800 shadow-inner">
+                <span class="text-3xl">🔒</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-100 mb-1 tracking-tight">Area Tertutup</h2>
+            <p class="text-xs text-slate-500 mb-6">Masukkan PIN Rahasia Dapur Finance.</p>
+            <input type="password" id="input-pin-finance" onkeyup="if(event.key==='Enter') verifikasiPinFinance()" class="w-full text-center tracking-[0.5em] bg-slate-950 border border-slate-800 text-slate-200 text-lg px-4 py-3 rounded-xl focus:border-yellow-500 focus:outline-none mb-4 shadow-inner" placeholder="••••">
+            <button onclick="verifikasiPinFinance()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] cursor-pointer">Buka Akses</button>
+        </div>
+    </div>
+
+    <!-- MODAL RAPOR INVESTOR -->
+    <div id="modal-rapor-investor" class="modal no-print">
+        <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-md shadow-[0_0_40px_rgba(0,0,0,0.5)] relative">
+            <button onclick="document.getElementById('modal-rapor-investor').classList.remove('active')" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button>
+            <h2 class="text-xl font-bold text-slate-100 mb-1 tracking-tight">💸 Catat Pencairan Dividen</h2>
+            <p class="text-xs text-slate-500 mb-6 border-b border-slate-800 pb-3">Histori bagi hasil ke Mitra Investor.</p>
+            
+            <div class="space-y-4">
+                <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tanggal Cair</label>
+                        <input type="date" id="input-dividen-tgl" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-violet-500 focus:outline-none cursor-pointer">
+                    </div>
+                    <div class="w-1/2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Periode Profit</label>
+                        <input type="text" id="input-dividen-periode" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-violet-500 focus:outline-none" placeholder="Misal: Mei 2026">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Nominal (Rp)</label>
+                    <input type="number" id="input-dividen-nominal" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-violet-500 focus:outline-none" placeholder="Contoh: 1500000">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Keterangan</label>
+                    <input type="text" id="input-dividen-ket" value="Transfer Dividen" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-violet-500 focus:outline-none">
+                </div>
+            </div>
+            
+            <button onclick="simpanDividen()" class="w-full mt-6 bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 rounded-xl transition shadow-[0_4px_14px_0_rgba(139,92,246,0.39)] cursor-pointer">💾 Simpan Histori</button>
+        </div>
+    </div>
+
+    <!-- MODAL BUDGET TARGET -->
+    <div id="modal-budget-target" class="modal no-print">
+        <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-sm shadow-[0_0_40px_rgba(0,0,0,0.5)] relative">
+            <button onclick="document.getElementById('modal-budget-target').classList.remove('active')" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button>
+            <h2 class="text-xl font-bold text-slate-100 mb-1 tracking-tight">🎯 Set Target Net Profit</h2>
+            <p class="text-xs text-slate-500 mb-6 border-b border-slate-800 pb-3">Atur target laba bersih tunai bulanan.</p>
+            
+            <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Target Profit (Rp)</label>
+                <input type="number" id="input-budget-nominal" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-rose-500 focus:outline-none" placeholder="Contoh: 5000000">
+            </div>
+            
+            <button onclick="simpanBudgetTarget()" class="w-full mt-6 bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl transition shadow-[0_4px_14px_0_rgba(225,29,72,0.39)] cursor-pointer">💾 Update Target</button>
+        </div>
+    </div>
+
     <!-- PRINT AREA CLOSING -->
     <div id="print-area-closing" class="hidden bg-white text-black max-w-4xl mx-auto p-8">
         <div class="text-center border-b-2 border-black pb-4 mb-6"><h1 class="text-xl font-bold uppercase">Laporan Closingan Final & Kinerja Keuangan</h1><h2 class="text-lg font-bold">BOGA KARYA 86</h2><div class="mt-2 text-xs space-y-1"><p>PERIODE: <span id="laporan-periode" class="font-semibold">-</span></p><p>PENYUSUN: MANAGEMENT BOGA KARYA 86</p><p>PERUNTUKAN: LAPORAN FORMAL INVESTOR</p></div></div>
@@ -2419,21 +2481,13 @@ function hitungRadarModal() {
         // --- INJEKSI BANNER STATUS CASHFLOW KE LAYAR UI ---
         let badgeHTML = `<div class="flex items-center gap-3"><span class="text-2xl">${iconStatus}</span><div><p class="text-[10px] uppercase tracking-widest opacity-80 mb-0.5">Kesimpulan Kesehatan Cashflow</p><h3 class="text-sm font-bold md:text-base">${statusKesehatan}</h3></div></div><div class="text-right hidden sm:block"><p class="text-xs font-mono font-bold opacity-80">Siklus Kas: ${rataSiklus.toFixed(1)} Hari</p></div>`;
 
-        // 1. Pasang di Tab Dashboard (Paling Atas)
+        // 1. HAPUS PAKSA DARI DASHBOARD UTAMA (Biar Investor Gak Kena Mental!)
         let dashBanner = document.getElementById("banner-kesehatan-dashboard");
-        if (!dashBanner) {
-            let dashContent = document.getElementById("dashboard");
-            if (dashContent) {
-                dashContent.insertAdjacentHTML('afterbegin', `<div id="banner-kesehatan-dashboard" class="mb-6 p-4 rounded-2xl border flex justify-between items-center transition-all duration-500"></div>`);
-                dashBanner = document.getElementById("banner-kesehatan-dashboard");
-            }
-        }
         if (dashBanner) {
-            dashBanner.className = `mb-6 p-4 rounded-2xl border flex justify-between items-center transition-all duration-500 ${bannerClass}`;
-            dashBanner.innerHTML = badgeHTML;
+            dashBanner.remove(); // Buang ke laut
         }
 
-        // 2. Pasang di Tab Internal (Dapur Finance)
+        // 2. Pasang HANYA di Tab Internal (Dapur Finance - Area VVIP Lu Doang)
         let intBanner = document.getElementById("banner-kesehatan-internal");
         if (!intBanner) {
             let internalCard = document.querySelector("#internal .bg-slate-900.rounded-2xl");
@@ -2906,18 +2960,167 @@ function hitungRadarModal() {
             console.error(error);
         }
     }
+    // =========================================================================
+    // UPDATE: PEMBASMIAN PROMPT() KUNO MENJADI POP-UP MODERN
+    // =========================================================================
+
+    // 1. REVISI PIN DAPUR FINANCE
+    window.bukaTabInternal = function(event) {
+        if (!isInternalUnlocked) {
+            document.getElementById('input-pin-finance').value = "";
+            document.getElementById('modal-pin-finance').classList.add('active');
+            setTimeout(() => document.getElementById('input-pin-finance').focus(), 100);
+            return;
+        }
+        switchTab('internal', event);
+        renderManajemenArea();
+    }
+
+    window.verifikasiPinFinance = function() {
+        let inputPin = document.getElementById('input-pin-finance').value;
+        if (inputPin === PIN_RAHASIA) {
+            isInternalUnlocked = true;
+            document.getElementById('modal-pin-finance').classList.remove('active');
+            toast.success("✅ Akses Diberikan. Selamat datang di Dapur Manajemen.");
+            switchTab('internal', null);
+            document.getElementById('tab-btn-internal').classList.add('bg-slate-800/80', 'text-slate-200');
+            renderManajemenArea();
+        } else {
+            toast.error("❌ PIN Salah! Akses Ditolak.");
+            document.getElementById('input-pin-finance').value = "";
+            document.getElementById('input-pin-finance').focus();
+        }
+    }
+
+    // 2. REVISI INPUT RAPOR INVESTOR
+    window.tambahDividen = function() {
+        document.getElementById('input-dividen-tgl').value = new Date().toISOString().split('T')[0];
+        document.getElementById('input-dividen-periode').value = "";
+        document.getElementById('input-dividen-nominal').value = "";
+        document.getElementById('input-dividen-ket').value = "Transfer Dividen";
+        document.getElementById('modal-rapor-investor').classList.add('active');
+    }
+
+    window.simpanDividen = async function() {
+        let tgl = document.getElementById("input-dividen-tgl").value;
+        let periode = document.getElementById("input-dividen-periode").value;
+        let nominal = document.getElementById("input-dividen-nominal").value;
+        let ket = document.getElementById("input-dividen-ket").value;
+
+        if (!tgl || !periode || !nominal || isNaN(nominal) || !ket) {
+            toast.error("Mohon lengkapi Tanggal, Periode, dan Nominal!");
+            return;
+        }
+
+        let payload = {
+            tanggal: tgl,
+            periode: periode,
+            nominal: parseFloat(nominal),
+            keterangan: ket
+        };
+        
+        let loadingInstance = toast.loading("Menyimpan rekam jejak...");
+        const { error } = await supabaseClient.from('rapor_investor').insert([payload]);
+        if (!error) {
+            addAuditLog("DIVIDEN_PAID", `Mencatat dividen cair: ${periode} (Rp ${nominal})`, "success");
+            await loadRaporInvestor();
+            document.getElementById('modal-rapor-investor').classList.remove('active');
+            loadingInstance.dismiss();
+            toast.success("Dividen berhasil dicatat!");
+        } else {
+            loadingInstance.dismiss();
+            toast.error("Gagal mencatat dividen!");
+        }
+    }
+
+    // 3. REVISI INPUT BUDGET TARGET
+    window.setBudgetTarget = function() {
+        document.getElementById('input-budget-nominal').value = targetProfitBulanan || "";
+        document.getElementById('modal-budget-target').classList.add('active');
+        setTimeout(() => document.getElementById('input-budget-nominal').focus(), 100);
+    }
+
+    window.simpanBudgetTarget = async function() {
+        let input = document.getElementById('input-budget-nominal').value;
+        if (input !== "" && !isNaN(parseInt(input)) && parseInt(input) >= 0) {
+            targetProfitBulanan = parseInt(input);
+            renderBudgetTarget(); 
+            document.getElementById('modal-budget-target').classList.remove('active');
+            handleUpdate("Target Net Profit berhasil diperbarui!");
+            addAuditLog("UPDATE_BUDGET", `Target Net Profit diatur menjadi Rp ${targetProfitBulanan.toLocaleString('id-ID')}`, "warning");
+            
+            // Simpan Permanen ke Database Cloud (Supabase)
+            await supabaseClient.from('pengaturan').upsert([{ kunci: 'TARGET_PROFIT_BULANAN', nilai: targetProfitBulanan.toString() }]);
+        } else {
+            toast.error("Masukkan angka target yang valid (tanpa titik/koma)!");
+        }
+    }
+
    // ==========================================
-// 🔥 OTAK CENAYANG BELANJA & CETAK DAFTAR
+// ==========================================
+// 🔥 OTAK CENAYANG BELANJA (SUPER DINAMIS)
 // ==========================================
 window.renderProcurement = function() {
     const tbody = document.getElementById("tabel-procurement");
     const infoUmur = document.getElementById("info-umur-toko");
     if (!tbody) return;
     
-    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 animate-pulse">Menghitung masa depan... 🔮</td></tr>`;
+    // 1. INJEKSI KOTAK KENDALI (INPUT TARGET HARI) JIKA BELUM ADA
+    let targetInput = document.getElementById("input-target-hari");
+    let targetHari = targetInput ? (parseInt(targetInput.value) || 1) : 35; // Default 35 hari kalau baru buka
+
+    let panelBox = document.querySelector("#procurement-panel .bg-slate-900");
+    if(panelBox && !targetInput) {
+        let header = panelBox.querySelector(".flex.justify-between.items-center.mb-6");
+        if(header) {
+            header.insertAdjacentHTML('afterend', `
+                <div class="mb-6 bg-slate-950 p-5 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-inner">
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Kendali Target Stok Aman</span>
+                        <div class="flex items-center gap-3">
+                            <button onclick="document.getElementById('input-target-hari').value=7; renderProcurement();" class="text-[10px] bg-slate-900 border border-slate-700 text-slate-400 hover:text-white px-2 py-1 rounded transition cursor-pointer">7 Hari</button>
+                            <button onclick="document.getElementById('input-target-hari').value=14; renderProcurement();" class="text-[10px] bg-slate-900 border border-slate-700 text-slate-400 hover:text-white px-2 py-1 rounded transition cursor-pointer">14 Hari</button>
+                            <input type="number" id="input-target-hari" value="35" min="1" onchange="renderProcurement()" onkeyup="renderProcurement()" class="w-16 bg-slate-900 border border-yellow-500/50 text-yellow-400 font-bold text-center text-sm px-2 py-1.5 rounded-lg focus:border-yellow-500 focus:outline-none transition-all shadow-[0_0_10px_rgba(234,179,8,0.1)]">
+                            <span class="text-xs font-bold text-slate-300">Hari Ke Depan</span>
+                        </div>
+                    </div>
+                    <div class="text-left sm:text-right">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Status Mode</span>
+                        <span id="status-mode-belanja" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded border border-emerald-500/20">Mode Normal (Bulanan)</span>
+                    </div>
+                </div>
+            `);
+            targetHari = 35; 
+        }
+    }
+
+    // 2. UPDATE LABEL & WARNA BERDASARKAN HARI YANG LU INPUT
+    let statusText = document.getElementById("status-mode-belanja");
+    if (statusText) {
+        if (targetHari <= 7) {
+            statusText.className = "text-xs font-bold text-rose-400 bg-rose-500/10 px-3 py-1.5 rounded border border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)]";
+            statusText.innerText = "Mode Darurat (Mingguan)";
+        } else if (targetHari <= 15) {
+            statusText.className = "text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded border border-amber-500/20";
+            statusText.innerText = "Mode Waspada (2 Mingguan)";
+        } else if (targetHari > 45) {
+            statusText.className = "text-xs font-bold text-sky-400 bg-sky-500/10 px-3 py-1.5 rounded border border-sky-500/20";
+            statusText.innerText = "Mode Longgar (Stok Panjang)";
+        } else {
+            statusText.className = "text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded border border-emerald-500/20";
+            statusText.innerText = "Mode Normal (Aman)";
+        }
+    }
+
+    // 3. UPDATE JUDUL KOLOM TABEL BIAR SINKRON
+    let thTarget = document.querySelector("#tabel-procurement")?.parentElement?.querySelector("thead th:nth-child(4)");
+    if(thTarget) {
+         thTarget.innerHTML = `Target Beli <span class="text-[9px] text-yellow-500 block mt-1">(${targetHari} Hari Ke Depan)</span>`;
+    }
+
+    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 animate-pulse">Menghitung kalkulasi dinamis... 🔮</td></tr>`;
     let totalBudget = 0;
     
-    // Gunakan Data Master Cloud yang valid
     let sumberDataGlobal = typeof masterData !== 'undefined' && masterData.length > 0 ? masterData : filteredData;
     
     if (!sumberDataGlobal || sumberDataGlobal.length === 0) {
@@ -2926,7 +3129,6 @@ window.renderProcurement = function() {
     }
 
     let rekapLakuAllTime = {};
-    
     let waktuPertama = new Date().getTime();
     sumberDataGlobal.forEach(item => {
         let waktuItem = new Date(item.tanggal || item.created_at || new Date()).getTime();
@@ -2937,7 +3139,7 @@ window.renderProcurement = function() {
     let totalHariOperasional = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24));
     if (totalHariOperasional < 1) totalHariOperasional = 1;
 
-    if(infoUmur) infoUmur.innerHTML = `Dianalisis dari total <span class="font-bold text-slate-200">${totalHariOperasional} hari</span> operasional toko. Kebal filter UI.`;
+    if(infoUmur) infoUmur.innerHTML = `Dianalisis dari total <span class="font-bold text-slate-200">${totalHariOperasional} hari</span> operasional toko. Mesin menyesuaikan target Anda.`;
 
     sumberDataGlobal.forEach(item => {
         let status = String(item.status || "").toUpperCase();
@@ -2957,8 +3159,11 @@ window.renderProcurement = function() {
             if (sisaFisik < 0) sisaFisik = 0;
             
             let jualPerHari = totalTerjualAllTime / totalHariOperasional; 
-            let kebutuhanBulanDepan = Math.ceil(jualPerHari * 35); 
-            let saranBeli = Math.max(0, kebutuhanBulanDepan - sisaFisik);
+            
+            // --- INI RUMUS DEWA NYA (DINAMIS SESUAI KETIKAN LU) ---
+            let kebutuhanTarget = Math.ceil(jualPerHari * targetHari); 
+            let saranBeli = Math.max(0, kebutuhanTarget - sisaFisik);
+            
             let hpp = Number(g.hpp_satuan) || 0;
             let budget = saranBeli * hpp;
             
@@ -2986,16 +3191,20 @@ window.renderProcurement = function() {
                 <td class="p-5 text-right font-black text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">Rp ${totalBudget.toLocaleString('id-ID')}</td>
             </tr>`;
     } else {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">🎉 STOK LUAR BIASA AMAN!<br>Belum ada proyeksi belanja vendor untuk 35 hari ke depan. Duit lu aman Bos! 🍻</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">🎉 STOK AMAN UNTUK ${targetHari} HARI!<br>Tidak ada yang perlu dibeli ke vendor. Duit lu aman Bos! 🍻</td></tr>`;
     }
 }
 
-// FITUR CETAK LIST BELANJA VENDOR (KERTAS PDF)
+// FITUR CETAK LIST BELANJA (NYAMBUNG SAMA TARGET DINAMIS)
 window.cetakListBelanja = function() {
     let sumberDataGlobal = typeof masterData !== 'undefined' && masterData.length > 0 ? masterData : filteredData;
     if (!sumberDataGlobal || sumberDataGlobal.length === 0) {
         alert("Data transaksi kosong, tidak bisa dihitung."); return;
     }
+
+    // Ambil Target Hari yang lagi lu ketik di layar
+    let targetInput = document.getElementById("input-target-hari");
+    let targetHari = targetInput ? (parseInt(targetInput.value) || 1) : 35;
 
     let rekapLakuAllTime = {};
     let waktuPertama = new Date().getTime();
@@ -3025,8 +3234,10 @@ window.cetakListBelanja = function() {
             if(sisaFisik < 0) sisaFisik = 0;
             
             let jualPerHari = totalTerjualAllTime / totalHariOperasional; 
-            let kebutuhanBulanDepan = Math.ceil(jualPerHari * 35); 
-            let saranBeli = Math.max(0, kebutuhanBulanDepan - sisaFisik);
+            
+            let kebutuhanTarget = Math.ceil(jualPerHari * targetHari); 
+            let saranBeli = Math.max(0, kebutuhanTarget - sisaFisik);
+            
             let hpp = Number(g.hpp_satuan) || 0;
             let budget = saranBeli * hpp;
 
@@ -3047,11 +3258,10 @@ window.cetakListBelanja = function() {
     }
 
     if (totalBudget === 0) {
-        alert("Stok masih aman semua, tidak ada yang perlu dibeli ke vendor.");
+        alert(`Stok masih aman semua untuk target ${targetHari} hari ke depan.`);
         return;
     }
 
-    // Injeksi area kertas print secara rahasia
     let printContainer = document.getElementById("print-area-belanja");
     if (!printContainer) {
         printContainer = document.createElement("div");
@@ -3066,7 +3276,7 @@ window.cetakListBelanja = function() {
             <h2 class="text-lg font-bold">BOGA KARYA 86</h2>
             <div class="mt-2 text-xs space-y-1">
                 <p>TANGGAL CETAK: <span class="font-semibold">${new Date().toLocaleString('id-ID')}</span></p>
-                <p>Dianalisis berdasar rekam jejak ${totalHariOperasional} hari (Buffer Stok 35 Hari)</p>
+                <p class="font-bold border border-black inline-block px-2 py-1 mt-1">TARGET STOK AMAN: ${targetHari} HARI KE DEPAN</p>
             </div>
         </div>
         <table class="w-full border-collapse border border-black mb-6 text-black">
@@ -3100,14 +3310,13 @@ window.cetakListBelanja = function() {
         </div>
     `;
 
-    // Proses Cetak ke layar
     document.getElementById("app-layar").style.display = "none"; 
     printContainer.classList.remove("hidden");
     window.print();
     printContainer.classList.add("hidden"); 
     document.getElementById("app-layar").style.display = "flex";
     
-    addAuditLog("PRINT_VENDOR", "Mencetak daftar belanja / procurement", "info");
+    addAuditLog("PRINT_VENDOR", `Mencetak daftar belanja untuk target ${targetHari} hari`, "info");
 }
 // ==========================================
 // 🔥 FITUR ANTI-AMNESIA (SAVE FILTER UI)
