@@ -535,80 +535,116 @@
 
                         <!-- TAB: OPEX PANEL (TEMPAT KERJA DIKI / STAFF) -->
                     <div id="opex-panel" class="tab-content space-y-6">
+                        
+                        <!-- OPEX BOX MODERN -->
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm">
                             <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
                                 <div>
                                     <h2 class="text-base font-bold text-slate-200">💸 Operasional Toko (Input Data OPEX)</h2>
-                                    <p class="text-[10px] text-slate-500 mt-1">Pencatatan pengeluaran harian, logistik, bensin, lakban, dan biaya operasional lainnya.</p>
+                                    <p class="text-[10px] text-slate-500 mt-1">Pencatatan pengeluaran harian, logistik, bensin, dan biaya lain.</p>
                                 </div>
                                 <span class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-1 rounded font-bold uppercase tracking-wider">Akses Staff</span>
                             </div>
                             
-                            <!-- Form Input yang Selaras -->
-                            <div class="bg-slate-950 p-5 rounded-xl border border-slate-800">
-                                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Input Pengeluaran Operasional</h3>
-                                <div class="flex flex-col lg:flex-row gap-3">
-                                    <input type="date" id="input-opex-panel-tanggal" class="bg-slate-900 border border-slate-700 text-slate-300 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none w-full lg:w-40 cursor-pointer">
-                                    <input type="number" id="input-opex-panel-nominal" class="w-full lg:w-48 bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none" placeholder="Nominal (Rp)">
-                                    <input type="text" id="input-opex-panel-note" class="flex-1 bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none" placeholder="Rincian Biaya (Misal: Iklan IG, Kardus)">
-                                    <button onclick="tambahOpexDariPanel()" class="bg-slate-200 hover:bg-white text-slate-900 font-bold text-sm px-6 py-2.5 rounded-lg transition shadow-md cursor-pointer whitespace-nowrap">Simpan Data</button>
+                            <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 shadow-inner">
+                                <div class="flex flex-col lg:flex-row gap-4">
+                                    <div class="w-full lg:w-40">
+                                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tanggal</label>
+                                        <input type="date" id="input-opex-panel-tanggal" class="w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none cursor-pointer">
+                                    </div>
+                                    <div class="w-full lg:w-48">
+                                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Kategori / Rincian</label>
+                                        <input type="text" id="input-opex-panel-note" list="opex-categories" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none" placeholder="Ketik / Pilih Cepat...">
+                                        <!-- Datalist Pintar Buat Pilihan Cepat -->
+                                        <datalist id="opex-categories">
+                                            <option value="Biaya Iklan (Ads)">
+                                            <option value="Bensin / Transportasi">
+                                            <option value="Lakban & Kardus (Packing)">
+                                            <option value="Konsumsi Tim">
+                                            <option value="Gaji / Insentif">
+                                            <option value="Biaya Tak Terduga">
+                                        </datalist>
+                                    </div>
+                                    <div class="w-full lg:flex-1">
+                                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Nominal (Rp)</label>
+                                        <div class="flex gap-3">
+                                            <input type="number" id="input-opex-panel-nominal" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none" placeholder="0">
+                                            <button onclick="tambahOpexDariPanel()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold text-sm px-6 py-2.5 rounded-lg transition shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] cursor-pointer whitespace-nowrap">
+                                                💾 Simpan
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                              <div id="opex-panel-list-container" class="space-y-2 mt-5 max-h-64 overflow-y-auto pr-2"></div>
+                                <div id="opex-panel-list-container" class="space-y-2 mt-5 max-h-64 overflow-y-auto pr-2"></div>
                             </div>
                         </div>
 
+                        <!-- SALES BOX MODERN -->
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mt-6">
                             <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
                                 <div>
-                                    <h2 class="text-base font-bold text-slate-200">🛒 Form Input Penjualan Manual</h2>
-                                    <p class="text-[10px] text-slate-500 mt-1">Tambahkan pesanan dari WA/Toko langsung ke database utama.</p>
+                                    <h2 class="text-base font-bold text-slate-200">🛒 Form Input Penjualan Pintar</h2>
+                                    <p class="text-[10px] text-slate-500 mt-1">Tambahkan pesanan manual (WA/Toko). HPP terisi otomatis.</p>
                                 </div>
                                 <span class="text-[9px] bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-1 rounded font-bold uppercase tracking-wider">Transaksi Baru</span>
                             </div>
+                            
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tanggal Pesanan</label>
-                                    <input type="date" id="input-jual-tgl" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none cursor-pointer">
+                                    <input type="date" id="input-jual-tgl" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-emerald-500 focus:outline-none cursor-pointer">
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">ID Pesanan / Resi</label>
-                                    <input type="text" id="input-jual-id" placeholder="Misal: INV-2026..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                    <div class="relative">
+                                        <input type="text" id="input-jual-id" placeholder="Kosongkan = Auto ID" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-emerald-500 focus:outline-none pr-8">
+                                        <span class="absolute right-3 top-2.5 text-slate-500 cursor-help" title="Sistem akan membuat ID otomatis jika dikosongkan.">ℹ️</span>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Nama Produk</label>
-                                    <input type="text" id="input-jual-produk" placeholder="Ketik persis nama di Gudang..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                    <!-- DROP DOWN MODERN -->
+                                    <select id="input-jual-produk" onchange="autoCalculateSales()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-emerald-500 focus:outline-none cursor-pointer">
+                                        <option value="">-- Pilih Produk --</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Status Awal</label>
-                                    <select id="input-jual-status" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none cursor-pointer">
+                                    <select id="input-jual-status" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-emerald-500 focus:outline-none cursor-pointer">
                                         <option value="WAITING">WAITING (Diproses)</option>
                                         <option value="READY">READY (Dana Cair)</option>
                                         <option value="PAID">PAID (Sudah Transfer)</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5 p-4 bg-slate-950/50 rounded-xl border border-slate-800 shadow-inner">
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Qty (Volume)</label>
-                                    <input type="number" id="input-jual-qty" value="1" min="1" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                    <label class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest block mb-1">Qty (Volume)</label>
+                                    <input type="number" id="input-jual-qty" value="1" min="1" oninput="autoCalculateSales()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-lg font-bold text-center px-4 py-2 rounded-lg focus:border-emerald-500 focus:outline-none">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Harga Jual / Settle (Satuan)</label>
-                                    <input type="number" id="input-jual-settle" placeholder="Harga pencairan Rp" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                    <label class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest block mb-1">Harga Jual / Settle (Satuan)</label>
+                                    <input type="number" id="input-jual-settle" placeholder="Harga Jual per Pcs Rp" oninput="autoCalculateSales()" class="w-full bg-slate-900 border border-slate-700 text-emerald-400 text-lg font-bold px-4 py-2 rounded-lg focus:border-emerald-500 focus:outline-none">
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Modal / HPP (TOTAL)</label>
-                                    <input type="number" id="input-jual-hpp" placeholder="Total Modal Rp" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none">
+                                    <input type="number" id="input-jual-hpp" placeholder="Otomatis Total Modal Rp" class="w-full bg-slate-900 border border-slate-700 text-slate-400 text-lg font-bold px-4 py-2 rounded-lg focus:border-slate-500 focus:outline-none cursor-not-allowed" readonly title="Dihitung Otomatis">
+                                    <p id="hint-hpp-satuan" class="text-[9px] text-slate-500 mt-1 font-mono"></p>
                                 </div>
                             </div>
-                            <div class="flex justify-end border-t border-slate-800 pt-4">
-                                <button onclick="simpanPenjualanManual()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-lg cursor-pointer flex items-center gap-2">
-                                    <span>💾</span> Simpan ke Database
+                            
+                            <div class="flex justify-between items-center border-t border-slate-800 pt-5 mt-2">
+                                <div class="text-xs text-slate-400 font-bold uppercase tracking-widest">
+                                    Proyeksi Laba Bersih: <strong id="proyeksi-laba-sales" class="text-emerald-400 text-xl ml-2 font-mono">Rp 0</strong>
+                                </div>
+                                <button onclick="simpanPenjualanManual()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm px-8 py-3 rounded-xl transition shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] cursor-pointer flex items-center gap-2">
+                                    <span>💾</span> Simpan Pesanan
                                 </button>
                             </div>
                         </div>
 
-                    </div> ```
+                    </div>
 
 
                     <div id="logs" class="tab-content space-y-6">
@@ -1252,14 +1288,31 @@
     }
 
     function mapTransaksiRow(row) {
+        // 🔥 SATPAM MATA ELANG: Cari HPP di semua kemungkinan nama kolom Supabase lu! 🔥
+        let hppTerdeteksi = 0;
+        
+        // Patroli mengecek SEMUA nama kolom yang ada di database lu satu per satu
+        for (let key in row) {
+            let namaKolom = String(key).toLowerCase();
+            
+            // Kalau nama kolomnya mengandung kata "hpp" atau "modal"
+            if (namaKolom.includes("hpp") || namaKolom.includes("modal")) {
+                let angka = Number(row[key]);
+                if (!isNaN(angka) && angka > 0) {
+                    hppTerdeteksi = angka; // Langsung tangkap angkanya!
+                    break; // Stop pencarian biar mesin gak capek
+                }
+            }
+        }
+
         return {
-            tanggal: row.tanggal ?? row.Tanggal ?? "",
+            tanggal: row.tanggal ?? row.Tanggal ?? row.created_at ?? "",
             idPesanan: row.id_pesanan ?? row.idPesanan ?? row.id ?? "",
             namaProduk: row.nama_produk ?? row.namaProduk ?? row.produk ?? "",
             status: row.status ?? row.Status ?? "WAITING",
-            qty: Number(row.qty ?? row.Qty ?? row.volume ?? 0),
+            qty: Number(row.qty ?? row.Qty ?? row.QTY ?? row.volume ?? 1),
             settlement: Number(row.settlement ?? row.Settlement ?? 0),
-            hpp: Number(row.hpp ?? row.HPP ?? 0),
+            hpp: hppTerdeteksi, // <-- Hasil tangkapan Satpam masuk ke sini
             labaKotor: Number(row.laba_kotor ?? row.labaKotor ?? row.LabaKotor ?? 0)
         };
     }
@@ -1369,7 +1422,10 @@
         if (event) { event.currentTarget.classList.add('bg-slate-800/80', 'text-slate-200'); }
         
         // --- TRIGGER OTOMATIS SAAT TAB DIKLIK ---
-        if (tabName === 'opex-panel') { renderOpexDariPanel(); }
+        if (tabName === 'opex-panel') { 
+            renderOpexDariPanel(); 
+            populateSalesDropdown(); 
+        }
         if (tabName === 'valuasi-stok') { loadDanRenderGudang(); } 
         if (tabName === 'rapor-investor') { loadRaporInvestor(); }
         if (tabName === 'budget-target') { renderBudgetTarget(); }
@@ -1454,6 +1510,9 @@
         hitungRadarModal();
         if (isInternalUnlocked) renderManajemenArea();
         if (typeof renderBudgetTarget === "function") renderBudgetTarget();
+
+        // 🔥 FIX BALAPAN CLOUD: Paksa dropdown sales update setelah data nyampe!
+        if (typeof populateSalesDropdown === "function") populateSalesDropdown();
     }
 
     function hitungDashboard() {
@@ -2728,7 +2787,7 @@ function hitungRadarModal() {
         document.getElementById("modal-input-stok").classList.remove('active');
     }
 
-    // 3. Fungsi Auto-Fill HPP (Narik data dari history)
+    // 3. Fungsi Auto-Fill HPP (Narik data dari history) - VERSI SAPU JAGAT
     window.autoFillHPPGudang = function() {
         let produkPilihan = document.getElementById("input-stok-produk").value;
         let inputHpp = document.getElementById("input-stok-hpp");
@@ -2738,13 +2797,26 @@ function hitungRadarModal() {
             return;
         }
 
-        // Cari history transaksi produk ini di masterData, ambil HPP-nya
-        let dataKetemu = masterData.find(item => String(item.namaProduk).trim().toUpperCase() === produkPilihan);
-        
-        if (dataKetemu && dataKetemu.hpp) {
-            inputHpp.value = dataKetemu.hpp;
+        let hppSatuan = 0;
+        // 🔥 MESIN PENCARI HPP (Cari riwayat transaksi PALING BARU) 🔥
+        if (typeof masterData !== 'undefined') {
+            for (let i = masterData.length - 1; i >= 0; i--) { 
+                let item = masterData[i];
+                if (String(item.namaProduk || "").trim().toUpperCase() === produkPilihan.toUpperCase()) {
+                    let rawHpp = Number(item.hpp || 0); // Udah bersih berkat satpam pintu masuk
+                    let historyQty = Number(item.qty || 1);
+                    if (rawHpp > 0) {
+                        hppSatuan = rawHpp / historyQty; // Cari harga modal SATUAN-nya
+                        break; // Stop nyari kalau dapet yang terbaru!
+                    }
+                }
+            }
+        }
+
+        if (hppSatuan > 0) {
+            inputHpp.value = hppSatuan;
         } else {
-            inputHpp.value = 0; // Jaga-jaga kalau datanya gak nemu
+            inputHpp.value = 0; 
         }
     }
 
@@ -3053,6 +3125,218 @@ function hitungRadarModal() {
             await supabaseClient.from('pengaturan').upsert([{ kunci: 'TARGET_PROFIT_BULANAN', nilai: targetProfitBulanan.toString() }]);
         } else {
             toast.error("Masukkan angka target yang valid (tanpa titik/koma)!");
+        }
+    }
+
+    // =========================================================================
+    // UPDATE: OTAK PINTAR OPEX & SALES MANUAL (ANTI KUNO)
+    // =========================================================================
+
+    // 1. Fungsi Populasikan Dropdown Saat Buka Tab (UPGRADE HYBRID: TRANSAKSI + GUDANG)
+    window.populateSalesDropdown = function() {
+        const select = document.getElementById("input-jual-produk");
+        if(select) { 
+            let currentSelection = select.value;
+            
+            // Gabungkan produk dari History Transaksi dan dari Gudang biar super lengkap!
+            let semuaProduk = new Set(DAFTAR_VARIAN_DINAMIS);
+            if (typeof masterGudang !== 'undefined') {
+                masterGudang.forEach(g => {
+                    if (g.nama_produk) semuaProduk.add(String(g.nama_produk).trim().toUpperCase());
+                });
+            }
+            
+            // Jadikan array dan urutkan abjad A-Z
+            let listFinal = Array.from(semuaProduk).sort();
+
+            select.innerHTML = '<option value="">-- Pilih Produk --</option>';
+            listFinal.forEach(varian => {
+                if(varian !== "ALL" && varian !== "SEARCH") {
+                    let isSelected = (varian === currentSelection) ? "selected" : "";
+                    select.innerHTML += `<option value="${varian}" ${isSelected}>${varian}</option>`;
+                }
+            });
+        }
+        
+        // Isi Otomatis Tanggal Hari Ini Biar Staff Gak Capek Ngeklik
+        let tglSales = document.getElementById("input-jual-tgl");
+        let tglOpex = document.getElementById("input-opex-panel-tanggal");
+        let today = new Date().toISOString().split('T')[0];
+        if(tglSales && !tglSales.value) tglSales.value = today;
+        if(tglOpex && !tglOpex.value) tglOpex.value = today;
+    }
+
+    // BONUS: Samain fungsi Gudang biar dropdownnya juga Hybrid
+    window.tambahStokMasuk = function() {
+        const select = document.getElementById("input-stok-produk");
+        select.innerHTML = '<option value="">-- Pilih Produk --</option>';
+        
+        let semuaProduk = new Set(DAFTAR_VARIAN_DINAMIS);
+        if (typeof masterGudang !== 'undefined') {
+            masterGudang.forEach(g => { if (g.nama_produk) semuaProduk.add(String(g.nama_produk).trim().toUpperCase()); });
+        }
+        
+        Array.from(semuaProduk).sort().forEach(varian => {
+            if(varian !== "ALL" && varian !== "SEARCH") {
+                select.innerHTML += `<option value="${varian}">${varian}</option>`;
+            }
+        });
+        
+        document.getElementById("input-stok-qty").value = "";
+        document.getElementById("input-stok-hpp").value = "";
+        document.getElementById("modal-input-stok").classList.add('active');
+    }
+
+    // 2. Fungsi Kalkulator Pintar (Otomatis Jalan Tiap Lu Ngetik) - REVISI SAPU JAGAT
+    window.autoCalculateSales = function() {
+        let produk = document.getElementById("input-jual-produk").value;
+        let qty = parseInt(document.getElementById("input-jual-qty").value) || 0;
+        let settleSatuan = parseFloat(document.getElementById("input-jual-settle").value) || 0;
+        
+        let hppSatuan = 0;
+
+        // 🔥 MESIN PENCARI HPP (VERSI SAPU JAGAT - ANTI BUTA HURUF) 🔥
+        if (produk) {
+            // Prioritas 1: Cek Gudang
+            if (typeof masterGudang !== 'undefined') {
+                let dariGudang = masterGudang.find(g => String(g.nama_produk).trim().toUpperCase() === produk.toUpperCase());
+                if (dariGudang && Number(dariGudang.hpp_satuan) > 0) {
+                    hppSatuan = Number(dariGudang.hpp_satuan);
+                }
+            }
+
+            // Prioritas 2: Kalau di gudang kosong/Nol, obrak-abrik Data Transaksi
+            if (hppSatuan === 0 && typeof masterData !== 'undefined') {
+                for (let i = masterData.length - 1; i >= 0; i--) { 
+                    let item = masterData[i];
+                    if (String(item.namaProduk || "").trim().toUpperCase() === produk.toUpperCase()) {
+                        
+                        // Tarik HPP dengan segala jenis variasi nama kolom (KEBAL TYPO)
+                        let rawHpp = Number(item.hpp || item.Hgrid || item.HPP || item["HPP (MODAL)"] || item["hpp (modal)"] || 0);
+                        let historyQty = Number(item.qty || item.Qty || item.QTY || 1);
+                        
+                        if (rawHpp > 0) {
+                            hppSatuan = rawHpp / historyQty; 
+                            break; // Stop nyari kalau udah dapet HPP terbarunya
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Tembak angka HPP Total ke Form
+        let totalHpp = hppSatuan * qty;
+        let inputHppEl = document.getElementById("input-jual-hpp");
+        
+        // Buka kuncinya biar bisa diedit manual kalau butuh
+        inputHppEl.removeAttribute("readonly");
+        inputHppEl.classList.remove("cursor-not-allowed");
+        
+        // Isikan otomatis jika kursor lu gak lagi fokus ngetik di kolom itu
+        if (hppSatuan > 0 && document.activeElement !== inputHppEl) {
+            inputHppEl.value = totalHpp > 0 ? totalHpp : "";
+        }
+        
+        let hint = document.getElementById("hint-hpp-satuan");
+        if (hint) {
+            if (hppSatuan > 0) {
+                hint.innerText = `*HPP Satuan ditarik otomatis: Rp ${hppSatuan.toLocaleString('id-ID')}`;
+                hint.className = "text-[9px] text-emerald-500 mt-1 font-mono";
+            } else {
+                hint.innerText = "*HPP belum ada di database, silakan ketik manual Total Modal di atas 👆";
+                hint.className = "text-[9px] text-amber-500 mt-1 font-mono";
+            }
+        }
+        
+        // Eksekusi Kalkulator Laba
+        let hppTotalFinal = parseFloat(inputHppEl.value) || 0;
+        let totalSettle = settleSatuan * qty;
+        let laba = totalSettle - hppTotalFinal;
+        
+        let labelLaba = document.getElementById("proyeksi-laba-sales");
+        if (labelLaba) {
+            labelLaba.innerText = "Rp " + laba.toLocaleString('id-ID');
+            labelLaba.className = laba >= 0 ? "text-emerald-400 text-xl ml-2 font-mono" : "text-rose-400 text-xl ml-2 font-mono";
+        }
+    }
+
+    // 3. Revisi Simpan Penjualan ke Supabase
+    window.simpanPenjualanManual = async function() {
+        let tgl = document.getElementById("input-jual-tgl").value;
+        let idResi = document.getElementById("input-jual-id").value.trim();
+        let produk = document.getElementById("input-jual-produk").value;
+        let status = document.getElementById("input-jual-status").value;
+        let qty = parseInt(document.getElementById("input-jual-qty").value);
+        let settleSatuan = parseFloat(document.getElementById("input-jual-settle").value);
+        let hppTotal = parseFloat(document.getElementById("input-jual-hpp").value);
+
+        if (!tgl || !produk || isNaN(qty) || isNaN(settleSatuan) || isNaN(hppTotal)) {
+            toast.error("Mohon lengkapi Produk, Qty, Harga Settle, dan pastikan HPP muncul!");
+            return;
+        }
+
+        if (idResi === "") {
+            let dateStr = tgl.replace(/-/g, "");
+            let randomNum = Math.floor(1000 + Math.random() * 9000);
+            idResi = `MNL-${dateStr}-${randomNum}`;
+        }
+
+        let labaKotorTotal = (settleSatuan * qty) - hppTotal;
+
+        let payload = {
+            tanggal: tgl,
+            id_pesanan: idResi,
+            nama_produk: produk,
+            status: status,
+            qty: qty,
+            settlement: settleSatuan,
+            hpp: hppTotal,
+            laba_kotor: labaKotorTotal
+        };
+
+        let loadingInstance = toast.loading("Merekam ke Database Transaksi...");
+        const { error } = await supabaseClient.from('transaksi').insert([payload]);
+
+        if (!error) {
+            addAuditLog("MANUAL_SALES", `Input order manual: ${produk} (${qty} Pcs)`, "success");
+            
+            // 🔥 FITUR BARU SESUAI IDE OWNER: AUTO-TAMBAL HPP GUDANG 🔥
+            if (hppTotal > 0 && qty > 0) {
+                let hppSatuanReal = hppTotal / qty;
+                let cekGudang = typeof masterGudang !== 'undefined' ? masterGudang.find(g => String(g.nama_produk).trim().toUpperCase() === produk.toUpperCase()) : null;
+                
+                // Kalau di gudang varian ini belum ada, atau HPP-nya gaib/kosong (0), tembak otomatis!
+                if (!cekGudang || Number(cekGudang.hpp_satuan) === 0 || isNaN(cekGudang.hpp_satuan)) {
+                    let stokAwal = cekGudang ? Number(cekGudang.stok_masuk) : 0;
+                    // Tembak diam-diam ke Supabase Gudang
+                    supabaseClient.from('stok_gudang').upsert([{ 
+                        nama_produk: produk, 
+                        hpp_satuan: hppSatuanReal,
+                        stok_masuk: stokAwal
+                    }], { onConflict: 'nama_produk' }).then(({error: errGudang}) => {
+                        if(!errGudang) console.log(`[AUTO-HEAL] HPP Gudang untuk ${produk} berhasil ditambal jadi Rp ${hppSatuanReal}`);
+                    });
+                }
+            }
+
+            // Bersihkan form
+            document.getElementById("input-jual-id").value = "";
+            document.getElementById("input-jual-produk").value = "";
+            document.getElementById("input-jual-qty").value = "1";
+            document.getElementById("input-jual-settle").value = "";
+            document.getElementById("input-jual-hpp").value = "";
+            let hint = document.getElementById("hint-hpp-satuan");
+            if(hint) hint.innerText = "";
+            let labaEl = document.getElementById("proyeksi-laba-sales");
+            if(labaEl) labaEl.innerText = "Rp 0";
+            
+            loadingInstance.dismiss();
+            toast.success("Transaksi manual sukses ditambahkan & Database saling sinkron!");
+            handleUpload(); 
+        } else {
+            loadingInstance.dismiss();
+            toast.error("Gagal menyimpan ke Supabase! Cek koneksi.");
+            console.error(error);
         }
     }
 
