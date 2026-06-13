@@ -189,7 +189,7 @@
                     </div>
                     <div>
                         <h2 class="text-sm font-bold text-slate-200 tracking-wide">BOGA KARYA86</h2>
-                        <p class="text-[9px] text-slate-500 font-medium">ERP System v2.7</p>
+                        <p class="text-[9px] text-slate-500 font-medium">ERP System v2.9</p>
                     </div>
                 </div>
             </div>
@@ -297,7 +297,7 @@
                         <div id="dropdown-notif" class="hidden absolute right-0 mt-2 w-80 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl z-50 py-2 overflow-hidden">
                             <div class="px-4 py-2 border-b border-slate-900 flex justify-between items-center">
                                 <span class="text-xs font-bold text-slate-200 tracking-wide">Pemberitahuan Sistem</span>
-                                <span class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded-full font-mono">v2.7</span>
+                                <span class="text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded-full font-mono">v2.9</span>
                             </div>
                             <!-- WADAH KOSONG BUAT ROBOT -->
                             <div id="dropdown-notif-list" class="max-h-72 overflow-y-auto divide-y divide-slate-900/50">
@@ -502,11 +502,17 @@
                     <div id="procurement-panel" class="tab-content hidden space-y-6">
     <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm">
         <div class="flex justify-between items-center mb-6">
+            
             <div>
-                <h2 class="text-xl font-black text-slate-100 tracking-wide">🔮 PROYEKSI BELANJA VENDOR</h2>
-                <p class="text-xs text-slate-400 mt-1" id="info-umur-toko">Menyedot data dari dimensi Supabase...</p>
-            </div>
-            <span class="text-[10px] bg-emerald-900/40 text-emerald-400 border border-emerald-700/50 px-2 py-1 rounded font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(52,211,153,0.2)]">Auto-Sync Global</span>
+                        <h2 class="text-xl font-black text-slate-100 tracking-wide">🔮 PROYEKSI BELANJA VENDOR</h2>
+                        <p class="text-xs text-slate-400 mt-1" id="info-umur-toko">Menyedot data dari dimensi Supabase...</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="cetakListBelanja()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer flex items-center gap-2">
+                            🖨️ Cetak List Belanja
+                        </button>
+                        <span class="text-[10px] bg-emerald-900/40 text-emerald-400 border border-emerald-700/50 px-2 py-1 rounded font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(52,211,153,0.2)] hidden sm:block">Auto-Sync Global</span>
+                    </div>
         </div>
         
         <div class="overflow-x-auto">
@@ -823,7 +829,7 @@
                         </div>
                     </div>
                     <!-- ========================================== -->
-                    <!-- TAB: BUDGET TARGET (v2.7)                  -->
+                    <!-- TAB: BUDGET TARGET (v2.9)                  -->
                     <!-- ========================================== -->
                     <div id="budget-target" class="tab-content space-y-6">
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6">
@@ -897,6 +903,37 @@
                 </button>
             </div>
             <button onclick="tutupModal()" class="w-full mt-3 bg-slate-950 hover:bg-slate-800 text-slate-400 font-medium py-3 rounded-xl border border-slate-800 transition cursor-pointer">Tutup Detail</button>
+        </div>
+    </div>
+<!-- MODAL INPUT STOK GUDANG (PINTAR) -->
+    <div id="modal-input-stok" class="modal no-print">
+        <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-md shadow-[0_0_40px_rgba(0,0,0,0.5)] relative">
+            <button onclick="tutupModalStok()" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button>
+            <h2 class="text-xl font-bold text-slate-100 mb-1 tracking-tight">📦 Input Stok Gudang</h2>
+            <p class="text-xs text-slate-500 mb-6 border-b border-slate-800 pb-3">Pilih produk dari riwayat transaksi, HPP otomatis terisi.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Nama Produk</label>
+                    <select id="input-stok-produk" onchange="autoFillHPPGudang()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none cursor-pointer">
+                        <option value="">-- Pilih Produk --</option>
+                    </select>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-1/3">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Stok (Pcs)</label>
+                        <input type="number" id="input-stok-qty" min="1" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none" placeholder="0">
+                    </div>
+                    <div class="w-2/3">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Modal / HPP (Satuan)</label>
+                        <input type="number" id="input-stok-hpp" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none" placeholder="Otomatis Rp">
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="simpanStokGudangPintar()" class="w-full mt-6 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] cursor-pointer">
+                💾 Simpan ke Gudang
+            </button>
         </div>
     </div>
 
@@ -1428,7 +1465,7 @@
     }
 
     // =========================================================================
-    // BIG PROJECT 3: BUDGET TARGET (NET PROFIT) v2.7
+    // BIG PROJECT 3: BUDGET TARGET (NET PROFIT) v2.9
     // =========================================================================
     function renderBudgetTarget() {
         let labelBulan = document.getElementById("filter-bulan");
@@ -1487,7 +1524,7 @@
         }
     }
 
-    // --- DATABASE UPDATE FITUR (Otomatis Masuk Lonceng v2.7) ---
+    // --- DATABASE UPDATE FITUR (Otomatis Masuk Lonceng v2.9) ---
     const CHANGELOG_APP = [
         { tgl: "v2.7", judul: "🛒 Input Penjualan Manual", desc: "Form input pesanan manual dari WA/Toko Fisik aktif. Terhubung ke Cloud dan auto-potong stok Gudang." },
         { tgl: "v2.6", judul: "🎯 Budget Target Rilis!", desc: "Sistem Budgeting Net Profit kini aktif. Pantau realisasi laba bersih vs target bulanan." },
@@ -1518,7 +1555,40 @@
         if (!listContainer) return;
         listContainer.innerHTML = "";
         
-        // 1. Suntik Pemberitahuan Update Versi Kodingan (Selalu di atas)
+        // --- FITUR BARU: SENSOR STOK KRITIS ---
+        let terjualMap = {};
+        if (typeof filteredData !== 'undefined') {
+            filteredData.forEach(item => {
+                let st = String(item.status || "WAITING").toUpperCase();
+                if (st === "READY" || st === "PAID") {
+                    let prod = String(item.namaProduk || "").trim().toUpperCase();
+                    if (prod !== "") terjualMap[prod] = (terjualMap[prod] || 0) + Number(item.qty || 0);
+                }
+            });
+        }
+
+        if (typeof masterGudang !== 'undefined') {
+            masterGudang.forEach(g => {
+                let nama = String(g.nama_produk).trim().toUpperCase();
+                let laku = terjualMap[nama] || 0;
+                let sisa = Number(g.stok_masuk) - laku;
+                
+                // Alarm bunyi kalau sisa barang 5 Pcs atau kurang
+                if (sisa <= 5) {
+                    listContainer.innerHTML += `
+                        <div class="p-3.5 bg-rose-500/10 hover:bg-rose-500/20 transition border-l-2 border-rose-500 cursor-pointer" onclick="switchTab('procurement-panel', null)">
+                            <div class="flex justify-between items-start mb-0.5">
+                                <p class="text-[11px] font-bold text-rose-500">⚠️ STOK KRITIS!</p>
+                                <span class="text-[8px] bg-rose-500/20 text-rose-600 px-1.5 py-0.5 rounded font-mono font-bold">SISA: ${sisa}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1 leading-relaxed">Produk <strong class="text-slate-200">${g.nama_produk}</strong> hampir habis. Segera cek Proyeksi Belanja!</p>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // Suntik Pemberitahuan Update Versi Kodingan (Selalu di atas)
         CHANGELOG_APP.forEach(info => {
             listContainer.innerHTML += `
                 <div class="p-3.5 bg-yellow-500/5 hover:bg-yellow-500/10 transition border-l-2 border-yellow-500">
@@ -1527,18 +1597,18 @@
                         <span class="text-[8px] bg-yellow-500/20 text-yellow-600 px-1 rounded font-mono">${info.tgl}</span>
                     </div>
                     <p class="text-[10px] text-slate-400 leading-relaxed mt-1">${info.desc}</p>
-                </div>
+                 </div>
             `;
         });
 
-        // 2. Suntik 4 Aktivitas Log Terbaru dari Staff/Owner
+        // Suntik 4 Aktivitas Log Terbaru dari Staff/Owner
         if (auditLog && auditLog.length > 0) {
             let logTerbaru = auditLog.slice(0, 4);
             logTerbaru.forEach(log => {
                 let p = log.pelapor || "System";
                 let w = new Date(log.timestamp).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
                 listContainer.innerHTML += `
-                    <div class="p-3.5 hover:bg-slate-900/40 transition">
+                    <div class="p-3.5 hover:bg-slate-900/40 transition border-t border-slate-900/50">
                         <div class="flex justify-between items-start mb-0.5">
                             <p class="text-[11px] font-bold text-slate-300">Aktivitas: ${p}</p>
                             <span class="text-[8px] text-slate-500">${w}</span>
@@ -2575,30 +2645,82 @@ function hitungRadarModal() {
         document.getElementById("gudang-total-valuasi").innerText = "Rp " + totalValuasiSemua.toLocaleString('id-ID');
     }
 
-    async function tambahStokMasuk() {
-        let namaProd = prompt("Masukkan NAMA PRODUK:\n(Penting: Ketik persis sesuai dengan nama produk di Data Transaksi biar sistem bisa nyambungin datanya)");
-        if (!namaProd) return;
+    // =========================================================================
+    // UPDATE: SISTEM INPUT STOK PINTAR (ANTI-TYPO & AUTO HPP)
+    // =========================================================================
+
+    // 1. Fungsi Buka Modal & Isi Dropdown Otomatis
+    window.tambahStokMasuk = function() {
+        const select = document.getElementById("input-stok-produk");
+        select.innerHTML = '<option value="">-- Pilih Produk --</option>';
         
-        let stok = prompt(`Berapa total STOK AWAL / MASUK untuk [ ${namaProd.toUpperCase()} ]?`);
-        if (!stok || isNaN(stok)) return;
+        // Ambil daftar varian dari DAFTAR_VARIAN_DINAMIS yang udah ada di sistem
+        DAFTAR_VARIAN_DINAMIS.forEach(varian => {
+            if(varian !== "ALL" && varian !== "SEARCH") {
+                select.innerHTML += `<option value="${varian}">${varian}</option>`;
+            }
+        });
         
-        let hpp = prompt(`Berapa harga MODAL (HPP) SATUAN untuk [ ${namaProd.toUpperCase()} ]?\nKetik angka saja, tanpa titik/koma (Contoh: 150000)`);
-        if (!hpp || isNaN(hpp)) return;
+        // Reset inputan
+        document.getElementById("input-stok-qty").value = "";
+        document.getElementById("input-stok-hpp").value = "";
+        
+        // Tampilkan modal
+        document.getElementById("modal-input-stok").classList.add('active');
+    }
+
+    // 2. Fungsi Tutup Modal
+    window.tutupModalStok = function() {
+        document.getElementById("modal-input-stok").classList.remove('active');
+    }
+
+    // 3. Fungsi Auto-Fill HPP (Narik data dari history)
+    window.autoFillHPPGudang = function() {
+        let produkPilihan = document.getElementById("input-stok-produk").value;
+        let inputHpp = document.getElementById("input-stok-hpp");
+        
+        if (!produkPilihan) {
+            inputHpp.value = "";
+            return;
+        }
+
+        // Cari history transaksi produk ini di masterData, ambil HPP-nya
+        let dataKetemu = masterData.find(item => String(item.namaProduk).trim().toUpperCase() === produkPilihan);
+        
+        if (dataKetemu && dataKetemu.hpp) {
+            inputHpp.value = dataKetemu.hpp;
+        } else {
+            inputHpp.value = 0; // Jaga-jaga kalau datanya gak nemu
+        }
+    }
+
+    // 4. Eksekusi Simpan ke Supabase
+    window.simpanStokGudangPintar = async function() {
+        let namaProd = document.getElementById("input-stok-produk").value;
+        let stok = document.getElementById("input-stok-qty").value;
+        let hpp = document.getElementById("input-stok-hpp").value;
+
+        if (!namaProd) { toast.error("Pilih produknya dulu Bos!"); return; }
+        if (!stok || isNaN(stok) || stok <= 0) { toast.error("Jumlah stok harus diisi dengan benar!"); return; }
+        if (!hpp || isNaN(hpp)) { toast.error("HPP tidak boleh kosong!"); return; }
 
         let payload = {
-            nama_produk: namaProd.trim().toUpperCase(),
+            nama_produk: namaProd,
             stok_masuk: parseInt(stok),
             hpp_satuan: parseFloat(hpp)
         };
 
         let loadingInstance = toast.loading("Merekam ke Gudang Cloud...");
+        
         const { error } = await supabaseClient.from('stok_gudang').insert([payload]);
         
         if (!error) {
-            addAuditLog("GUDANG_ADDED", `Stok masuk ${namaProd.toUpperCase()}: ${stok} Pcs`, "warning");
+            addAuditLog("GUDANG_ADDED", `Stok masuk ${namaProd}: ${stok} Pcs`, "warning");
             await loadDanRenderGudang();
+            tutupModalStok(); // Langsung tutup modal kalau sukses
             loadingInstance.dismiss();
-            toast.success("Stok berhasil ditambahkan ke Gudang!");
+            toast.success("Mantap! Stok berhasil ditambahkan ke Gudang.");
+            handleUpload(); // Refresh dashboard biar cenayang belanja juga ke-update
         } else {
             loadingInstance.dismiss();
             toast.error("Gagal menyimpan stok ke Supabase!");
@@ -2622,7 +2744,7 @@ function hitungRadarModal() {
         }
     }
     // =========================================================================
-    // BIG PROJECT 2: RAPOR INVESTOR (V2.7)
+    // BIG PROJECT 2: RAPOR INVESTOR (V2.9)
     // =========================================================================
     
     let masterRaporInvestor = [];
@@ -2717,7 +2839,7 @@ function hitungRadarModal() {
         }
     }
     // =========================================================================
-    // BIG PROJECT 4: INPUT PENJUALAN MANUAL (v2.7)
+    // BIG PROJECT 4: INPUT PENJUALAN MANUAL (v2.9)
     // =========================================================================
     async function simpanPenjualanManual() {
         // 1. Ambil semua data dari inputan form
@@ -2784,10 +2906,10 @@ function hitungRadarModal() {
             console.error(error);
         }
     }
-    // ==========================================
-// 🔥 OTAK CENAYANG BELANJA (KEBAL FILTER UI)
+   // ==========================================
+// 🔥 OTAK CENAYANG BELANJA & CETAK DAFTAR
 // ==========================================
-function renderProcurement() {
+window.renderProcurement = function() {
     const tbody = document.getElementById("tabel-procurement");
     const infoUmur = document.getElementById("info-umur-toko");
     if (!tbody) return;
@@ -2795,30 +2917,28 @@ function renderProcurement() {
     tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 animate-pulse">Menghitung masa depan... 🔮</td></tr>`;
     let totalBudget = 0;
     
-    // ASUMSI DATA GLOBAL LU NAMANYA 'allData'
-    let sumberDataGlobal = typeof allData !== 'undefined' ? allData : [];
+    // Gunakan Data Master Cloud yang valid
+    let sumberDataGlobal = typeof masterData !== 'undefined' && masterData.length > 0 ? masterData : filteredData;
     
-    if (sumberDataGlobal.length === 0) {
+    if (!sumberDataGlobal || sumberDataGlobal.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">⚠️ Data Transaksi Belum Terload / Kosong!</td></tr>`;
         return;
     }
 
     let rekapLakuAllTime = {};
     
-    // 1. CARI UMUR TOKO (Dari orderan paling purba sampai detik ini)
-    let waktuPertama = new Date(sumberDataGlobal[0].created_at).getTime();
+    let waktuPertama = new Date().getTime();
     sumberDataGlobal.forEach(item => {
-        let waktuItem = new Date(item.created_at).getTime();
+        let waktuItem = new Date(item.tanggal || item.created_at || new Date()).getTime();
         if (waktuItem < waktuPertama) waktuPertama = waktuItem;
     });
-
+    
     let selisihWaktu = Math.abs(new Date().getTime() - waktuPertama);
-    let totalHariOperasional = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24)); 
-    if (totalHariOperasional < 1) totalHariOperasional = 1; // Minimal 1 hari biar gak error
+    let totalHariOperasional = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24));
+    if (totalHariOperasional < 1) totalHariOperasional = 1;
 
-    infoUmur.innerHTML = `Dianalisis dari total <span class="font-bold text-slate-200">${totalHariOperasional} hari</span> operasional toko. Kebal filter UI.`;
+    if(infoUmur) infoUmur.innerHTML = `Dianalisis dari total <span class="font-bold text-slate-200">${totalHariOperasional} hari</span> operasional toko. Kebal filter UI.`;
 
-    // 2. SEDOT SEMUA PENJUALAN (Abaikan Filter)
     sumberDataGlobal.forEach(item => {
         let status = String(item.status || "").toUpperCase();
         if (status === "READY" || status === "PAID") {
@@ -2827,30 +2947,23 @@ function renderProcurement() {
         }
     });
 
-    // 3. KALKULASI DEWA KE DATA GUDANG
-    tbody.innerHTML = ""; // Bersihin loading
+    tbody.innerHTML = "";
+    
     if (typeof masterGudang !== 'undefined') {
         masterGudang.forEach(g => {
             let nama = String(g.nama_produk).trim().toUpperCase();
             let totalTerjualAllTime = rekapLakuAllTime[nama] || 0;
-            
-            // Logika Sisa Stok Fisik
             let sisaFisik = Number(g.stok_masuk) - totalTerjualAllTime;
+            if (sisaFisik < 0) sisaFisik = 0;
             
-            // True Velocity (Barang laku per hari secara total)
             let jualPerHari = totalTerjualAllTime / totalHariOperasional; 
-            
-            // Kebutuhan 35 Hari (30 Hari Jualan + 5 Hari Buffer Aman)
             let kebutuhanBulanDepan = Math.ceil(jualPerHari * 35); 
-            
-            // Berapa yang harus disetok?
             let saranBeli = Math.max(0, kebutuhanBulanDepan - sisaFisik);
             let hpp = Number(g.hpp_satuan) || 0;
             let budget = saranBeli * hpp;
             
             totalBudget += budget;
 
-            // HANYA TAMPILKAN BARANG YANG HARUS DIBELI!
             if (saranBeli > 0) {
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-800/40 transition-colors border-b border-slate-800/50">
@@ -2866,7 +2979,6 @@ function renderProcurement() {
         });
     }
 
-    // 4. MUNCULIN TOTAL BUDGET LUAR BIASA
     if (totalBudget > 0) {
         tbody.innerHTML += `
             <tr class="bg-slate-900 border-t-4 border-slate-800">
@@ -2874,8 +2986,128 @@ function renderProcurement() {
                 <td class="p-5 text-right font-black text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">Rp ${totalBudget.toLocaleString('id-ID')}</td>
             </tr>`;
     } else {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">🎉 STOK LUAR BIASA AMAN! Belum ada proyeksi belanja vendor untuk 35 hari ke depan. Duit lu aman Bos! 🍻</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">🎉 STOK LUAR BIASA AMAN!<br>Belum ada proyeksi belanja vendor untuk 35 hari ke depan. Duit lu aman Bos! 🍻</td></tr>`;
     }
+}
+
+// FITUR CETAK LIST BELANJA VENDOR (KERTAS PDF)
+window.cetakListBelanja = function() {
+    let sumberDataGlobal = typeof masterData !== 'undefined' && masterData.length > 0 ? masterData : filteredData;
+    if (!sumberDataGlobal || sumberDataGlobal.length === 0) {
+        alert("Data transaksi kosong, tidak bisa dihitung."); return;
+    }
+
+    let rekapLakuAllTime = {};
+    let waktuPertama = new Date().getTime();
+    sumberDataGlobal.forEach(item => {
+        let waktuItem = new Date(item.tanggal || item.created_at || new Date()).getTime();
+        if (waktuItem < waktuPertama) waktuPertama = waktuItem;
+        
+        let status = String(item.status || "").toUpperCase();
+        if (status === "READY" || status === "PAID") {
+            let nama = String(item.namaProduk).trim().toUpperCase();
+            rekapLakuAllTime[nama] = (rekapLakuAllTime[nama] || 0) + Number(item.qty || 0);
+        }
+    });
+
+    let selisihWaktu = Math.abs(new Date().getTime() - waktuPertama);
+    let totalHariOperasional = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24));
+    if (totalHariOperasional < 1) totalHariOperasional = 1;
+
+    let totalBudget = 0;
+    let htmlTabel = "";
+
+    if (typeof masterGudang !== 'undefined') {
+        masterGudang.forEach(g => {
+            let nama = String(g.nama_produk).trim().toUpperCase();
+            let totalTerjualAllTime = rekapLakuAllTime[nama] || 0;
+            let sisaFisik = Number(g.stok_masuk) - totalTerjualAllTime;
+            if(sisaFisik < 0) sisaFisik = 0;
+            
+            let jualPerHari = totalTerjualAllTime / totalHariOperasional; 
+            let kebutuhanBulanDepan = Math.ceil(jualPerHari * 35); 
+            let saranBeli = Math.max(0, kebutuhanBulanDepan - sisaFisik);
+            let hpp = Number(g.hpp_satuan) || 0;
+            let budget = saranBeli * hpp;
+
+            if (saranBeli > 0) {
+                totalBudget += budget;
+                htmlTabel += `
+                    <tr>
+                        <td class="border border-black p-2 font-bold text-xs">${g.nama_produk}</td>
+                        <td class="border border-black p-2 text-center text-xs">${sisaFisik}</td>
+                        <td class="border border-black p-2 text-center text-sm font-bold bg-gray-100">${saranBeli}</td>
+                        <td class="border border-black p-2 text-right text-xs">${formatRupiah(hpp)}</td>
+                        <td class="border border-black p-2 text-right text-xs font-bold">${formatRupiah(budget)}</td>
+                        <td class="border border-black p-2 text-center">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
+                    </tr>
+                `;
+            }
+        });
+    }
+
+    if (totalBudget === 0) {
+        alert("Stok masih aman semua, tidak ada yang perlu dibeli ke vendor.");
+        return;
+    }
+
+    // Injeksi area kertas print secara rahasia
+    let printContainer = document.getElementById("print-area-belanja");
+    if (!printContainer) {
+        printContainer = document.createElement("div");
+        printContainer.id = "print-area-belanja";
+        printContainer.className = "hidden bg-white text-black max-w-4xl mx-auto p-8 relative z-[9999]";
+        document.body.appendChild(printContainer);
+    }
+
+    printContainer.innerHTML = `
+        <div class="text-center border-b-2 border-black pb-4 mb-6">
+            <h1 class="text-xl font-bold uppercase">DAFTAR BELANJA VENDOR (RESTOCK)</h1>
+            <h2 class="text-lg font-bold">BOGA KARYA 86</h2>
+            <div class="mt-2 text-xs space-y-1">
+                <p>TANGGAL CETAK: <span class="font-semibold">${new Date().toLocaleString('id-ID')}</span></p>
+                <p>Dianalisis berdasar rekam jejak ${totalHariOperasional} hari (Buffer Stok 35 Hari)</p>
+            </div>
+        </div>
+        <table class="w-full border-collapse border border-black mb-6 text-black">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="border border-black p-2 text-left">NAMA PRODUK</th>
+                    <th class="border border-black p-2 text-center">SISA TOKO</th>
+                    <th class="border border-black p-2 text-center bg-gray-300">WAJIB BELI</th>
+                    <th class="border border-black p-2 text-right">TARGET HPP/PCS</th>
+                    <th class="border border-black p-2 text-right">ESTIMASI MODAL</th>
+                    <th class="border border-black p-2 text-center">CHECKLIST</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${htmlTabel}
+                <tr class="bg-gray-200 border-t-2 border-black">
+                    <td colspan="4" class="p-3 text-right font-bold text-sm uppercase">TOTAL DANA DISIAPKAN:</td>
+                    <td colspan="2" class="p-3 text-left font-bold text-lg">Rp ${totalBudget.toLocaleString('id-ID')}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="flex justify-between items-end mt-12 pt-8">
+            <div class="text-center w-48">
+                <p class="text-xs mb-16">Bag. Belanja / Lapangan,</p>
+                <p class="text-xs font-bold border-b border-black pb-1">( ........................................ )</p>
+            </div>
+            <div class="text-center w-48">
+                <p class="text-xs mb-16">Mengetahui / Finance,</p>
+                <p class="text-xs font-bold border-b border-black pb-1">( ........................................ )</p>
+            </div>
+        </div>
+    `;
+
+    // Proses Cetak ke layar
+    document.getElementById("app-layar").style.display = "none"; 
+    printContainer.classList.remove("hidden");
+    window.print();
+    printContainer.classList.add("hidden"); 
+    document.getElementById("app-layar").style.display = "flex";
+    
+    addAuditLog("PRINT_VENDOR", "Mencetak daftar belanja / procurement", "info");
 }
 // ==========================================
 // 🔥 FITUR ANTI-AMNESIA (SAVE FILTER UI)
