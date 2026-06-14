@@ -1189,7 +1189,7 @@
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Variabel Global (Kosong di awal, akan diisi dari Cloud)
-    let PIN_RAHASIA = "8686"; 
+    let PIN_RAHASIA = "1993"; 
     let masterData = [], filteredData = [], DAFTAR_VARIAN_DINAMIS = [], DAFTAR_BULAN = [];
     let currentPage = 1;
     const rowsPerPage = 10;
@@ -1344,46 +1344,60 @@
     };
 
     function aturTampilanBerdasarkanRole() {
-    let areaTertutup = document.getElementById("restricted-menus");
     let namaPanggilan = currentUser.nama.split(" ")[0];
 
-    // CARA BARU YANG SUPER BERSIH: Ambil SEMUA tombol di Desktop & HP sekaligus
-    let btnTransaksi = document.querySelectorAll('button[onclick*="transactions"]');
-    let btnOpex = document.querySelectorAll('button[onclick*="opex-panel"]');
-    let btnInternal = document.querySelectorAll('button[onclick*="internal"]');
+    // 1. KELOMPOKKAN TOMBOL BERDASARKAN KATEGORI (Mencakup Laptop & HP)
+    // Grup Manajemen & Tracking (Hanya Bos yang boleh lihat)
+    let btnManajemen = document.querySelectorAll('button[onclick*="internal"], button[onclick*="valuasi-stok"], button[onclick*="rapor-investor"], button[onclick*="budget-target"], button[onclick*="procurement-panel"], button[onclick*="logs"]');
+    
+    // Grup Operasional Toko (Input data - Bos & CS Admin)
+    let btnOperasional = document.querySelectorAll('button[onclick*="opex-panel"]');
 
+    // 2. KELOMPOKKAN LABEL TEKS (Biar judulnya ikut hilang dan UI tetap rapi)
+    let labelManajemen = Array.from(document.querySelectorAll('span')).find(el => el.innerText.includes('Manajemen'));
+    let labelOperasional = Array.from(document.querySelectorAll('span')).find(el => el.innerText.includes('Operasional Toko'));
+    let labelTracking = Array.from(document.querySelectorAll('span')).find(el => el.innerText.includes('Tracking Sistem'));
+
+    // ==========================================
+    // EKSEKUSI PENUTUPAN / PEMBUKAAN AKSES
+    // ==========================================
+    
     if (currentUser.role === "INVESTOR") {
-        // 1. Kunci Area Tertutup
-        if (areaTertutup) areaTertutup.style.display = "none";
+        // --- MODE INVESTOR ---
+        // Sembunyikan Manajemen, Tracking, dan Operasional
+        btnManajemen.forEach(btn => btn.style.display = "none");
+        btnOperasional.forEach(btn => btn.style.display = "none");
         
-        // 2. Sembunyikan SEMUA tombol ini dari pandangan Investor (Desktop & HP)
-        btnTransaksi.forEach(btn => btn.style.display = "none");
-        btnOpex.forEach(btn => btn.style.display = "none");
-        btnInternal.forEach(btn => btn.style.display = "none");
+        if (labelManajemen) labelManajemen.style.display = "none";
+        if (labelOperasional) labelOperasional.style.display = "none";
+        if (labelTracking) labelTracking.style.display = "none";
 
         switchTab('dashboard', null);
         setTimeout(() => toast.success(`👋 Halo Mitra Investor ${namaPanggilan}! Selamat memantau performa hari ini. ✨📈`), 700);
         
     } else if (currentUser.role === "ADMIN") {
-        if (areaTertutup) areaTertutup.style.display = "block";
+        // --- MODE CS ADMIN ---
+        // Sembunyikan Manajemen & Tracking
+        btnManajemen.forEach(btn => btn.style.display = "none");
+        if (labelManajemen) labelManajemen.style.display = "none";
+        if (labelTracking) labelTracking.style.display = "none";
         
-        // Admin cuma gak boleh liat Tameng / Dapur Finance
-        btnInternal.forEach(btn => btn.style.display = "none");
-        
-        // Pastikan tombol lain muncul
-        btnTransaksi.forEach(btn => btn.style.display = "flex");
-        btnOpex.forEach(btn => btn.style.display = "flex");
+        // Tampilkan Operasional Toko (Biar bisa input)
+        btnOperasional.forEach(btn => btn.style.display = "flex");
+        if (labelOperasional) labelOperasional.style.display = "block";
 
         switchTab('opex-panel', null); 
         setTimeout(() => toast.success(`🔥 Semangat pagi, ${namaPanggilan}! Yuk hajar orderan hari ini. 📦💪`), 700);
         
     } else {
-        // OWNER (Bebas Akses Semua)
-        if (areaTertutup) areaTertutup.style.display = "block";
+        // --- MODE BOS / OWNER ---
+        // Buka Semua Akses Tanpa Terkecuali
+        btnManajemen.forEach(btn => btn.style.display = "flex");
+        btnOperasional.forEach(btn => btn.style.display = "flex");
         
-        btnTransaksi.forEach(btn => btn.style.display = "flex");
-        btnOpex.forEach(btn => btn.style.display = "flex");
-        btnInternal.forEach(btn => btn.style.display = "flex");
+        if (labelManajemen) labelManajemen.style.display = "block";
+        if (labelOperasional) labelOperasional.style.display = "block";
+        if (labelTracking) labelTracking.style.display = "block";
 
         switchTab('dashboard', null);
         setTimeout(() => toast.success(`👑 Selamat datang Bos ${namaPanggilan}! Dashboard VVIP siap digunakan. ☕💸`), 700);
