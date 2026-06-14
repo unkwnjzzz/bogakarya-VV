@@ -1209,6 +1209,13 @@
     let currentUser = null;
     const DARK_MODE_KEY = "bk86_dark_mode";
 
+    function formatTanggalIndo(dateStr) {
+       if (!dateStr) return "-";
+       let d = new Date(dateStr);
+       if (isNaN(d.getTime())) return dateStr; 
+       return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+   }
+
     // --- FUNGSI TOAST NOTIFIKASI ---
     const toast = (() => {
         const icons = { success: "✓", error: "✕", info: "i", warning: "!", loading: "↻" };
@@ -1337,24 +1344,51 @@
     };
 
     function aturTampilanBerdasarkanRole() {
-        let areaTertutup = document.getElementById("restricted-menus");
-        let namaPanggilan = currentUser.nama.split(" ")[0];
-        if (currentUser.role === "INVESTOR") {
-            if (areaTertutup) areaTertutup.style.display = "none";
-            switchTab('dashboard', null);
-            setTimeout(() => toast.success(`👋 Halo Mitra Investor ${namaPanggilan}! Selamat memantau performa hari ini. ✨📈`), 700);
-        } else if (currentUser.role === "ADMIN") {
-            if (areaTertutup) areaTertutup.style.display = "block";
-            document.getElementById("tab-btn-internal").style.display = "none"; 
-            switchTab('opex-panel', null); 
-            setTimeout(() => toast.success(`🔥 Semangat pagi, ${namaPanggilan}! Yuk hajar orderan hari ini. 📦💪`), 700);
-        } else {
-            if (areaTertutup) areaTertutup.style.display = "block";
-            document.getElementById("tab-btn-internal").style.display = "flex";
-            switchTab('dashboard', null);
-            setTimeout(() => toast.success(`👑 Selamat datang Bos ${namaPanggilan}! Dashboard VVIP siap digunakan. ☕💸`), 700);
-        }
+    let areaTertutup = document.getElementById("restricted-menus");
+    let namaPanggilan = currentUser.nama.split(" ")[0];
+
+    // CARA BARU YANG SUPER BERSIH: Ambil SEMUA tombol di Desktop & HP sekaligus
+    let btnTransaksi = document.querySelectorAll('button[onclick*="transactions"]');
+    let btnOpex = document.querySelectorAll('button[onclick*="opex-panel"]');
+    let btnInternal = document.querySelectorAll('button[onclick*="internal"]');
+
+    if (currentUser.role === "INVESTOR") {
+        // 1. Kunci Area Tertutup
+        if (areaTertutup) areaTertutup.style.display = "none";
+        
+        // 2. Sembunyikan SEMUA tombol ini dari pandangan Investor (Desktop & HP)
+        btnTransaksi.forEach(btn => btn.style.display = "none");
+        btnOpex.forEach(btn => btn.style.display = "none");
+        btnInternal.forEach(btn => btn.style.display = "none");
+
+        switchTab('dashboard', null);
+        setTimeout(() => toast.success(`👋 Halo Mitra Investor ${namaPanggilan}! Selamat memantau performa hari ini. ✨📈`), 700);
+        
+    } else if (currentUser.role === "ADMIN") {
+        if (areaTertutup) areaTertutup.style.display = "block";
+        
+        // Admin cuma gak boleh liat Tameng / Dapur Finance
+        btnInternal.forEach(btn => btn.style.display = "none");
+        
+        // Pastikan tombol lain muncul
+        btnTransaksi.forEach(btn => btn.style.display = "flex");
+        btnOpex.forEach(btn => btn.style.display = "flex");
+
+        switchTab('opex-panel', null); 
+        setTimeout(() => toast.success(`🔥 Semangat pagi, ${namaPanggilan}! Yuk hajar orderan hari ini. 📦💪`), 700);
+        
+    } else {
+        // OWNER (Bebas Akses Semua)
+        if (areaTertutup) areaTertutup.style.display = "block";
+        
+        btnTransaksi.forEach(btn => btn.style.display = "flex");
+        btnOpex.forEach(btn => btn.style.display = "flex");
+        btnInternal.forEach(btn => btn.style.display = "flex");
+
+        switchTab('dashboard', null);
+        setTimeout(() => toast.success(`👑 Selamat datang Bos ${namaPanggilan}! Dashboard VVIP siap digunakan. ☕💸`), 700);
     }
+}
 
     function mapTransaksiRow(row) {
         // 🔥 SATPAM MATA ELANG: Cari HPP di semua kemungkinan nama kolom Supabase lu! 🔥
@@ -2298,7 +2332,7 @@
         let statusUpper=String(item.status||"WAITING").toUpperCase(), qty=Number(item.qty||0);
         let settle=statusUpper.match(/CANCELED|RETUR|FAILED/)?0:(Number(item.settlement||item.Settlement||0)*qty);
         document.getElementById("modal-id").innerText="RESI: "+(item.idPesanan||"Belum Terbit");
-        document.getElementById("modal-tgl").innerText=item.tanggal?(String(item.tanggal).includes("T")?item.tanggal.split("T")[0]:item.tanggal):"-";
+        document.getElementById("modal-tgl").innerText = formatTanggalIndo(item.tanggal);
         document.getElementById("modal-produk").innerText=item.namaProduk||"Tidak Diketahui";
         document.getElementById("modal-status").innerText=statusUpper;
         document.getElementById("modal-qty").innerText=`${qty} Unit`;
@@ -2649,7 +2683,7 @@ function hitungRadarModal() {
             else if (statusUpper==="PAID") statusClass="bg-sky-500/10 text-sky-400 border-sky-500/20";
             else if (statusUpper==="CANCELED") { statusClass="bg-slate-800 text-slate-400 border-slate-700"; labaTampil="Rp 0"; }
             else if (statusUpper==="RETUR"||statusUpper==="FAILED") { statusClass="bg-rose-500/10 text-rose-500 border-rose-500/20"; labaTampil="Rp 0"; }
-            let displayTanggal=item.tanggal?(String(item.tanggal).includes("T")?item.tanggal.split("T")[0]:item.tanggal):"-";
+            let displayTanggal = formatTanggalIndo(item.tanggal);
             let displayID=(item.idPesanan&&String(item.idPesanan).trim()!=="")?item.idPesanan:"Dlm Antrean";
             let tr=document.createElement("tr"); tr.className="hover:bg-slate-800/50 cursor-pointer transition text-slate-300"; tr.setAttribute("onclick",`bukaModal(${start+index})`);
             tr.innerHTML=`<td class="p-4 font-medium">${displayTanggal}</td><td class="p-4 font-mono text-slate-500 text-[11px]">${displayID}</td><td class="p-4 font-semibold text-slate-200">${item.namaProduk||"<span class='text-rose-500 font-bold'>[KOSONG]</span>"}</td><td class="p-4 text-center font-bold text-slate-100">${item.qty||0}</td><td class="p-4 text-right font-mono font-medium text-emerald-400">${labaTampil}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded text-[10px] font-bold tracking-wider border ${statusClass}">${statusUpper}</span></td>`;
