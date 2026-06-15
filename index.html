@@ -69,21 +69,6 @@
             .sonner-toast { font-size: 0.75rem; }
         }
        
-        /* 👁️‍🗨️ GENJUTSU ITACHI LOADING ANIMATION 👁️‍🗨️ */
-        @keyframes mangekyouSpin {
-            0% { transform: rotate(0deg) scale(1); filter: drop-shadow(0 0 0px #dc2626); opacity: 0; }
-            20% { opacity: 1; transform: rotate(360deg) scale(1.2); filter: drop-shadow(0 0 20px #dc2626); }
-            70% { transform: rotate(1080deg) scale(1.5); filter: drop-shadow(0 0 40px #dc2626); opacity: 1; }
-            100% { transform: rotate(1800deg) scale(15); filter: drop-shadow(0 0 100px #dc2626); opacity: 0; }
-        }
-        .mangekyou-active {
-            animation: mangekyouSpin 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        .genjutsu-bg {
-            background-color: #000;
-            background-image: radial-gradient(circle at center, #3a0000 0%, #000000 70%);
-        }
-        
         /* 🍎 APPLE iOS GLASSMORPHISM & AMBIENT GLOW 🍎 */
         body { position: relative; z-index: 0; }
         body::before { content: ''; position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(234,179,8,0.08) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
@@ -107,20 +92,10 @@
     </style>
     
     <div id="sonner-toaster" class="no-print" aria-live="polite" aria-label="Notifikasi"></div>
-    <!-- 👁️‍🗨️ LAYAR GENJUTSU (ITACHI LOADING) -->
-    <div id="genjutsu-overlay" class="fixed inset-0 z-[9999] genjutsu-bg hidden flex-col items-center justify-center transition-opacity duration-500 opacity-0 no-print">
-        <svg id="sharingan-eye" class="w-32 h-32" viewBox="0 0 100 100">
-            <!-- Lingkaran Luar -->
-            <circle cx="50" cy="50" r="48" fill="#880000" stroke="#000" stroke-width="3"/>
-            <!-- 3 Bilah Mangekyou Itachi -->
-            <g transform="translate(50,50)">
-                <circle cx="0" cy="0" r="8" fill="#000"/>
-                <path d="M 0 -8 C 20 -8 30 -35 0 -48 C -20 -35 -10 -15 0 -8 Z" fill="#000" />
-                <path d="M 0 -8 C 20 -8 30 -35 0 -48 C -20 -35 -10 -15 0 -8 Z" fill="#000" transform="rotate(120)" />
-                <path d="M 0 -8 C 20 -8 30 -35 0 -48 C -20 -35 -10 -15 0 -8 Z" fill="#000" transform="rotate(240)" />
-            </g>
-        </svg>
-        <p class="text-red-600 font-mono tracking-[0.5em] mt-8 text-xl font-bold animate-pulse shadow-red-500 drop-shadow-md">TSUKUYOMI</p>
+    <!-- ⏳ SMART LOADING SCREEN -->
+    <div id="genjutsu-overlay" class="fixed inset-0 z-[9999] bg-slate-950 hidden flex-col items-center justify-center transition-opacity duration-500 opacity-0 no-print">
+        <div class="w-16 h-16 border-4 border-slate-800 border-t-yellow-500 rounded-full animate-spin mb-4"></div>
+        <p class="text-slate-400 font-mono tracking-[0.2em] mt-4 text-sm font-medium animate-pulse">AUTHORIZING...</p>
     </div>
 
     <div id="login-layar" class="min-h-screen bg-slate-950 flex items-center justify-center absolute w-full h-full z-[100] no-print">
@@ -160,7 +135,7 @@
                     </div>
                 </div>
             </div>
-           <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
                 <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-2">Menu Utama</span>
                 <button onclick="switchTab('dashboard', event)" class="tab-btn active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm bg-slate-800/80 text-slate-200">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 opacity-70"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" /></svg>
@@ -193,19 +168,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 opacity-70"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg>
                         Cenayang Belanja
                     </button>
-
-                    <div id="god-mode-panel" style="display:none;" class="mx-4 mt-6 mb-2 p-4 bg-slate-950 rounded-xl border border-slate-800 shadow-inner">
-                        <p class="text-[9px] text-slate-500 mb-3 font-bold tracking-widest uppercase text-center">👑 Pusat Kendali Server</p>
-                        <div class="flex gap-2">
-                            <button onclick="nyalakanMaintenance()" class="bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition flex-1 text-center">
-                                🔴 KUNCI
-                            </button>
-                            <button onclick="matikanMaintenance()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition flex-1 text-center">
-                                🟢 BUKA
-                            </button>
-                        </div>
-                    </div>
-
+                    
                     <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Operasional Toko</span>
                     <button onclick="switchTab('opex-panel', event)" class="tab-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
                         <div class="flex items-center gap-3">
@@ -219,7 +182,6 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 opacity-70"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
                         Audit Log & Alert
                     </button>
-
                 </div> 
                 
                 <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider px-4 mb-2 block mt-6">Aksi Cepat</span>
@@ -695,7 +657,16 @@
                         </div>
 
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6">
-                            <h2 class="text-base font-bold text-slate-200 mb-5 border-b border-slate-800 pb-3">Laporan Laba/Rugi (Net Profit)</h2>
+                            <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-200">Laporan Laba/Rugi (Net Profit)</h2>
+                                    <p class="text-[10px] text-slate-500 mt-1">Real-time P&L berdasarkan kas fisik.</p>
+                                </div>
+                                <button onclick="cetakLaporanInternal()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-14.326 0C3.768 7.44 3 8.375 3 9.456v6.294A2.25 2.25 0 0 0 5.25 18h1.091M12 10.5a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" /></svg>
+                                    Cetak P&L
+                                </button>
+                            </div>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                                 <div class="bg-slate-950 p-5 rounded-xl border border-sky-900/30 shadow-[0_0_15px_rgba(14,165,233,0.05)]">
                                     <span class="text-[10px] uppercase tracking-widest text-sky-500 font-bold block mb-1">Realisasi HPP (Cair)</span>
@@ -1253,7 +1224,7 @@
         setTimeout(() => {
             overlay.classList.remove('opacity-0');
             overlay.classList.add('opacity-100');
-            eye.classList.add('mangekyou-active');
+            
         }, 50);
 
         // 2. Tahan 2.5 Detik (Selama Animasi Tsukuyomi Jalan)
@@ -1273,7 +1244,7 @@
             
             setTimeout(() => {
                 overlay.classList.add('hidden');
-                eye.classList.remove('mangekyou-active'); // Reset animasi buat next login
+                
             }, 500);
 
         }, 2500); // Waktu Tsukuyomi
@@ -1490,12 +1461,39 @@
 
     function bukaTabInternal(event) {
         if (!isInternalUnlocked) {
-            let inputPin = prompt("⚠️ AREA MANAJEMEN TERTUTUP\nMasukkan PIN Rahasia Anda:");
-            if (inputPin === PIN_RAHASIA) { isInternalUnlocked = true; alert("✅ Akses Diberikan. Selamat datang di Dapur Manajemen."); }
-            else { alert("❌ PIN Salah! Akses Ditolak."); switchTab('dashboard'); return; }
+            // Panggil UI Modal PIN Modern, bukan pop-up jaman batu
+            document.getElementById("modal-pin-finance").classList.add("active");
+            document.getElementById("input-pin-finance").value = "";
+            document.getElementById("input-pin-finance").focus();
+            return; // Berhenti di sini, nunggu PIN dimasukin
         }
         switchTab('internal', event);
         renderManajemenArea();
+    }
+
+    // Mesin Pengecek PIN Modern
+    window.verifikasiPinFinance = function() {
+        let inputPin = document.getElementById("input-pin-finance").value;
+        if (inputPin === PIN_RAHASIA) {
+            isInternalUnlocked = true;
+            document.getElementById("modal-pin-finance").classList.remove("active");
+            toast.success("✅ Akses Diberikan. Selamat datang di Dapur Manajemen.");
+            
+            // Pindah tab secara otomatis
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('bg-slate-800/80', 'text-slate-200'));
+            
+            let targetTab = document.getElementById('internal');
+            if (targetTab) targetTab.classList.add('active');
+            let btnInternal = document.getElementById("tab-btn-internal");
+            if (btnInternal) btnInternal.classList.add('bg-slate-800/80', 'text-slate-200');
+
+            renderManajemenArea();
+        } else {
+            toast.error("❌ PIN Salah! Akses Ditolak.");
+            document.getElementById("input-pin-finance").value = "";
+            document.getElementById("input-pin-finance").focus();
+        }
     }
 
     function switchTab(tabName, event) {
@@ -2324,11 +2322,20 @@
         let boxHTML = `<div id="${boxId}" class="mt-8 p-4 border-2 border-black bg-gray-100 text-center"><p class="text-xs mb-1">KESIMPULAN KESEHATAN CASHFLOW:</p><h2 class="text-lg font-bold">${statusKesehatan}</h2></div>`;
         document.getElementById("print-area-internal").insertAdjacentHTML('beforeend', boxHTML);
 
+        // --- FIX PRINT BLANK ---
+        let areaPrint = document.getElementById("print-area-internal");
         document.getElementById("app-layar").style.display = "none"; 
-        document.getElementById("print-area-internal").classList.remove("hidden");
-        window.print();
-        document.getElementById("print-area-internal").classList.add("hidden"); 
-        document.getElementById("app-layar").style.display = "flex";
+        areaPrint.classList.remove("hidden");
+        document.body.classList.remove("overflow-hidden"); // Buka gembok layar
+
+        setTimeout(() => {
+            window.print(); // Print setelah 0.5 detik (tabel udah dirender)
+            setTimeout(() => {
+                areaPrint.classList.add("hidden"); 
+                document.getElementById("app-layar").style.display = "flex";
+                document.body.classList.add("overflow-hidden"); // Kunci layar lagi
+            }, 500);
+        }, 500);
     }
 
     function bukaModal(index) {
@@ -2550,11 +2557,20 @@
         let boxHTML = `<div id="${boxId}" class="mt-6 p-4 border-2 border-black bg-gray-100 text-center"><p class="text-xs mb-1">KESIMPULAN KESEHATAN CASHFLOW:</p><h2 class="text-lg font-bold">${statusKesehatan}</h2></div>`;
         document.getElementById("print-catatan").insertAdjacentHTML('afterend', boxHTML);
 
+        // --- FIX PRINT BLANK ---
+        let areaPrint = document.getElementById("print-area-closing");
         document.getElementById("app-layar").style.display = "none"; 
-        document.getElementById("print-area-closing").classList.remove("hidden");
-        window.print();
-        document.getElementById("print-area-closing").classList.add("hidden"); 
-        document.getElementById("app-layar").style.display = "flex";
+        areaPrint.classList.remove("hidden");
+        document.body.classList.remove("overflow-hidden");
+
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                areaPrint.classList.add("hidden"); 
+                document.getElementById("app-layar").style.display = "flex";
+                document.body.classList.add("overflow-hidden");
+            }, 500);
+        }, 500);
     }
     
     function hitungRadarModal() {
@@ -2727,13 +2743,21 @@
         document.getElementById("tf-print-invs").innerText = formatRupiah(sumInvs);
         document.getElementById("tf-print-table-body").innerHTML = tbodyHtml;
         
+        // --- FIX PRINT BLANK ---
+        let areaPrint = document.getElementById("print-area-transfer");
         document.getElementById("app-layar").style.display = "none";
-        document.getElementById("print-area-transfer").classList.remove("hidden");
-        window.print();
-        document.getElementById("print-area-transfer").classList.add("hidden");
-        document.getElementById("app-layar").style.display = "flex";
-        
-        addAuditLog("PRINT_TRANSFER", "Mencetak Surat Perintah Mutasi Internal", "info");
+        areaPrint.classList.remove("hidden");
+        document.body.classList.remove("overflow-hidden");
+
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                areaPrint.classList.add("hidden");
+                document.getElementById("app-layar").style.display = "flex";
+                document.body.classList.add("overflow-hidden");
+                addAuditLog("PRINT_TRANSFER", "Mencetak Surat Perintah Mutasi Internal", "info");
+            }, 500);
+        }, 500);
     }
 
     window.toggleNotifikasi = function(e) {
@@ -3035,6 +3059,36 @@
         } else {
             loadingInstance.dismiss(); toast.error("Gagal menghapus data!");
         }
+    }
+    window.populateSalesDropdown = function() {
+        const select = document.getElementById("input-jual-produk");
+        if(select) { 
+            let currentSelection = select.value;
+            let semuaProduk = new Set(DAFTAR_VARIAN_DINAMIS);
+            
+            // Tarik data dari gudang dan transaksi lama
+            if (typeof masterGudang !== 'undefined') {
+                masterGudang.forEach(g => { if (g.nama_produk) semuaProduk.add(String(g.nama_produk).trim().toUpperCase()); });
+            }
+            if (typeof masterData !== 'undefined') {
+                masterData.forEach(item => { if (item.namaProduk) semuaProduk.add(String(item.namaProduk).trim().toUpperCase()); });
+            }
+            
+            let listFinal = Array.from(semuaProduk).sort();
+            select.innerHTML = '<option value="">-- Pilih Produk --</option>';
+            listFinal.forEach(varian => {
+                if(varian !== "ALL" && varian !== "SEARCH" && varian !== "") {
+                    let isSelected = (varian === currentSelection) ? "selected" : "";
+                    select.innerHTML += `<option value="${varian}" ${isSelected}>${varian}</option>`;
+                }
+            });
+        }
+        
+        let tglSales = document.getElementById("input-jual-tgl");
+        let tglOpex = document.getElementById("input-opex-panel-tanggal");
+        let today = new Date().toISOString().split('T')[0];
+        if(tglSales && !tglSales.value) tglSales.value = today;
+        if(tglOpex && !tglOpex.value) tglOpex.value = today;
     }
 
     window.autoCalculateSales = function() {
@@ -3427,14 +3481,22 @@
                 </tbody>
             </table>
         `;
-
+        // --- FIX PRINT BLANK ---
         document.getElementById("app-layar").style.display = "none"; 
         printContainer.classList.remove("hidden");
-        window.print();
-        printContainer.classList.add("hidden"); 
-        document.getElementById("app-layar").style.display = "flex";
+        document.body.classList.remove("overflow-hidden");
+
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                printContainer.classList.add("hidden"); 
+                document.getElementById("app-layar").style.display = "flex";
+                document.body.classList.add("overflow-hidden");
+                addAuditLog("PRINT_VENDOR", `Mencetak daftar belanja untuk target ${targetHari} hari`, "info");
+            }, 500);
+        }, 500);
+
         
-        addAuditLog("PRINT_VENDOR", `Mencetak daftar belanja untuk target ${targetHari} hari`, "info");
     };
     </script>
 </body>
