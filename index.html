@@ -742,16 +742,27 @@
                         </div>
                     </div>
 
-                    <div id="valuasi-stok" class="tab-content space-y-6">
+                   <div id="valuasi-stok" class="tab-content space-y-6">
                         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6">
                             <div class="border-b border-slate-800 pb-3 mb-5 flex justify-between items-center">
                                 <div>
                                     <h2 class="text-base font-bold text-slate-200">📦 Manajemen Gudang & Valuasi Aset</h2>
                                     <p class="text-[10px] text-slate-500 mt-1">Pantau sisa fisik barang dan total uang mati di gudang.</p>
                                 </div>
-                                <button onclick="tambahStokMasuk()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer">
-                                    + Input Stok Masuk
-                                </button>
+                                
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 shadow-inner hidden sm:flex">
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sembunyikan Kosong</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="toggle-hide-empty" class="sr-only peer" onchange="toggleHideEmptyStock()">
+                                            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-500 border border-slate-700"></div>
+                                        </label>
+                                    </div>
+
+                                    <button onclick="tambahStokMasuk()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg transition shadow-md cursor-pointer">
+                                        + Input Stok Masuk
+                                    </button>
+                                </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50">
@@ -768,16 +779,15 @@
                                 <table class="w-full text-sm">
                                     <thead class="bg-slate-950 border-b border-slate-800 text-slate-500 text-xs text-left">
                                         <tr>
-                                            <th class="p-4 font-medium rounded-tl-xl">Nama Produk</th>
-                                            <th class="p-4 text-center font-medium">Masuk (Modal/Pcs)</th>
+                                            <th class="p-4 font-medium rounded-tl-xl">Nama Produk <span class="text-[9px] block text-sky-400 mt-0.5">(Klik untuk riwayat)</span></th>
+                                            <th class="p-4 text-center font-medium">Total Masuk</th>
                                             <th class="p-4 text-center font-medium">Laku (Terjual)</th>
-                                            <th class="p-4 text-center font-medium">Sisa Fisik</th>
-                                            <th class="p-4 text-right font-medium">Valuasi (Aset)</th>
-                                            <th class="p-4 text-center font-medium rounded-tr-xl">Aksi</th>
+                                            <th class="p-4 text-center font-medium">Sisa Gudang</th>
+                                            <th class="p-4 text-right font-medium rounded-tr-xl">Valuasi (Aset)</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tabel-gudang" class="divide-y divide-slate-800/50 text-slate-300">
-                                        <tr><td colspan="6" class="p-8 text-center text-slate-500 text-xs">Memuat data gudang...</td></tr>
+                                        <tr><td colspan="5" class="p-8 text-center text-slate-500 text-xs">Memuat data gudang...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -861,7 +871,7 @@
                     </div>
 
                 </div> </div> </main>
-    </div> ```
+                
     <div id="modal-transaksi" class="modal no-print">
         <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-md shadow-[0_0_40px_rgba(0,0,0,0.5)] relative">
             <button onclick="tutupModal()" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button>
@@ -894,15 +904,19 @@
     <div id="modal-input-stok" class="modal no-print">
         <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-md shadow-[0_0_40px_rgba(0,0,0,0.5)] relative">
             <button onclick="tutupModalStok()" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button>
-            <h2 class="text-xl font-bold text-slate-100 mb-1 tracking-tight">📦 Input Stok Gudang</h2>
-            <p class="text-xs text-slate-500 mb-6 border-b border-slate-800 pb-3">Pilih produk dari riwayat transaksi, HPP otomatis terisi.</p>
-            
+            <h2 id="title-modal-stok" class="text-xl font-bold text-slate-100 mb-1 tracking-tight">📦 Input Stok Gudang</h2>
+            <p id="desc-modal-stok" class="text-xs text-slate-500 mb-6 border-b border-slate-800 pb-3">Pilih atau ketik produk baru, HPP otomatis terisi.</p>
             <div class="space-y-4">
                 <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tanggal Belanja</label>
+                    <input type="date" id="input-stok-tanggal" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none cursor-pointer">
+                </div>
+
+                <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Nama Produk</label>
-                    <select id="input-stok-produk" onchange="autoFillHPPGudang()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none cursor-pointer">
-                        <option value="">-- Pilih Produk --</option>
-                    </select>
+                    <!-- SMART DATALIST: Bisa Milih, Bisa Ngetik Bebas -->
+                    <input type="text" id="input-stok-produk" list="list-stok-produk" onchange="autoFillHPPGudang()" oninput="autoFillHPPGudang()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-2.5 rounded-xl focus:border-yellow-500 focus:outline-none uppercase" placeholder="Ketik baru / Pilih yang ada...">
+                    <datalist id="list-stok-produk"></datalist>
                 </div>
                 <div class="flex gap-4">
                     <div class="w-1/3">
@@ -916,7 +930,7 @@
                 </div>
             </div>
             
-            <button onclick="simpanStokGudangPintar()" class="w-full mt-6 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] cursor-pointer">
+            <button id="btn-simpan-stok" onclick="simpanStokGudangPintar()" class="w-full mt-6 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] cursor-pointer">
                 💾 Simpan ke Gudang
             </button>
         </div>
@@ -2723,8 +2737,6 @@
         if (dd && !dd.classList.contains("hidden")) { if (!e.target.closest('#dropdown-notif')) { dd.classList.add("hidden"); } }
     });
 
-    setInterval(() => { console.log("Auto-sync data dimulai..."); handleUpload(); }, 300000);
-
     let masterGudang = [];
     async function loadDanRenderGudang() {
         let loadingInstance = toast.loading("Menyinkronkan Gudang...");
@@ -2735,12 +2747,30 @@
         loadingInstance.dismiss();
     }
 
-    function renderTabelGudang() {
+    let hideEmptyStock = false;
+    window.toggleHideEmptyStock = function() {
+        hideEmptyStock = document.getElementById("toggle-hide-empty").checked;
+        renderTabelGudang();
+    }
+
+    window.toggleHistoriGudang = function(id) {
+        let el = document.getElementById(`histori-${id}`);
+        let icon = document.getElementById(`icon-histori-${id}`);
+        if (el.classList.contains("hidden")) {
+            el.classList.remove("hidden");
+            icon.innerText = "🔼";
+        } else {
+            el.classList.add("hidden");
+            icon.innerText = "🔽";
+        }
+    }
+
+    window.renderTabelGudang = function() {
         const tbody = document.getElementById("tabel-gudang");
         tbody.innerHTML = "";
         let totalItemSemua = 0, totalValuasiSemua = 0;
         let terjualMapCutOff = {};
-        const tanggalMulai = new Date("2026-06-15").getTime(); 
+        const tanggalMulai = new Date("2026-06-15T00:00:00").getTime(); 
 
         if (typeof masterData !== 'undefined') {
             masterData.forEach(item => {
@@ -2753,262 +2783,231 @@
             });
         }
 
-        if (typeof masterGudang === 'undefined' || masterGudang.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500 text-xs">Belum ada data stok masuk sejak fitur ini diaktifkan.</td></tr>`;
+        let agregatGudang = {};
+        if (typeof masterGudang !== 'undefined' && masterGudang.length > 0) {
+            let sortedGudang = [...masterGudang].sort((a,b) => new Date(b.tanggal || b.created_at) - new Date(a.tanggal || a.created_at));
+            
+            sortedGudang.forEach(g => {
+                let nama = String(g.nama_produk).trim().toUpperCase();
+                if (!agregatGudang[nama]) { agregatGudang[nama] = { stok_masuk: 0, items: [] }; }
+                agregatGudang[nama].stok_masuk += Number(g.stok_masuk);
+                agregatGudang[nama].items.push(g);
+            });
+        }
+
+        let keysGudang = Object.keys(agregatGudang).sort();
+        if (keysGudang.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 text-xs">Belum ada data stok masuk sejak fitur ini diaktifkan.</td></tr>`;
         } else {
-            masterGudang.forEach(item => {
-                let namaProd = String(item.nama_produk).trim().toUpperCase();
+            keysGudang.forEach((namaProd, index) => {
+                let dataGudang = agregatGudang[namaProd];
                 let laku = terjualMapCutOff[namaProd] || 0;
-                let stokAwal = Number(item.stok_masuk);
+                let stokAwal = dataGudang.stok_masuk;
                 let sisaFisik = stokAwal - laku;
                 if (sisaFisik < 0) sisaFisik = 0; 
-                let hppModal = Number(item.hpp_satuan) || 0;
-                let valuasi = sisaFisik * hppModal;
+                
+                let totalNilaiModal = dataGudang.items.reduce((sum, item) => sum + (Number(item.hpp_satuan) * Number(item.stok_masuk)), 0);
+                let avgHpp = stokAwal > 0 ? (totalNilaiModal / stokAwal) : 0;
+                let valuasi = sisaFisik * avgHpp;
 
                 totalItemSemua += sisaFisik;
                 totalValuasiSemua += valuasi;
 
-                let tglUpdate = item.created_at || item.tanggal || new Date().toISOString();
-                let tr = document.createElement("tr");
-                tr.className = "border-b border-slate-800/50 hover:bg-slate-800/40 transition text-slate-300";
+                if (hideEmptyStock && sisaFisik === 0) return; 
+
+                let safeId = "prod_" + index; 
                 
-                tr.innerHTML = `
-                    <td class="p-4 font-medium text-slate-400 text-[11px] whitespace-nowrap">${formatTanggalIndo(tglUpdate)}</td>
-                    <td class="p-4 font-bold text-slate-200">${item.nama_produk}</td>
-                    <td class="p-4 text-center font-bold text-sky-400 bg-sky-500/5">
-                        ${stokAwal} 
-                        <span class="text-[10px] text-slate-500 font-normal block mt-0.5">Modal: Rp ${hppModal.toLocaleString('id-ID')}</span>
+                // BARIS MASTER
+                let trMaster = document.createElement("tr");
+                trMaster.className = "border-b border-slate-800/50 hover:bg-slate-800/40 transition text-slate-300 cursor-pointer group";
+                trMaster.onclick = () => toggleHistoriGudang(safeId);
+                trMaster.innerHTML = `
+                    <td class="p-4 font-bold text-slate-200">
+                        ${namaProd}
+                        <span class="block text-[10px] text-sky-500 mt-1 font-medium opacity-70 group-hover:opacity-100 transition">Lihat Histori Masuk <span id="icon-histori-${safeId}">🔽</span></span>
                     </td>
+                    <td class="p-4 text-center font-bold text-sky-400 bg-sky-500/5">${stokAwal}</td>
                     <td class="p-4 text-center font-bold text-emerald-400 bg-emerald-500/5">${laku}</td>
-                    <td class="p-4 text-center font-bold text-yellow-500 text-lg bg-yellow-500/5 shadow-inner">${sisaFisik}</td>
+                    <td class="p-4 text-center font-bold text-${sisaFisik === 0 ? 'rose-500' : 'yellow-500'} text-lg bg-yellow-500/5 shadow-inner">${sisaFisik}</td>
                     <td class="p-4 text-right font-mono font-bold text-slate-200">Rp ${valuasi.toLocaleString('id-ID')}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="hapusStok(${item.id})" class="text-[10px] uppercase font-bold tracking-wider bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded transition border border-rose-500/20 cursor-pointer">Hapus</button>
-                    </td>
                 `;
-                tbody.appendChild(tr);
+                tbody.appendChild(trMaster);
+
+                // BARIS DETAIL (HISTORI)
+                let trDetail = document.createElement("tr");
+                trDetail.id = `histori-${safeId}`;
+                trDetail.className = "hidden bg-slate-950/80 border-b-2 border-slate-800 shadow-inner";
+                
+                let detailHtml = `<td colspan="5" class="p-4"><div class="rounded-xl border border-slate-800/50 overflow-hidden"><table class="w-full text-xs"><thead class="bg-slate-900 text-slate-400 border-b border-slate-800"><tr><th class="p-3 text-left">Tgl Belanja</th><th class="p-3 text-center">Qty Masuk</th><th class="p-3 text-right">HPP Satuan</th><th class="p-3 text-center">Aksi (Edit)</th></tr></thead><tbody class="divide-y divide-slate-800/30">`;
+                
+                dataGudang.items.forEach(hist => {
+                    let tglHist = hist.tanggal ? hist.tanggal : (hist.created_at ? hist.created_at.split('T')[0] : "-");
+                    let hppHist = Number(hist.hpp_satuan) || 0;
+                    
+                    let btnAksi = `<button onclick="editStokGudang(${hist.id}, event)" class="text-[9px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1.5 rounded hover:bg-amber-500 hover:text-black transition font-bold uppercase tracking-wider mr-2 shadow-sm">✎ Edit</button>`;
+                    
+                    btnAksi += laku > 0 
+                        ? `<span class="text-[9px] bg-slate-800 text-slate-500 px-2 py-1.5 rounded uppercase tracking-wider cursor-not-allowed">🔒 Laku</span>` 
+                        : `<button onclick="hapusStok(${hist.id}, event)" class="text-[9px] bg-rose-500/10 text-rose-500 border border-rose-500/20 px-3 py-1.5 rounded hover:bg-rose-500 hover:text-white transition font-bold uppercase tracking-wider shadow-sm">✕</button>`;
+
+                    detailHtml += `
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-3 text-slate-300 font-medium">${formatTanggalIndo(tglHist)}</td>
+                            <td class="p-3 text-center font-bold text-sky-400">+${hist.stok_masuk}</td>
+                            <td class="p-3 text-right text-slate-400 font-mono">Rp ${hppHist.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-center">${btnAksi}</td>
+                        </tr>
+                    `;
+                });
+                detailHtml += `</tbody></table></div></td>`;
+                trDetail.innerHTML = detailHtml;
+                tbody.appendChild(trDetail);
             });
         }
         document.getElementById("gudang-total-item").innerText = `${totalItemSemua} Pcs`;
         document.getElementById("gudang-total-valuasi").innerText = "Rp " + totalValuasiSemua.toLocaleString('id-ID');
     }
 
-    let masterRaporInvestor = [];
-    async function loadRaporInvestor() {
-        let loadingInstance = toast.loading("Menarik data Investor...");
-        const { data, error } = await supabaseClient.from('rapor_investor').select('*').order('tanggal', { ascending: false });
-        if (error) { loadingInstance.dismiss(); toast.error("Gagal memuat rapor investor!"); return; }
-        masterRaporInvestor = data || [];
-        renderTabelRapor();
-        loadingInstance.dismiss();
-    }
+    let editStokId = null;
 
-    function renderTabelRapor() {
-        const tbody = document.getElementById("tabel-rapor");
-        tbody.innerHTML = "";
-        let totalAllTime = 0;
-        if (masterRaporInvestor.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 text-xs">Belum ada catatan pencairan dividen. Klik "+ Catat Pencairan".</td></tr>`;
-        } else {
-            masterRaporInvestor.forEach(item => {
-                totalAllTime += Number(item.nominal);
-                let tr = document.createElement("tr");
-                tr.className = "border-b border-slate-800/50 hover:bg-slate-800/40 transition text-slate-300";
-                tr.innerHTML = `
-                    <td class="p-4 font-medium text-slate-400">${item.tanggal}</td>
-                    <td class="p-4 font-bold text-slate-200"><span class="bg-slate-800 px-2 py-1 rounded text-xs border border-slate-700">${item.periode}</span></td>
-                    <td class="p-4 text-slate-300">${item.keterangan}</td>
-                    <td class="p-4 text-right font-mono font-bold text-violet-400">Rp ${Number(item.nominal).toLocaleString('id-ID')}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="hapusDividen(${item.id})" class="text-[10px] uppercase font-bold tracking-wider text-rose-500 hover:text-rose-400 transition cursor-pointer">Hapus</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        document.getElementById("rapor-total-dividen").innerText = "Rp " + totalAllTime.toLocaleString('id-ID');
-    }
-
-    async function hapusDividen(id) {
-        if (!confirm("Hapus histori pencairan ini? Nominal akan dikurangi dari Total All Time.")) return;
-        let loadingInstance = toast.loading("Menghapus histori...");
-        const { error } = await supabaseClient.from('rapor_investor').delete().eq('id', id);
-        if (!error) {
-            addAuditLog("DIVIDEN_DELETED", `Menghapus catatan dividen (ID: ${id})`, "danger");
-            await loadRaporInvestor();
-            loadingInstance.dismiss();
-            toast.success("Histori berhasil dihapus!");
-        } else {
-            loadingInstance.dismiss(); toast.error("Gagal menghapus data!");
-        }
-    }
-
-    window.bukaTabInternal = function(event) {
-        if (!isInternalUnlocked) {
-            document.getElementById('input-pin-finance').value = "";
-            document.getElementById('modal-pin-finance').classList.add('active');
-            setTimeout(() => document.getElementById('input-pin-finance').focus(), 100);
-            return;
-        }
-        switchTab('internal', event);
-        renderManajemenArea();
-    }
-
-    window.verifikasiPinFinance = function() {
-        let inputPin = document.getElementById('input-pin-finance').value;
-        if (inputPin === PIN_RAHASIA) {
-            isInternalUnlocked = true;
-            document.getElementById('modal-pin-finance').classList.remove('active');
-            toast.success("✅ Akses Diberikan. Selamat datang di Dapur Manajemen.");
-            switchTab('internal', null);
-            document.getElementById('tab-btn-internal').classList.add('bg-slate-800/80', 'text-slate-200');
-            renderManajemenArea();
-        } else {
-            toast.error("❌ PIN Salah! Akses Ditolak.");
-            document.getElementById('input-pin-finance').value = "";
-            document.getElementById('input-pin-finance').focus();
-        }
-    }
-
-    window.tambahDividen = function() {
-        document.getElementById('input-dividen-tgl').value = new Date().toISOString().split('T')[0];
-        document.getElementById('input-dividen-periode').value = "";
-        document.getElementById('input-dividen-nominal').value = "";
-        document.getElementById('input-dividen-ket').value = "Transfer Dividen";
-        document.getElementById('modal-rapor-investor').classList.add('active');
-    }
-
-    window.simpanDividen = async function() {
-        let tgl = document.getElementById("input-dividen-tgl").value;
-        let periode = document.getElementById("input-dividen-periode").value;
-        let nominal = document.getElementById("input-dividen-nominal").value;
-        let ket = document.getElementById("input-dividen-ket").value;
-
-        if (!tgl || !periode || !nominal || isNaN(nominal) || !ket) {
-            toast.error("Mohon lengkapi Tanggal, Periode, dan Nominal!"); return;
-        }
-
-        let payload = { tanggal: tgl, periode: periode, nominal: parseFloat(nominal), keterangan: ket };
+    window.tambahStokMasuk = function() {
+        editStokId = null; 
         
-        let loadingInstance = toast.loading("Menyimpan rekam jejak...");
-        const { error } = await supabaseClient.from('rapor_investor').insert([payload]);
-        if (!error) {
-            addAuditLog("DIVIDEN_PAID", `Mencatat dividen cair: ${periode} (Rp ${nominal})`, "success");
-            await loadRaporInvestor();
-            document.getElementById('modal-rapor-investor').classList.remove('active');
-            loadingInstance.dismiss();
-            toast.success("Dividen berhasil dicatat!");
-        } else {
-            loadingInstance.dismiss(); toast.error("Gagal mencatat dividen!");
-        }
-    }
-
-    window.setBudgetTarget = function() {
-        document.getElementById('input-budget-nominal').value = targetProfitBulanan || "";
-        document.getElementById('modal-budget-target').classList.add('active');
-        setTimeout(() => document.getElementById('input-budget-nominal').focus(), 100);
-    }
-
-    window.simpanBudgetTarget = async function() {
-        let input = document.getElementById('input-budget-nominal').value;
-        if (input !== "" && !isNaN(parseInt(input)) && parseInt(input) >= 0) {
-            targetProfitBulanan = parseInt(input);
-            renderBudgetTarget(); 
-            document.getElementById('modal-budget-target').classList.remove('active');
-            handleUpdate("Target Net Profit berhasil diperbarui!");
-            addAuditLog("UPDATE_BUDGET", `Target Net Profit diatur menjadi Rp ${targetProfitBulanan.toLocaleString('id-ID')}`, "warning");
-            await supabaseClient.from('pengaturan').upsert([{ kunci: 'TARGET_PROFIT_BULANAN', nilai: targetProfitBulanan.toString() }]);
-        } else {
-            toast.error("Masukkan angka target yang valid (tanpa titik/koma)!");
-        }
-    }
-
-    window.populateSalesDropdown = function() {
-        const select = document.getElementById("input-jual-produk");
-        if(select) { 
-            let currentSelection = select.value;
+        let titleEl = document.getElementById("title-modal-stok");
+        let descEl = document.getElementById("desc-modal-stok");
+        let btnEl = document.getElementById("btn-simpan-stok");
+        if(titleEl) titleEl.innerText = "📦 Input Stok Gudang";
+        if(descEl) descEl.innerText = "Ketik produk baru atau pilih dari daftar.";
+        if(btnEl) btnEl.innerHTML = "💾 Simpan ke Gudang";
+        
+        const datalist = document.getElementById("list-stok-produk");
+        if(datalist) {
+            datalist.innerHTML = '';
             let semuaProduk = new Set(DAFTAR_VARIAN_DINAMIS);
             if (typeof masterGudang !== 'undefined') {
                 masterGudang.forEach(g => { if (g.nama_produk) semuaProduk.add(String(g.nama_produk).trim().toUpperCase()); });
             }
-            let listFinal = Array.from(semuaProduk).sort();
-            select.innerHTML = '<option value="">-- Pilih Produk --</option>';
-            listFinal.forEach(varian => {
-                if(varian !== "ALL" && varian !== "SEARCH") {
-                    let isSelected = (varian === currentSelection) ? "selected" : "";
-                    select.innerHTML += `<option value="${varian}" ${isSelected}>${varian}</option>`;
-                }
+            Array.from(semuaProduk).sort().forEach(varian => {
+                if(varian !== "ALL" && varian !== "SEARCH") { datalist.innerHTML += `<option value="${varian}">`; }
             });
         }
-        let tglSales = document.getElementById("input-jual-tgl");
-        let tglOpex = document.getElementById("input-opex-panel-tanggal");
-        let today = new Date().toISOString().split('T')[0];
-        if(tglSales && !tglSales.value) tglSales.value = today;
-        if(tglOpex && !tglOpex.value) tglOpex.value = today;
-    }
-
-    window.tambahStokMasuk = function() {
-        const select = document.getElementById("input-stok-produk");
-        select.innerHTML = '<option value="">-- Pilih Produk --</option>';
-        let semuaProduk = new Set(DAFTAR_VARIAN_DINAMIS);
-        if (typeof masterGudang !== 'undefined') {
-            masterGudang.forEach(g => { if (g.nama_produk) semuaProduk.add(String(g.nama_produk).trim().toUpperCase()); });
-        }
-        Array.from(semuaProduk).sort().forEach(varian => {
-            if(varian !== "ALL" && varian !== "SEARCH") { select.innerHTML += `<option value="${varian}">${varian}</option>`; }
-        });
-        document.getElementById("input-stok-qty").value = "";
-        document.getElementById("input-stok-hpp").value = "";
+        
+        let inputTgl = document.getElementById("input-stok-tanggal");
+        if(inputTgl) inputTgl.value = new Date().toISOString().split('T')[0];
+        let inputProd = document.getElementById("input-stok-produk");
+        if(inputProd) inputProd.value = "";
+        let inputQty = document.getElementById("input-stok-qty");
+        if(inputQty) inputQty.value = "";
+        let inputHpp = document.getElementById("input-stok-hpp");
+        if(inputHpp) inputHpp.value = "";
+        
         document.getElementById("modal-input-stok").classList.add('active');
     }
 
-    window.tutupModalStok = function() { document.getElementById("modal-input-stok").classList.remove('active'); }
+    window.editStokGudang = function(id, event) {
+        if(event) event.stopPropagation();
+        
+        let item = masterGudang.find(g => g.id === id);
+        if(!item) return;
+
+        editStokId = id;
+        
+        let titleEl = document.getElementById("title-modal-stok");
+        let descEl = document.getElementById("desc-modal-stok");
+        let btnEl = document.getElementById("btn-simpan-stok");
+        if(titleEl) titleEl.innerText = "✎ Edit Histori Gudang";
+        if(descEl) descEl.innerText = "Perbaiki kesalahan input tanggal, stok, atau modal.";
+        if(btnEl) btnEl.innerHTML = "💾 Update Data";
+
+        const datalist = document.getElementById("list-stok-produk");
+        if(datalist) {
+            datalist.innerHTML = '';
+            let semuaProduk = new Set(DAFTAR_VARIAN_DINAMIS);
+            masterGudang.forEach(g => { if (g.nama_produk) semuaProduk.add(String(g.nama_produk).trim().toUpperCase()); });
+            Array.from(semuaProduk).sort().forEach(varian => {
+                if(varian !== "ALL" && varian !== "SEARCH") { datalist.innerHTML += `<option value="${varian}">`; }
+            });
+        }
+
+        let curTgl = item.tanggal ? item.tanggal : (item.created_at ? item.created_at.split('T')[0] : new Date().toISOString().split('T')[0]);
+        document.getElementById("input-stok-tanggal").value = curTgl;
+        document.getElementById("input-stok-produk").value = item.nama_produk;
+        document.getElementById("input-stok-qty").value = item.stok_masuk;
+        document.getElementById("input-stok-hpp").value = item.hpp_satuan;
+
+        document.getElementById("modal-input-stok").classList.add('active');
+    }
+
+    window.tutupModalStok = function() { 
+        document.getElementById("modal-input-stok").classList.remove('active'); 
+        editStokId = null;
+    }
 
     window.autoFillHPPGudang = function() {
-        let produkPilihan = document.getElementById("input-stok-produk").value;
+        let inputProd = document.getElementById("input-stok-produk");
         let inputHpp = document.getElementById("input-stok-hpp");
+        if (!inputProd || !inputHpp) return;
+        
+        let produkPilihan = inputProd.value;
         if (!produkPilihan) { inputHpp.value = ""; return; }
+
+        if (editStokId !== null) return; 
 
         let hppSatuan = 0;
         if (typeof masterData !== 'undefined') {
             for (let i = masterData.length - 1; i >= 0; i--) { 
                 let item = masterData[i];
                 if (String(item.namaProduk || "").trim().toUpperCase() === produkPilihan.toUpperCase()) {
-                    let rawHpp = Number(item.hpp || 0); 
+                    let rawHpp = Number(item.hpp || 0);
                     let historyQty = Number(item.qty || 1);
                     if (rawHpp > 0) { hppSatuan = rawHpp / historyQty; break; }
                 }
             }
         }
-        if (hppSatuan > 0) { inputHpp.value = hppSatuan; } else { inputHpp.value = 0; }
+        if (hppSatuan > 0) { inputHpp.value = hppSatuan; }
     }
 
     window.simpanStokGudangPintar = async function() {
-        let namaProd = document.getElementById("input-stok-produk").value;
+        let tgl = document.getElementById("input-stok-tanggal").value;
+        let namaProd = document.getElementById("input-stok-produk").value.trim().toUpperCase();
         let stok = document.getElementById("input-stok-qty").value;
         let hpp = document.getElementById("input-stok-hpp").value;
 
-        if (!namaProd) { toast.error("Pilih produknya dulu Bos!"); return; }
-        if (!stok || isNaN(stok) || stok <= 0) { toast.error("Jumlah stok harus diisi dengan benar!"); return; }
-        if (!hpp || isNaN(hpp)) { toast.error("HPP tidak boleh kosong!"); return; }
+        if (!tgl) { toast.error("Tanggal Belanja harus diisi!"); return; }
+        if (!namaProd) { toast.error("Isi atau pilih nama produk!"); return; }
+        if (!stok || isNaN(stok) || stok <= 0) { toast.error("Jumlah stok tidak valid!"); return; }
+        if (!hpp || isNaN(hpp) || hpp < 0) { toast.error("Modal / HPP tidak valid!"); return; }
 
-        let payload = { nama_produk: namaProd, stok_masuk: parseInt(stok), hpp_satuan: parseFloat(hpp) };
+        let payload = { tanggal: tgl, nama_produk: namaProd, stok_masuk: parseInt(stok), hpp_satuan: parseFloat(hpp) };
+        let loadingInstance = toast.loading(editStokId ? "Memperbarui data..." : "Merekam ke Gudang Cloud...");
 
-        let loadingInstance = toast.loading("Merekam ke Gudang Cloud...");
-        const { error } = await supabaseClient.from('stok_gudang').insert([payload]);
-        
-        if (!error) {
-            addAuditLog("GUDANG_ADDED", `Stok masuk ${namaProd}: ${stok} Pcs`, "warning");
-            await loadDanRenderGudang();
-            tutupModalStok(); 
-            loadingInstance.dismiss(); toast.success("Mantap! Stok berhasil ditambahkan ke Gudang.");
-            handleUpload(); 
+        if (editStokId) {
+            const { error } = await supabaseClient.from('stok_gudang').update(payload).eq('id', editStokId);
+            if (!error) {
+                addAuditLog("GUDANG_EDITED", `Revisi stok ${namaProd} jadi ${stok} Pcs (${tgl})`, "warning");
+                await loadDanRenderGudang();
+                tutupModalStok(); 
+                loadingInstance.dismiss(); toast.success("Histori belanja diperbarui!");
+                handleUpload();
+            } else {
+                loadingInstance.dismiss(); toast.error("Gagal mengupdate stok di Supabase!");
+            }
         } else {
-            loadingInstance.dismiss(); toast.error("Gagal menyimpan stok ke Supabase!");
+            const { error } = await supabaseClient.from('stok_gudang').insert([payload]);
+            if (!error) {
+                addAuditLog("GUDANG_ADDED", `Stok masuk ${namaProd}: ${stok} Pcs (${tgl})`, "success");
+                await loadDanRenderGudang();
+                tutupModalStok(); 
+                loadingInstance.dismiss(); toast.success("Stok berhasil ditambahkan ke Gudang.");
+                handleUpload();
+            } else {
+                loadingInstance.dismiss(); toast.error("Gagal menyimpan stok ke Supabase!");
+            }
         }
     }
 
-    async function hapusStok(id) {
+    window.hapusStok = async function(id, event) {
+        if(event) event.stopPropagation();
         if (!confirm("Yakin ingin menghapus catatan stok ini?")) return;
         let loadingInstance = toast.loading("Menghapus dari Gudang...");
         const { error } = await supabaseClient.from('stok_gudang').delete().eq('id', id);
@@ -3198,64 +3197,15 @@
         if (!tbody) return;
         
         let targetInput = document.getElementById("input-target-hari");
-        let targetHari = targetInput ? (parseInt(targetInput.value) || 1) : 35;
+        let targetHari = targetInput ? (parseInt(targetInput.value) || 1) : 7; // Default lu minta 7 hari kan
 
-        let panelBox = document.querySelector("#procurement-panel .bg-slate-900");
-        if(panelBox && !targetInput) {
-            let header = panelBox.querySelector(".flex.justify-between.items-center.mb-6");
-            if(header) {
-                header.insertAdjacentHTML('afterend', `
-                    <div class="mb-6 bg-slate-950 p-5 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-inner">
-                        <div>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Kendali Target Stok Aman</span>
-                            <div class="flex items-center gap-3">
-                                <button onclick="document.getElementById('input-target-hari').value=7; renderProcurement();" class="text-[10px] bg-slate-900 border border-slate-700 text-slate-400 hover:text-white px-2 py-1 rounded transition cursor-pointer">7 Hari</button>
-                                <button onclick="document.getElementById('input-target-hari').value=14; renderProcurement();" class="text-[10px] bg-slate-900 border border-slate-700 text-slate-400 hover:text-white px-2 py-1 rounded transition cursor-pointer">14 Hari</button>
-                                <input type="number" id="input-target-hari" value="35" min="1" onchange="renderProcurement()" onkeyup="renderProcurement()" class="w-16 bg-slate-900 border border-yellow-500/50 text-yellow-400 font-bold text-center text-sm px-2 py-1.5 rounded-lg focus:border-yellow-500 focus:outline-none transition-all shadow-[0_0_10px_rgba(234,179,8,0.1)]">
-                                <span class="text-xs font-bold text-slate-300">Hari Ke Depan</span>
-                            </div>
-                        </div>
-                        <div class="text-left sm:text-right">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Status Mode</span>
-                            <span id="status-mode-belanja" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded border border-emerald-500/20">Mode Normal (Bulanan)</span>
-                        </div>
-                    </div>
-                `);
-                targetHari = 35; 
-            }
-        }
-
-        let statusText = document.getElementById("status-mode-belanja");
-        if (statusText) {
-            if (targetHari <= 7) {
-                statusText.className = "text-xs font-bold text-rose-400 bg-rose-500/10 px-3 py-1.5 rounded border border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)]";
-                statusText.innerText = "Mode Darurat (Mingguan)";
-            } else if (targetHari <= 15) {
-                statusText.className = "text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded border border-amber-500/20";
-                statusText.innerText = "Mode Waspada (2 Mingguan)";
-            } else if (targetHari > 45) {
-                statusText.className = "text-xs font-bold text-sky-400 bg-sky-500/10 px-3 py-1.5 rounded border border-sky-500/20";
-                statusText.innerText = "Mode Longgar (Stok Panjang)";
-            } else {
-                statusText.className = "text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded border border-emerald-500/20";
-                statusText.innerText = "Mode Normal (Aman)";
-            }
-        }
-
-        let thTarget = document.querySelector("#tabel-procurement")?.parentElement?.querySelector("thead th:nth-child(4)");
-        if(thTarget) thTarget.innerHTML = `Target Beli <span class="text-[9px] text-yellow-500 block mt-1">(${targetHari} Hari Ke Depan)</span>`;
-
-        let totalBudget = 0;
-        let sumberDataGlobal = typeof masterData !== 'undefined' && masterData.length > 0 ? masterData : filteredData;
+        // ... [Kode UI Header Target Hari sama dengan aslinya, biarkan saja] ...
         
-        if (typeof masterGudang === 'undefined' || masterGudang.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">⚠️ Data Gudang Kosong! Input stok masuk terlebih dahulu.</td></tr>`;
-            return;
-        }
-
+        // 1. Kumpulkan Data Laku (Hanya >= 15 Juni)
         let rekapLakuCutOff = {};
-        const tanggalMulai = new Date("2026-06-15").getTime();
+        const tanggalMulai = new Date("2026-06-15T00:00:00").getTime();
         let waktuPertama = new Date().getTime(); 
+        let sumberDataGlobal = typeof masterData !== 'undefined' && masterData.length > 0 ? masterData : filteredData;
 
         sumberDataGlobal.forEach(item => {
             let tglTransaksi = new Date(item.tanggal || item.created_at || "2000-01-01").getTime();
@@ -3269,31 +3219,63 @@
             }
         });
 
+        // 2. Kalkulasi Umur Toko (sejak 15 Juni)
         let selisihWaktu = Math.abs(new Date().getTime() - waktuPertama);
         let totalHariOperasional = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24));
         if (totalHariOperasional < 1) totalHariOperasional = 1;
 
-        if(infoUmur) infoUmur.innerHTML = `Dianalisis dari <span class="font-bold text-slate-200">${totalHariOperasional} hari</span> sejak fitur diaktifkan.`;
+        if(infoUmur) infoUmur.innerHTML = `Dianalisis dari <span class="font-bold text-slate-200">${totalHariOperasional} hari</span> sejak Cut-Off 15 Juni.`;
         tbody.innerHTML = "";
 
-        masterGudang.forEach(g => {
-            let nama = String(g.nama_produk).trim().toUpperCase();
+        // 3. DINAMIS: Gabungkan semua nama produk dari TRANSAKSI dan GUDANG
+        let semuaProdukCenayang = new Set([
+            ...Object.keys(rekapLakuCutOff),
+            ...(typeof masterGudang !== 'undefined' ? masterGudang.map(g => String(g.nama_produk).trim().toUpperCase()) : [])
+        ]);
+
+        if (semuaProdukCenayang.size === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 font-bold">Belum ada pergerakan transaksi atau data gudang sejak 15 Juni.</td></tr>`;
+            return;
+        }
+
+        let totalBudget = 0;
+
+        // 4. Kalkulasi Cenayang per Produk
+        Array.from(semuaProdukCenayang).sort().forEach(nama => {
             let totalTerjual = rekapLakuCutOff[nama] || 0;
             
-            let stokAwal = Number(g.stok_masuk);
-            let sisaFisik = stokAwal - totalTerjual;
-            if (sisaFisik < 0) sisaFisik = 0; 
-            
+            // Hitung Stok Awal & HPP dari Gudang
+            let stokAwal = 0;
+            let hpp = 0;
+            if (typeof masterGudang !== 'undefined') {
+                masterGudang.forEach(g => {
+                    if(String(g.nama_produk).trim().toUpperCase() === nama) {
+                        stokAwal += Number(g.stok_masuk);
+                        hpp = Number(g.hpp_satuan) || hpp;
+                    }
+                });
+            }
+
+            // Kalau HPP belum di-set di gudang, tembak dari history transaksi terbaru
+            if (hpp === 0) {
+                for (let i = sumberDataGlobal.length - 1; i >= 0; i--) {
+                    if (String(sumberDataGlobal[i].namaProduk).trim().toUpperCase() === nama) {
+                        let hppRaw = Number(sumberDataGlobal[i].hpp || 0);
+                        let qtyRaw = Number(sumberDataGlobal[i].qty || 1);
+                        if (hppRaw > 0) { hpp = hppRaw / qtyRaw; break; }
+                    }
+                }
+            }
+
+            let sisaFisik = Math.max(0, stokAwal - totalTerjual);
             let jualPerHari = totalTerjual / totalHariOperasional; 
             let kebutuhanTarget = Math.ceil(jualPerHari * targetHari); 
             let saranBeli = Math.max(0, kebutuhanTarget - sisaFisik);
-            
-            let hpp = Number(g.hpp_satuan) || 0;
             let budget = saranBeli * hpp;
             
             totalBudget += budget;
 
-            if (saranBeli > 0 || totalTerjual > 0) {
+            if (saranBeli > 0 || totalTerjual > 0 || sisaFisik > 0) {
                 let classRow = saranBeli > 0 ? "hover:bg-slate-800/40 transition-colors border-b border-slate-800/50" : "opacity-50 hover:opacity-100 transition-colors border-b border-slate-800/50";
                 let kolomSaranBeli = saranBeli > 0 
                     ? `<span class="bg-yellow-900/30 text-yellow-500 border border-yellow-700/50 px-3 py-1 rounded-lg font-black text-sm shadow-sm">${saranBeli} <span class="text-[10px] font-normal">Pcs</span></span>`
@@ -3305,7 +3287,7 @@
                 tbody.innerHTML += `
                     <tr class="${classRow}">
                         <td class="p-4 font-bold text-slate-200">${nama}</td>
-                        <td class="p-4 text-center font-medium text-slate-400">${sisaFisik}</td>
+                        <td class="p-4 text-center font-medium ${sisaFisik === 0 ? 'text-rose-500' : 'text-slate-400'}">${sisaFisik}</td>
                         <td class="p-4 text-center font-medium text-slate-400">${jualPerHari.toFixed(2)}</td>
                         <td class="p-4 text-center">${kolomSaranBeli}</td>
                         <td class="p-4 text-right font-black tracking-wide">${kolomBudget}</td>
