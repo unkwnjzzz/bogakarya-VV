@@ -1213,43 +1213,77 @@
 
     async function handleAuthSuccess(user) {
         currentUser = buildCurrentUser(user);
-        
-        // 1. Munculkan Layar Genjutsu
+
+        // =======================================================
+        // 🛑 FORCE LOCKDOWN 1 MINGGU (PINTU GERBANG UTAMA)
+        // =======================================================
+        let isMaintenanceMode = true; // KUNCI MATI DARI SINI
+
+        if (isMaintenanceMode) {
+            if (currentUser && currentUser.role === "OWNER") {
+                toast.info("🛠️ MAINTENANCE 1 MINGGU AKTIF. Bos bebas masuk.");
+            } else {
+                // TENDANG STAFF KELUAR & TAMPILKAN LAYAR MAINTENANCE
+                document.body.innerHTML = `
+                <div style="background:#050505; color:#cbd5e1; height:100vh; width:100vw; display:flex; justify-content:center; align-items:center; flex-direction:column; font-family:'Inter', sans-serif; text-align:center; padding:20px; z-index:99999; position:fixed; top:0; left:0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="#eab308" style="width: 80px; height: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(234,179,8,0.3));">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+                    </svg>
+                    <h1 style="color:#eab308; font-size:2.5rem; font-weight:800; letter-spacing: 0.1em; margin-bottom:12px;">SYSTEM MAINTENANCE</h1>
+                    <p style="color:#94a3b8; font-size:1rem; max-width: 500px; line-height: 1.6; margin-bottom: 24px;">
+                        Akses ERP ditutup sementara untuk <b>1 MINGGU</b> ke depan.<br>Manajemen sedang melakukan perombakan mesin dan UI/UX besar-besaran.
+                    </p>
+                    <p style="color:#ef4444; font-size:0.85rem; font-weight:600; background:rgba(239,68,68,0.1); padding:8px 16px; border-radius:8px; border: 1px solid rgba(239,68,68,0.2);">
+                        ⚠️ Harap gunakan pencatatan manual (Excel/Buku) hingga ada instruksi lanjutan.
+                    </p>
+                </div>`;
+                
+                if (typeof supabaseClient !== 'undefined') {
+                    await supabaseClient.auth.signOut(); 
+                }
+                return; // STOP! JANGAN LANJUT KE DALAM APLIKASI
+            }
+        }
+        // =======================================================
+
+        // 1. Munculkan Layar Genjutsu (Loading)
         const overlay = document.getElementById('genjutsu-overlay');
         const eye = document.getElementById('sharingan-eye');
-        
-        overlay.classList.remove('hidden');
+        if (overlay) overlay.classList.remove('hidden');
         
         // Kasih jeda dikit biar display block jalan, baru kita fade-in dan putar matanya
         setTimeout(() => {
-            overlay.classList.remove('opacity-0');
-            overlay.classList.add('opacity-100');
-            
+            if (overlay) {
+                overlay.classList.remove('opacity-0');
+                overlay.classList.add('opacity-100');
+            }
+            if (eye) eye.classList.add('mangekyou-active');
         }, 50);
 
-        // 2. Tahan 2.5 Detik (Selama Animasi Tsukuyomi Jalan)
+        // 2. Tahan 2.5 Detik (Selama Animasi Loading Jalan)
         setTimeout(async () => {
             // Sembunyikan layar login, munculkan aplikasi
-            document.getElementById("login-layar").classList.add("hidden");
-            document.getElementById("app-layar").classList.remove("hidden");
+            let loginLayar = document.getElementById("login-layar");
+            let appLayar = document.getElementById("app-layar");
+            if (loginLayar) loginLayar.classList.add("hidden");
+            if (appLayar) appLayar.classList.remove("hidden");
             
             // Render UI sesuai role & tarik data
             updateHeaderUI();
             aturTampilanBerdasarkanRole();
             await fetchData();
 
-            // Fade-out layar genjutsu nya
-            overlay.classList.remove('opacity-100');
-            overlay.classList.add('opacity-0');
-            
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-                
-            }, 500);
-
-        }, 2500); // Waktu Tsukuyomi
+            // Fade-out layar loading nya
+            if (overlay) {
+                overlay.classList.remove('opacity-100');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    if (eye) eye.classList.remove('mangekyou-active'); // Reset animasi buat next login
+                }, 500);
+            }
+        }, 2500); // Waktu Loading
     }
-
     document.addEventListener("DOMContentLoaded", async () => {
         initDarkMode(); mulaiJamLive();
         document.addEventListener('keydown', (e) => {
@@ -3497,6 +3531,40 @@
         }, 500);
 
         
+    };
+    // ==========================================
+    // 🛑 FORCE LOCKDOWN 1 MINGGU (OVERRIDE ENGINE)
+    // ==========================================
+    window.cekStatusMaintenance = async function() {
+        let isMaintenanceMode = true; // KUNCI MATI DARI SINI, GAK BUTUH DATABASE
+
+        if (isMaintenanceMode) {
+            if (currentUser && currentUser.role === "OWNER") {
+                toast.info("🛠️ MAINTENANCE 1 MINGGU AKTIF. Bos bebas masuk.");
+                return false; // BOS AMAN JAYA BISA MASUK
+            } else {
+                // TAMPILAN BLOKIR STAFF
+                document.body.innerHTML = `
+                <div style="background:#050505; color:#cbd5e1; height:100vh; width:100vw; display:flex; justify-content:center; align-items:center; flex-direction:column; font-family:'Inter', sans-serif; text-align:center; padding:20px; z-index:99999; position:fixed; top:0; left:0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="#eab308" style="width: 80px; height: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(234,179,8,0.3));">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+                    </svg>
+                    <h1 style="color:#eab308; font-size:2.5rem; font-weight:800; letter-spacing: 0.1em; margin-bottom:12px;">SYSTEM MAINTENANCE</h1>
+                    <p style="color:#94a3b8; font-size:1rem; max-width: 500px; line-height: 1.6; margin-bottom: 24px;">
+                        Akses ERP ditutup sementara untuk <b>1 MINGGU</b> ke depan.<br>Manajemen sedang melakukan perombakan mesin dan UI/UX besar-besaran.
+                    </p>
+                    <p style="color:#ef4444; font-size:0.85rem; font-weight:600; background:rgba(239,68,68,0.1); padding:8px 16px; border-radius:8px; border: 1px solid rgba(239,68,68,0.2);">
+                        ⚠️ Harap gunakan pencatatan manual (Excel/Buku) hingga ada instruksi lanjutan.
+                    </p>
+                </div>`;
+                
+                if (typeof supabaseClient !== 'undefined') {
+                    await supabaseClient.auth.signOut(); 
+                }
+                return true; // TENDANG KELUAR SELAIN BOS
+            }
+        }
+        return false;
     };
     </script>
 </body>
