@@ -2537,168 +2537,152 @@ function renderProcurement() {
         tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">🎉 STOK LUAR BIASA AMAN! Belum ada proyeksi belanja vendor untuk 35 hari ke depan. Duit lu aman Bos! 🍻</td></tr>`;
     }
 }
-// ==========================================
-// 🔥 FITUR ANTI-AMNESIA (SAVE FILTER UI)
-// ==========================================
+// =====================================================================
+    // 🚀 EXECUTIVE OVERRIDE V2.9.4 (VERCEL READY - FULL BUG FIXES)
+    // =====================================================================
 
-// 1. MESIN PENYEDOT INGATAN (Jalan pas baru login/refresh)
-async function loadIngatanFilter() {
-    // Cek siapa yang lagi login. Kalau belum ada sistem login, defaultnya "Guest"
-    let namaAkun = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.nama : "Guest";
-    
-    try {
-        const { data, error } = await supabaseClient
-            .from('pengaturan_user')
-            .select('filter_bulan')
-            .eq('nama_akun', namaAkun)
-            .maybeSingle();
+    // 1. SAFE MAINTENANCE SYSTEM & LOGIN LOCK (FIX BUG currentUser null)
+    window.handleAuthSuccess = async function(user) {
+        const sessionUser = buildCurrentUser(user);
+        currentUser = sessionUser; 
 
-        let selectBulan = document.getElementById("filter-bulan");
+        // 🛠️ SETTING MAINTENANCE (Gw set 'false' biar sistem lu langsung bisa dipakai)
+        let isMaintenanceMode = false; 
         
-        // Kalau ingetannya ada di Supabase, pakai itu. Kalau kosong, pake "ALL".
-        if (data && data.filter_bulan) {
-            bulanAktif = data.filter_bulan;
-        } else {
-            bulanAktif = "ALL"; 
+        if (isMaintenanceMode && sessionUser.role !== "OWNER") {
+            document.body.innerHTML = `
+            <div style="background:#050505; color:#cbd5e1; height:100vh; width:100vw; display:flex; justify-content:center; align-items:center; flex-direction:column; font-family:'Inter', sans-serif; text-align:center; padding:20px; z-index:99999; position:fixed; top:0; left:0;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="#eab308" style="width: 80px; height: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(234,179,8,0.3));">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+                </svg>
+                <h1 style="color:#eab308; font-size:2.5rem; font-weight:800; letter-spacing: 0.1em; margin-bottom:12px;">SYSTEM MAINTENANCE</h1>
+                <p style="color:#94a3b8; font-size:1rem; max-width: 500px; line-height: 1.6; margin-bottom: 24px;">
+                    ERP system is temporarily closed for 1 week for server upgrades.<br>Please use manual spreadsheet recording for current operations.
+                </p>
+            </div>`;
+            if (typeof supabaseClient !== 'undefined') await supabaseClient.auth.signOut(); 
+            return; 
+        }
+        
+        if (isMaintenanceMode && sessionUser.role === "OWNER") {
+            toast.info("🛠️ MAINTENANCE ACTIVE: Owner access granted.");
         }
 
-        // Setel ke layar dan ubah grafiknya
-        if (selectBulan) selectBulan.value = bulanAktif;
-        if (typeof aplikasikanFilter === "function") aplikasikanFilter(); // Pastikan nama fungsi render lu ini
-        
-    } catch (err) {
-        console.error("Gagal nyedot ingatan dari Supabase:", err);
-    }
-}
-
-// 2. MESIN PENYIMPAN INGATAN (Dipanggil pas user ganti filter)
-// Catatan: Kodingan ini bakal NIMPA fungsi lu yang lama, jadi ini versi updatenya!
-async function terapkanFilterBulan() { 
-    let selectBulan = document.getElementById("filter-bulan");
-    if (!selectBulan) return;
-    
-    bulanAktif = selectBulan.value; 
-    
-    // Langsung ubah tampilan grafik & tabel biar user gak nunggu
-    if (typeof aplikasikanFilter === "function") aplikasikanFilter(); 
-    
-    // Simpan ingatan ke Supabase secara diam-diam di belakang layar
-    let namaAkun = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.nama : "Guest";
-    if (namaAkun !== "Guest") {
-        const { error } = await supabaseClient
-            .from('pengaturan_user')
-            .upsert({ nama_akun: namaAkun, filter_bulan: bulanAktif });
-            
-        if (error) console.error("Gagal menyimpan ingatan filter:", error);
-    }
-}
-// ==========================================
-    // 🔒 OVERRIDE: MESIN KACA PIN FINANCE
-    // ==========================================
-    window.bukaTabInternal = function(event) {
-        if (!isInternalUnlocked) {
-            document.getElementById("modal-pin-finance").classList.add("active");
-            document.getElementById("input-pin-finance").value = "";
-            document.getElementById("input-pin-finance").focus();
-            return;
-        }
-        switchTab('internal', event);
-        renderManajemenArea();
+        document.getElementById("login-layar").classList.add("hidden");
+        document.getElementById("app-layar").classList.remove("hidden");
+        updateHeaderUI(); 
+        aturTampilanBerdasarkanRole(); 
+        await fetchData();
     };
 
-    window.verifikasiPinFinance = function() {
-        let inputPin = document.getElementById("input-pin-finance").value;
-        if (inputPin === PIN_RAHASIA) {
-            isInternalUnlocked = true;
-            document.getElementById("modal-pin-finance").classList.remove("active");
-            toast.success("✅ Akses Diberikan Boss.");
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('bg-slate-800/80', 'text-slate-200'));
-            let targetTab = document.getElementById('internal');
-            if (targetTab) targetTab.classList.add('active');
-            let btnInternal = document.getElementById("tab-btn-internal");
-            if (btnInternal) btnInternal.classList.add('bg-slate-800/80', 'text-slate-200');
-            renderManajemenArea();
-        } else {
-            toast.error("❌ PIN Salah!");
-            document.getElementById("input-pin-finance").value = "";
-            document.getElementById("input-pin-finance").focus();
-        }
-    };
-    window.populateSalesDropdown = function() {
-     const select = document.getElementById("input-jual-produk");
-     if(select) { 
-         let currentSelection = select.value;
-         let semuaProduk = new Set(DAFTAR_VARIAN_DINAMIS);
-         if (typeof masterGudang !== 'undefined') { masterGudang.forEach(g => { if (g.nama_produk) semuaProduk.add(String(g.nama_produk).trim().toUpperCase()); }); }
-         let listFinal = Array.from(semuaProduk).sort();
-         select.innerHTML = '<option value="">-- Pilih Produk --</option>';
-         listFinal.forEach(varian => {
-             if(varian !== "ALL" && varian !== "SEARCH" && varian !== "") {
-                 let isSelected = (varian === currentSelection) ? "selected" : "";
-                 select.innerHTML += `<option value="${varian}" ${isSelected}>${varian}</option>`;
-             }
-         });
-     }
-     let tglSales = document.getElementById("input-jual-tgl");
-     if(tglSales && !tglSales.value) tglSales.value = new Date().toISOString().split('T')[0];
- };
-
- // ==========================================
-    // 🖨️ OVERRIDE: MESIN CETAK CENAYANG BELANJA
-    // ==========================================
-    window.cetakListBelanja = function() {
-        let tbody = document.getElementById("tabel-procurement");
-        let printBody = document.getElementById("belanja-print-body");
-        if (!tbody || tbody.innerText.includes("Menghitung") || tbody.innerText.includes("Belum ada")) {
-            alert("Harap tunggu sistem menganalisa data belanja terlebih dahulu.");
+    // 2. FIX RADAR PROCUREMENT (MENGGUNAKAN MASTERDATA)
+    window.renderProcurement = function() {
+        const tbody = document.getElementById("tabel-procurement");
+        const infoUmur = document.getElementById("info-umur-toko");
+        if (!tbody) return;
+        
+        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 animate-pulse">Menghitung proyeksi belanja... 🔮</td></tr>`;
+        
+        let sumberDataGlobal = typeof masterData !== 'undefined' ? masterData : [];
+        if (sumberDataGlobal.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 text-xs">Belum ada data transaksi yang termuat.</td></tr>`;
             return;
         }
 
-        let htmlTabel = "";
-        Array.from(tbody.querySelectorAll("tr")).forEach(tr => {
-            let cols = tr.querySelectorAll("td");
-            if(cols.length === 5) {
-                htmlTabel += `<tr>
-                    <td class="border border-black p-2">${cols[0].innerText}</td>
-                    <td class="border border-black p-2 text-center">${cols[1].innerText}</td>
-                    <td class="border border-black p-2 text-center font-bold">${cols[3].innerText.replace(' Pcs', '')}</td>
-                    <td class="border border-black p-2 text-right">${cols[4].innerText}</td>
-                    <td class="border border-black p-2 text-center">🔲</td>
-                </tr>`;
-            } else if (cols.length === 2) { 
-                 htmlTabel += `<tr class="bg-gray-200 font-bold border-t-2 border-black">
-                    <td colspan="3" class="border border-black p-2 text-right">${cols[0].innerText}</td>
-                    <td colspan="2" class="border border-black p-2 text-left text-lg">${cols[1].innerText}</td>
-                </tr>`;
+        let rekapLakuAllTime = {};
+        let waktuPertama = new Date().getTime();
+        
+        sumberDataGlobal.forEach(item => {
+            if (item.tanggal) {
+                let parsed = new Date(item.tanggal).getTime();
+                if (!isNaN(parsed) && parsed < waktuPertama) waktuPertama = parsed;
+            }
+            let status = String(item.status || "").toUpperCase();
+            if (status === "READY" || status === "PAID") {
+                let nama = String(item.namaProduk).trim().toUpperCase();
+                if (nama) rekapLakuAllTime[nama] = (rekapLakuAllTime[nama] || 0) + Number(item.qty || 0);
             }
         });
 
-        printBody.innerHTML = htmlTabel;
-        document.getElementById("belanja-print-tanggal").innerText = new Date().toLocaleString('id-ID');
+        let selisihWaktu = Math.abs(new Date().getTime() - waktuPertama);
+        let totalHariOperasional = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24)) || 1;
 
-        // MURNI MESIN V2.8 (Aman dari Blank)
-        document.getElementById("app-layar").style.display = "none"; 
-        document.getElementById("print-area-belanja").classList.remove("hidden");
-        
-        window.print();
-        
-        document.getElementById("print-area-belanja").classList.add("hidden"); 
-        document.getElementById("app-layar").style.display = "flex";
-        if(typeof addAuditLog === 'function') addAuditLog("PRINT_VENDOR", "Mencetak daftar belanja", "info");
+        if(infoUmur) infoUmur.innerHTML = `Dianalisis dari <span class="font-bold text-slate-200">${totalHariOperasional} hari</span> operasional toko.`;
+
+        let semuaProduk = new Set(Object.keys(rekapLakuAllTime));
+        if (typeof masterGudang !== 'undefined') {
+            masterGudang.forEach(g => { if (g.nama_produk) semuaProduk.add(String(g.nama_produk).trim().toUpperCase()); });
+        }
+
+        tbody.innerHTML = "";
+        let totalBudget = 0;
+
+        Array.from(semuaProduk).sort().forEach(nama => {
+            let totalTerjual = rekapLakuAllTime[nama] || 0;
+            let stokAwal = 0, hpp = 0;
+            
+            if (typeof masterGudang !== 'undefined') {
+                masterGudang.forEach(g => {
+                    if (String(g.nama_produk).trim().toUpperCase() === nama) {
+                        stokAwal += Number(g.stok_masuk || 0);
+                        hpp = Number(g.hpp_satuan) || hpp;
+                    }
+                });
+            }
+
+            let sisaFisik = Math.max(0, stokAwal - totalTerjual);
+            let jualPerHari = totalTerjual / totalHariOperasional; 
+            let kebutuhanBulanDepan = Math.ceil(jualPerHari * 35); 
+            let saranBeli = Math.max(0, kebutuhanBulanDepan - sisaFisik);
+            let budget = saranBeli * hpp;
+
+            totalBudget += budget;
+
+            let classRow = saranBeli > 0 ? "hover:bg-slate-800/40 transition-colors border-b border-slate-800/50" : "opacity-60 border-b border-slate-800/50";
+            let kolomSaranBeli = saranBeli > 0 
+                ? `<span class="bg-yellow-900/30 text-yellow-500 border border-yellow-700/50 px-3 py-1 rounded-lg font-black text-sm shadow-sm">${saranBeli} <span class="text-[10px] font-normal">Pcs</span></span>`
+                : `<span class="text-slate-500 text-[10px] font-bold uppercase tracking-widest border border-slate-800 px-2 py-1 rounded bg-slate-950">Aman</span>`;
+            let kolomBudget = saranBeli > 0 ? `<span class="text-emerald-400">Rp ${budget.toLocaleString('id-ID')}</span>` : `<span class="text-slate-600">-</span>`;
+
+            tbody.innerHTML += `
+                <tr class="${classRow}">
+                    <td class="p-4 font-bold text-slate-200">${nama}</td>
+                    <td class="p-4 text-center font-medium ${sisaFisik === 0 ? 'text-rose-500' : 'text-slate-400'}">${sisaFisik}</td>
+                    <td class="p-4 text-center text-slate-400 font-mono">${jualPerHari.toFixed(2)}</td>
+                    <td class="p-4 text-center">${kolomSaranBeli}</td>
+                    <td class="p-4 text-right font-black tracking-wide">${kolomBudget}</td>
+                </tr>`;
+        });
+
+        if (totalBudget > 0) {
+            tbody.innerHTML += `
+                <tr class="bg-slate-900 border-t-4 border-slate-800">
+                    <td colspan="4" class="p-5 text-right font-black text-slate-400 uppercase tracking-widest text-xs">Total Modal Disiapkan:</td>
+                    <td class="p-5 text-right font-black text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">Rp ${totalBudget.toLocaleString('id-ID')}</td>
+                </tr>`;
+        } else {
+             tbody.innerHTML += `<tr><td colspan="5" class="p-6 text-center text-emerald-500 font-bold bg-emerald-900/10 border-t border-emerald-500/20">🎉 STOK LUAR BIASA AMAN UNTUK 35 HARI KE DEPAN!</td></tr>`;
+        }
     };
 
-    // =========================================================
-    // 🗓️ OVERRIDE: FIX TANGGAL TRANSAKSI KOSONG & URUTAN TABEL
-    // =========================================================
-
-    // 1. Ajarin mesin buat baca kolom "created_at" dari Supabase
+    // 3. MAP DATA GOOGLE SHEET SECARA VALID (FIX TANGGAL ERROR)
     window.mapTransaksiRow = function(row) {
-        // Tarik tanggal dari kolom apapun (prioritas ke created_at kalau ada)
         let tglRaw = row.tanggal || row.Tanggal || row.created_at || new Date().toISOString();
+        let d = new Date(tglRaw);
         
-        // Bersihkan formatnya biar rapi (Ambil YYYY-MM-DD nya aja)
-        let tglFinal = String(tglRaw).includes("T") ? tglRaw.split("T")[0] : tglRaw;
+        if (isNaN(d.getTime())) {
+            let p = String(tglRaw).split(/[-/]/);
+            if (p.length >= 3) d = (p[0].length === 4) ? new Date(`${p[0]}/${p[1]}/${p[2]}`) : new Date(`${p[2]}/${p[1]}/${p[0]}`);
+        }
+        
+        let tglFinal = tglRaw, periodeStr = "ALL";
+        if (!isNaN(d.getTime())) {
+            let yyyy = d.getFullYear();
+            let mm = String(d.getMonth() + 1).padStart(2, '0');
+            let dd = String(d.getDate()).padStart(2, '0');
+            tglFinal = `${yyyy}-${mm}-${dd}`;
+            periodeStr = `${yyyy}-${mm}`;
+        }
         
         return {
             tanggal: tglFinal,
@@ -2709,12 +2693,11 @@ async function terapkanFilterBulan() {
             settlement: Number(row.settlement || row.Settlement || 0),
             hpp: Number(row.hpp || row.HPP || 0),
             labaKotor: Number(row.laba_kotor || row.labaKotor || row.LabaKotor || 0),
-            periodeBulan: tglFinal.substring(0, 7) // Bikin format YYYY-MM buat filter
+            periodeBulan: periodeStr
         };
     };
 
-    // 2. Benerin urutan tabel biar Transaksi TERBARU ada di PALING ATAS
-    // 2. Benerin urutan tabel: DARI LAMA KE BARU (Ascending)
+    // 4. DATA CHRONOLOGICAL SORTING ORDER (LAMA KE BARU)
     window.aplikasikanFilter = function() {
         filteredData = masterData.filter(item => {
             let cocokNama = true;
@@ -2723,22 +2706,16 @@ async function terapkanFilterBulan() {
             } else if (varianAktif !== "ALL") {
                 cocokNama = String(item.namaProduk||"").trim().toUpperCase() === varianAktif;
             }
-            
             let statusUpper = String(item.status||"WAITING").toUpperCase();
             let cocokStatus = (statusAktif === "ALL") || (statusUpper === statusAktif);
             let cocokBulan = (bulanAktif === "ALL" || item.periodeBulan === bulanAktif);
-            
             return cocokNama && cocokStatus && cocokBulan;
         });
 
-        // 🔥 FIX URUTAN: Ascending (Paling Lama = Paling Atas, Paling Baru = Paling Bawah)
         filteredData.sort((a, b) => {
             let tglA = new Date(a.tanggal).getTime();
             let tglB = new Date(b.tanggal).getTime();
-            // Kalau tanggal kosong/error, urutkan pakai abjad
             if (isNaN(tglA) || isNaN(tglB)) return String(a.tanggal).localeCompare(String(b.tanggal));
-            
-            // Rumus Lama ke Baru
             return tglA - tglB; 
         });
 
@@ -2755,9 +2732,102 @@ async function terapkanFilterBulan() {
         if (typeof renderBudgetTarget === "function") renderBudgetTarget();
     };
 
-    // Trigger paksa biar mesin narik ulang datanya saat baru di-save
-    setTimeout(() => { if (masterData.length > 0) handleUpload(); }, 500);
+    // ==========================================
+    // 🔥 FITUR ANTI-AMNESIA (SAVE FILTER UI)
+    // ==========================================
+    window.loadIngatanFilter = async function() {
+        let namaAkun = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.nama : "Guest";
+        try {
+            const { data, error } = await supabaseClient
+                .from('pengaturan_user')
+                .select('filter_bulan')
+                .eq('nama_akun', namaAkun)
+                .maybeSingle();
+            
+            let selectBulan = document.getElementById("filter-bulan");
+            bulanAktif = (data && data.filter_bulan) ? data.filter_bulan : "ALL";
+            
+            if (selectBulan) selectBulan.value = bulanAktif;
+            if (typeof aplikasikanFilter === "function") aplikasikanFilter(); 
+        } catch (err) {
+            console.error("Gagal nyedot ingatan dari Supabase:", err);
+        }
+    };
 
+    window.terapkanFilterBulan = async function() { 
+        let selectBulan = document.getElementById("filter-bulan");
+        if (!selectBulan) return;
+        
+        bulanAktif = selectBulan.value; 
+        if (typeof aplikasikanFilter === "function") aplikasikanFilter(); 
+        
+        let namaAkun = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.nama : "Guest";
+        if (namaAkun !== "Guest" && typeof supabaseClient !== 'undefined') {
+            await supabaseClient.from('pengaturan_user').upsert({ nama_akun: namaAkun, filter_bulan: bulanAktif });
+        }
+    };
+
+    // =========================================================
+    // 📝 OVERRIDE: FIX CETAK P&L INTERNAL (REKAP OPEX RAPI)
+    // =========================================================
+    window.cetakLaporanInternal = function() {
+        let sb = document.getElementById("filter-bulan");
+        if(sb && document.getElementById("internal-print-periode")) {
+            document.getElementById("internal-print-periode").innerText = sb.options[sb.selectedIndex].text.toUpperCase();
+        }
+        
+        let opexAktif = bulanAktif === "ALL" ? masterOpex : masterOpex.filter(o => o.periode === bulanAktif);
+        let totalOpex = 0;
+        let rekapOpex = {}; // Wadah buat numpukin kata yang sama
+
+        // 🧠 MESIN PENGGABUNG KATA (GROUPING OPEX)
+        opexAktif.forEach(item => { 
+            let nominal = Number(item.nominal);
+            totalOpex += nominal; 
+            
+            // Samain huruf besar/kecil dan buang spasi lebih biar nggak dobel
+            let namaBiaya = String(item.note).trim().toUpperCase();
+            
+            // Kalau namanya belum ada di wadah, buatin baru. Kalau udah ada, tambahin angkanya.
+            if (!rekapOpex[namaBiaya]) {
+                rekapOpex[namaBiaya] = 0;
+            }
+            rekapOpex[namaBiaya] += nominal;
+        });
+
+        // 🎨 RENDER KE HTML (Diurutkan dari pengeluaran terbesar ke terkecil)
+        let opexListHtml = "";
+        if (Object.keys(rekapOpex).length === 0) {
+            opexListHtml = "<li>Tidak ada catatan biaya operasional khusus di periode ini.</li>";
+        } else {
+            Object.entries(rekapOpex)
+                .sort((a, b) => b[1] - a[1]) // Urutin dari yang paling boros di atas
+                .forEach(([namaBiaya, totalBiaya]) => {
+                    opexListHtml += `<li>${namaBiaya}: Rp ${totalBiaya.toLocaleString('id-ID')}</li>`;
+                });
+        }
+        
+        // TEMBAK ANGKA KE KERTAS PRINT
+        if(document.getElementById("print-int-omset")) document.getElementById("print-int-omset").innerText = formatRupiah(currentSettleGlobal);
+        if(document.getElementById("print-int-hpp")) document.getElementById("print-int-hpp").innerText = formatRupiah(currentHPPGlobal);
+        if(document.getElementById("print-int-laba-kotor")) document.getElementById("print-int-laba-kotor").innerText = formatRupiah(currentLabaKotorGlobal); 
+        if(document.getElementById("print-int-invs")) document.getElementById("print-int-invs").innerText = formatRupiah(currentInvsGlobal);
+        if(document.getElementById("print-int-owner-gross")) document.getElementById("print-int-owner-gross").innerText = formatRupiah(currentOwnerGross);
+        
+        if(document.getElementById("print-int-opex")) document.getElementById("print-int-opex").innerText = "- " + formatRupiah(totalOpex);
+        if(document.getElementById("print-int-opex-list")) document.getElementById("print-int-opex-list").innerHTML = opexListHtml; 
+        if(document.getElementById("print-int-net")) document.getElementById("print-int-net").innerText = formatRupiah(currentOwnerGross - totalOpex);
+        
+        // MURNI MESIN PRINT V2.8 (Aman dari Blank)
+        document.getElementById("app-layar").style.display = "none"; 
+        document.getElementById("print-area-internal").classList.remove("hidden");
+        
+        window.print();
+        
+        document.getElementById("print-area-internal").classList.add("hidden"); 
+        document.getElementById("app-layar").style.display = "flex";
+    };
+    
     </script>
 </body>
 </html>
