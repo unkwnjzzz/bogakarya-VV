@@ -156,26 +156,57 @@
 
     <div id="sonner-toaster" class="no-print" aria-live="polite" aria-label="Notifikasi"></div>
 
-    <div id="login-layar" class="min-h-screen bg-slate-950 flex items-center justify-center absolute w-full h-full z-[100] no-print">
-        <div class="bg-slate-900/80 backdrop-blur-xl p-10 rounded-2xl border border-slate-800 shadow-[0_0_40px_rgba(0,0,0,0.5)] w-11/12 max-w-sm text-center">
-            <div class="w-16 h-16 bg-gradient-to-tr from-yellow-600 to-amber-400 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-yellow-500/20">
-                <span class="text-2xl font-bold text-slate-950">BK</span>
+    <div id="login-layar" class="h-screen w-full absolute top-0 left-0 z-[100] flex no-print bg-black">
+        <div class="hidden md:flex w-1/2 relative bg-slate-900 items-center justify-center overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=2070&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay" alt="Sparks and Steel">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-slate-950/80 to-transparent"></div>
+            
+            <div class="relative z-10 px-12 text-left w-full max-w-lg">
+                <div class="w-16 h-16 bg-gradient-to-tr from-orange-600 to-amber-400 rounded-xl mb-6 flex items-center justify-center shadow-[0_0_30px_rgba(234,88,12,0.4)] border border-orange-500/50">
+                    <span class="text-3xl font-black text-slate-950">BK</span>
+                </div>
+                <h1 class="text-4xl font-black text-white tracking-tight mb-2">Boga Karya 86</h1>
+                <p class="text-orange-500 font-bold tracking-widest uppercase text-xs mb-6">Enterprise Resource Planning</p>
+                <p class="text-slate-400 text-sm leading-relaxed">Sistem manajemen operasional dan finansial terpadu. Pantau perputaran modal, margin kotor, dan distribusi kas investor secara presisi dan seketika.</p>
             </div>
-            <h1 class="text-2xl font-bold text-slate-100 mb-1 tracking-tight">Boga Karya 86</h1>
-            <p class="text-xs text-slate-500 mb-8 font-medium">Enterprise Resource Planning</p>
-            <div class="space-y-5 text-left">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Email</label>
-                    <input type="email" id="login-username" class="w-full bg-slate-950/50 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-yellow-500 transition mt-1" placeholder="Masukkan email">
+        </div>
+
+        <div class="w-full md:w-1/2 flex items-center justify-center bg-black relative px-8">
+            <div class="w-full max-w-sm">
+                <div class="md:hidden flex flex-col items-center mb-10">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-orange-600 to-amber-400 rounded-xl mb-4 flex items-center justify-center shadow-[0_0_20px_rgba(234,88,12,0.4)]">
+                        <span class="text-2xl font-black text-slate-950">BK</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white tracking-tight">Boga Karya 86</h2>
+                    <p class="text-xs text-orange-500 mt-1 uppercase tracking-widest font-bold">ERP System</p>
                 </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Password</label>
-                    <input type="password" id="login-password" class="w-full bg-slate-950/50 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-yellow-500 transition mt-1" placeholder="••••••••">
+
+                <div class="mb-10 hidden md:block">
+                    <h2 class="text-3xl font-bold text-white tracking-tight">Otorisasi Sistem</h2>
+                    <p class="text-slate-500 text-sm mt-2">Silakan masukkan kredensial akses Anda.</p>
                 </div>
-                <div id="login-error" class="text-rose-500 text-xs hidden text-center font-medium bg-rose-500/10 py-2 rounded-lg border border-rose-500/20">Akses ditolak. Coba lagi.</div>
-                <button onclick="prosesLogin()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold text-sm px-4 py-3 rounded-xl transition shadow-[0_4px_14px_0_rgba(234,179,8,0.39)] cursor-pointer mt-4">
-                    Masuk Sistem
-                </button>
+
+                <div class="space-y-8">
+                    <div class="relative group">
+                        <input type="email" id="login-username" class="w-full bg-transparent border-b-2 border-slate-800 text-white text-base px-0 py-3 focus:outline-none focus:border-orange-500 transition-colors peer" placeholder=" " required>
+                        <label class="absolute left-0 top-3 text-slate-600 text-base transition-all peer-focus:-top-4 peer-focus:text-xs peer-focus:text-orange-500 peer-valid:-top-4 peer-valid:text-xs peer-valid:text-slate-500 pointer-events-none uppercase tracking-wider font-bold">Alamat Email</label>
+                    </div>
+
+                    <div class="relative group">
+                        <input type="password" id="login-password" class="w-full bg-transparent border-b-2 border-slate-800 text-white text-base px-0 py-3 focus:outline-none focus:border-orange-500 transition-colors peer" placeholder=" " required onkeypress="if(event.key === 'Enter') prosesLogin()">
+                        <label class="absolute left-0 top-3 text-slate-600 text-base transition-all peer-focus:-top-4 peer-focus:text-xs peer-focus:text-orange-500 peer-valid:-top-4 peer-valid:text-xs peer-valid:text-slate-500 pointer-events-none uppercase tracking-wider font-bold">Kata Sandi</label>
+                    </div>
+
+                    <div id="login-error" class="text-rose-500 text-xs hidden font-medium flex items-center gap-2 mt-2 bg-rose-950/30 p-2 rounded border border-rose-900">
+                        <span class="w-4 h-4 rounded-full bg-rose-500/20 flex items-center justify-center font-bold">!</span> Kredensial tidak valid. Akses ditolak.
+                    </div>
+
+                    <button onclick="prosesLogin()" class="w-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-widest py-4 rounded-lg transition-all shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_30px_rgba(234,88,12,0.5)] cursor-pointer mt-4">
+                        Masuk
+                    </button>
+                </div>
+                
+                <p class="text-center text-[10px] text-slate-700 mt-12 font-mono">Boga Karya 86 © 2026. SECURE CONNECTION.</p>
             </div>
         </div>
     </div>
@@ -184,8 +215,8 @@
         <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-50 shadow-2xl relative">
             <div class="h-20 flex items-center px-6 border-b border-slate-800">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-gradient-to-tr from-slate-700 to-slate-500 rounded-lg flex items-center justify-center shadow-lg border border-slate-500/50">
-                        <span class="text-xs font-bold text-white">BK</span>
+                    <div class="w-8 h-8 bg-gradient-to-tr from-orange-600 to-amber-400 rounded-lg flex items-center justify-center shadow-lg border border-slate-500/50">
+                        <span class="text-xs font-bold text-slate-950">BK</span>
                     </div>
                     <div>
                         <h2 class="text-sm font-bold text-slate-200 tracking-wide">BOGA KARYA 86</h2>
@@ -1020,6 +1051,33 @@
             </thead>
             <tbody id="belanja-print-body"></tbody>
         </table>
+    </div>
+    <div id="modal-stok-masuk" class="modal no-print">
+        <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-md shadow-[0_0_40px_rgba(0,0,0,0.5)] relative">
+            <button onclick="document.getElementById('modal-stok-masuk').classList.remove('active')" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button>
+            <h2 class="text-xl font-bold text-slate-100 mb-1 tracking-tight">📦 Input Stok Gudang</h2>
+            <p class="text-xs text-slate-500 mb-6 border-b border-slate-800 pb-3">Pilih produk lama atau catat produk baru ke sistem.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Nama Produk</label>
+                    <select id="stok-select-produk" onchange="handleStokSelect()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-yellow-500 transition cursor-pointer mb-2">
+                        <option value="">-- Pilih Produk --</option>
+                    </select>
+                    <input type="text" id="stok-input-baru" placeholder="Ketik nama produk baru..." class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-yellow-500 transition hidden">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Jumlah Stok Masuk (Pcs)</label>
+                    <input type="number" id="stok-input-qty" min="1" placeholder="Misal: 50" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-yellow-500 transition">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Harga Modal / HPP (Satuan)</label>
+                    <input type="number" id="stok-input-hpp" placeholder="Misal: 150000" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-yellow-500 transition">
+                </div>
+            </div>
+            
+            <button onclick="simpanStokModal()" class="w-full mt-6 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg cursor-pointer">💾 Simpan ke Gudang</button>
+        </div>
     </div>
 
     <script>
@@ -2827,7 +2885,725 @@ function renderProcurement() {
         document.getElementById("print-area-internal").classList.add("hidden"); 
         document.getElementById("app-layar").style.display = "flex";
     };
+    // =========================================================
+    // 🧠 OVERRIDE: MESIN GUDANG MODERN & AUTO-HPP
+    // =========================================================
+
+    // 1. MESIN GUDANG MODERN (Ganti Prompt Jadi Kaca)
+    window.tambahStokMasuk = function() {
+        let select = document.getElementById("stok-select-produk");
+        select.innerHTML = '<option value="">-- Pilih Produk --</option><option value="BARU" class="font-bold text-yellow-500">➕ TAMBAH PRODUK BARU</option>';
+        
+        let unikGudang = new Set();
+        if (typeof masterGudang !== 'undefined') {
+            masterGudang.forEach(g => { if(g.nama_produk) unikGudang.add(String(g.nama_produk).trim().toUpperCase()); });
+        }
+        Array.from(unikGudang).sort().forEach(nama => {
+            select.innerHTML += `<option value="${nama}">${nama}</option>`;
+        });
+
+        document.getElementById("stok-input-baru").value = "";
+        document.getElementById("stok-input-baru").classList.add("hidden");
+        document.getElementById("stok-input-qty").value = "";
+        document.getElementById("stok-input-hpp").value = "";
+        document.getElementById("stok-input-hpp").readOnly = false;
+        
+        document.getElementById("modal-stok-masuk").classList.add("active");
+    };
+
+    window.handleStokSelect = function() {
+        let val = document.getElementById("stok-select-produk").value;
+        let inputBaru = document.getElementById("stok-input-baru");
+        let inputHPP = document.getElementById("stok-input-hpp");
+        
+        if (val === "BARU") {
+            inputBaru.classList.remove("hidden");
+            inputHPP.value = "";
+            inputHPP.readOnly = false;
+        } else if (val !== "") {
+            inputBaru.classList.add("hidden");
+            let hppExist = "";
+            masterGudang.forEach(g => {
+                if (String(g.nama_produk).trim().toUpperCase() === val) hppExist = g.hpp_satuan;
+            });
+            // Kalau barangnya udah pernah ada, HPP otomatis dikunci biar ga beda-beda
+            if (hppExist) {
+                inputHPP.value = hppExist;
+                inputHPP.readOnly = true; 
+            } else {
+                inputHPP.value = "";
+                inputHPP.readOnly = false;
+            }
+        } else {
+            inputBaru.classList.add("hidden");
+            inputHPP.value = "";
+            inputHPP.readOnly = false;
+        }
+    };
+
+    window.simpanStokModal = async function() {
+        let selectVal = document.getElementById("stok-select-produk").value;
+        let namaProd = selectVal === "BARU" ? document.getElementById("stok-input-baru").value.trim().toUpperCase() : selectVal;
+        let stok = parseInt(document.getElementById("stok-input-qty").value);
+        let hpp = parseFloat(document.getElementById("stok-input-hpp").value);
+
+        if (!namaProd || isNaN(stok) || stok <= 0 || isNaN(hpp) || hpp <= 0) {
+            toast.error("Mohon lengkapi Nama Produk, Jumlah Stok, dan Harga Modal!");
+            return;
+        }
+
+        let payload = { nama_produk: namaProd, stok_masuk: stok, hpp_satuan: hpp };
+        let loadingInstance = toast.loading("Merekam ke Gudang Cloud...");
+        
+        const { error } = await supabaseClient.from('stok_gudang').insert([payload]);
+        if (!error) {
+            if(typeof addAuditLog === 'function') addAuditLog("GUDANG_ADDED", `Stok masuk ${namaProd}: ${stok} Pcs`, "warning");
+            if(typeof loadDanRenderGudang === 'function') await loadDanRenderGudang();
+            document.getElementById("modal-stok-masuk").classList.remove("active");
+            loadingInstance.dismiss();
+            toast.success("Stok berhasil ditambahkan ke Gudang!");
+        } else {
+            loadingInstance.dismiss();
+            toast.error("Gagal menyimpan stok ke Supabase!");
+        }
+    };
+
+    // 2. MESIN AUTO HPP UNTUK FORM PENJUALAN
+    window.autoFillHPPJual = function() {
+        let elProduk = document.getElementById("input-jual-produk");
+        let elQty = document.getElementById("input-jual-qty");
+        let inputHpp = document.getElementById("input-jual-hpp");
+        
+        if(!elProduk || !elQty || !inputHpp) return;
+        
+        let produk = elProduk.value;
+        let qty = parseInt(elQty.value) || 1;
+        
+        if (!produk) { inputHpp.value = ""; return; }
+
+        let hppSatuan = 0;
+        if (typeof masterGudang !== 'undefined') {
+            for (let i = 0; i < masterGudang.length; i++) {
+                if (String(masterGudang[i].nama_produk).trim().toUpperCase() === produk) {
+                    hppSatuan = Number(masterGudang[i].hpp_satuan); break;
+                }
+            }
+        }
+        if (hppSatuan === 0 && typeof masterData !== 'undefined') {
+            for (let i = masterData.length - 1; i >= 0; i--) {
+                if (String(masterData[i].namaProduk).trim().toUpperCase() === produk) {
+                    let hRaw = Number(masterData[i].hpp || 0); let qRaw = Number(masterData[i].qty || 1);
+                    if (hRaw > 0) { hppSatuan = hRaw / qRaw; break; }
+                }
+            }
+        }
+
+        // Otomatis isi & kali kolom HPP
+        if (hppSatuan > 0) {
+            inputHpp.value = hppSatuan * qty; 
+        } else {
+            inputHpp.value = ""; 
+        }
+    };
+
+    // 3. PASANG SENSOR OTOMATIS KE HTML TRANSAKSI SECARA GAIB
+    setTimeout(() => {
+        let elProduk = document.getElementById("input-jual-produk");
+        let elQty = document.getElementById("input-jual-qty");
+        if(elProduk) elProduk.addEventListener("change", window.autoFillHPPJual);
+        if(elQty) {
+            elQty.addEventListener("change", window.autoFillHPPJual);
+            elQty.addEventListener("keyup", window.autoFillHPPJual);
+        }
+    }, 1500);
     
+    // =========================================================
+    // 🧠 OVERRIDE: FIX DROPDOWN KOSONG & AUTO-HPP (100% WORK)
+    // =========================================================
+
+    // 1. Perbaiki Mesin Populator Dropdown (Biar nggak blank)
+    window.populateSalesDropdown = function() {
+        const select = document.getElementById("input-jual-produk");
+        if(select) { 
+            let currentSelection = select.value;
+            let semuaProduk = new Set(DAFTAR_VARIAN_DINAMIS || []);
+            
+            // Sedot nama barang dari Gudang
+            if (typeof masterGudang !== 'undefined') { 
+                masterGudang.forEach(g => { if (g.nama_produk) semuaProduk.add(String(g.nama_produk).trim().toUpperCase()); }); 
+            }
+            let listFinal = Array.from(semuaProduk).sort();
+            
+            // Kosongkan dan isi ulang
+            select.innerHTML = '<option value="">-- Pilih Produk --</option>';
+            listFinal.forEach(varian => {
+                if(varian !== "ALL" && varian !== "SEARCH" && varian !== "") {
+                    let isSelected = (varian === currentSelection) ? "selected" : "";
+                    select.innerHTML += `<option value="${varian}" ${isSelected}>${varian}</option>`;
+                }
+            });
+
+            // 🔌 PASANG KABEL GAIB (Biar pas diklik, HPP otomatis keisi)
+            select.onchange = window.autoFillHPPJual;
+        }
+
+        let tglSales = document.getElementById("input-jual-tgl");
+        if(tglSales && !tglSales.value) tglSales.value = new Date().toISOString().split('T')[0];
+
+        // 🔌 Pasang kabel ke input QTY (Volume)
+        let elQty = document.getElementById("input-jual-qty");
+        if (elQty) {
+            elQty.onchange = window.autoFillHPPJual;
+            elQty.onkeyup = window.autoFillHPPJual;
+        }
+    };
+
+    // 2. Perbaiki Mesin Penghitung Auto-HPP
+    window.autoFillHPPJual = function() {
+        let elProduk = document.getElementById("input-jual-produk");
+        let elQty = document.getElementById("input-jual-qty");
+        let inputHpp = document.getElementById("input-jual-hpp");
+        
+        if(!elProduk || !elQty || !inputHpp) return;
+        
+        let produk = elProduk.value;
+        let qty = parseInt(elQty.value) || 1;
+        
+        if (!produk || produk === "") { inputHpp.value = ""; return; }
+
+        let hppSatuan = 0;
+        
+        // Prioritas 1: Cari harga modal di Master Gudang
+        if (typeof masterGudang !== 'undefined') {
+            for (let i = 0; i < masterGudang.length; i++) {
+                if (String(masterGudang[i].nama_produk).trim().toUpperCase() === produk) {
+                    hppSatuan = Number(masterGudang[i].hpp_satuan); 
+                    break;
+                }
+            }
+        }
+        
+        // Prioritas 2: Cari di Histori Transaksi lama (Kalau di gudang ga nemu)
+        if (hppSatuan === 0 && typeof masterData !== 'undefined') {
+            for (let i = masterData.length - 1; i >= 0; i--) {
+                if (String(masterData[i].namaProduk).trim().toUpperCase() === produk) {
+                    let hRaw = Number(masterData[i].hpp || 0); 
+                    let qRaw = Number(masterData[i].qty || 1);
+                    if (hRaw > 0) { hppSatuan = hRaw / qRaw; break; }
+                }
+            }
+        }
+
+        // Tembak hasil kali HPP * Qty ke form!
+        if (hppSatuan > 0) {
+            inputHpp.value = hppSatuan * qty; 
+        } else {
+            inputHpp.value = ""; 
+        }
+    };
+
+    // 3. Override switchTab biar gak error pas pindah menu
+    window.switchTab = function(tabName, event) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('bg-slate-800/80', 'text-slate-200'));
+        let targetTab = document.getElementById(tabName);
+        if (targetTab) targetTab.classList.add('active');
+        if (event) { event.currentTarget.classList.add('bg-slate-800/80', 'text-slate-200'); }
+        
+        if (tabName === 'opex-panel') { 
+            if(typeof renderOpexDariPanel === 'function') renderOpexDariPanel(); 
+            if(typeof window.populateSalesDropdown === 'function') window.populateSalesDropdown(); 
+        }
+        if (tabName === 'valuasi-stok' && typeof loadDanRenderGudang === 'function') { loadDanRenderGudang(); } 
+        if (tabName === 'rapor-investor' && typeof loadRaporInvestor === 'function') { loadRaporInvestor(); }
+        if (tabName === 'budget-target' && typeof renderBudgetTarget === 'function') { renderBudgetTarget(); }
+        if (tabName === 'procurement-panel' && typeof renderProcurement === 'function') { renderProcurement(); }
+    };
+
+    // 4. Pancing Mesinnya biar ngisi otomatis saat data awal masuk
+    setTimeout(() => {
+        if(typeof window.populateSalesDropdown === 'function') window.populateSalesDropdown();
+    }, 1500);
+    // =========================================================
+    // 🖨️ OVERRIDE: FIX CETAK TRANSFER (ANTI-TERPOTONG HALAMAN & FONT RAPI)
+    // =========================================================
+    
+    // 🤖 Fungsi AI Deteksi Toko (Font diseragamkan)
+    window.deteksiToko = function(resi) {
+        let r = String(resi).toUpperCase().trim();
+        if (r.includes("INV/") || r.includes("TOKOPEDIA")) return { nama: "TOKOPEDIA", warna: "text-green-700", icon: "🟩" };
+        if (r.startsWith("SP") || r.startsWith("2") || r.includes("SHOPEE")) return { nama: "SHOPEE", warna: "text-orange-600", icon: "🟧" };
+        if (r.startsWith("TT") || r.startsWith("7") || r.startsWith("5") || r.includes("TIKTOK")) return { nama: "TIKTOK", warna: "text-slate-800", icon: "⬛" };
+        if (r.includes("LAZ") || r.includes("LZD")) return { nama: "LAZADA", warna: "text-blue-600", icon: "🟦" };
+        return { nama: "MANUAL / LAINNYA", warna: "text-slate-500", icon: "⬜" };
+    };
+
+    // 🎨 INJEKSI CSS KHUSUS PRINTER BIAR GAK TERPOTONG HALAMAN
+    if (!document.getElementById("css-printer-sakti")) {
+        let style = document.createElement('style');
+        style.id = "css-printer-sakti";
+        style.innerHTML = `
+            @media print {
+                .cegah-potong {
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
+                }
+                /* Paksa semua font jadi sama persis biar rapi */
+                #print-area-transfer * {
+                    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, Arial, sans-serif !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    window.cetakSuratTransfer = function() {
+        if (typeof listHPPCleared === 'undefined' || listHPPCleared.length === 0) { 
+            alert("Belum ada data History Transfer (Cleared) untuk dicetak."); 
+            return; 
+        }
+        
+        let sumHPP = 0, sumOwner = 0, sumInvs = 0;
+        let rekapProduk = {};
+
+        // 🧠 MESIN PENGELOMPOKAN (Sama kayak tadi, logic udah bener)
+        listHPPCleared.forEach(item => {
+            let namaProd = String(item.namaProduk).trim().toUpperCase();
+            if (!namaProd || namaProd === "") namaProd = "PRODUK LAINNYA";
+            
+            let resiAsli = item.idPesanan || "Tanpa Resi";
+            let toko = deteksiToko(resiAsli);
+            
+            if (!rekapProduk[namaProd]) {
+                rekapProduk[namaProd] = { totalQty: 0, totalHPP: 0, totalOwner: 0, totalInvs: 0, listToko: {} };
+            }
+            if (!rekapProduk[namaProd].listToko[toko.nama]) {
+                rekapProduk[namaProd].listToko[toko.nama] = { meta: toko, subQty: 0, subHPP: 0, subOwner: 0, subInvs: 0, resi: [] };
+            }
+
+            let kamar = rekapProduk[namaProd].listToko[toko.nama];
+            kamar.subQty += Number(item.qty || 0);
+            kamar.subHPP += Number(item.hpp || 0);
+            kamar.subOwner += Number(item.jatahOwner || 0);
+            kamar.subInvs += Number(item.jatahInvs || 0);
+            kamar.resi.push(resiAsli);
+
+            rekapProduk[namaProd].totalQty += Number(item.qty || 0);
+            rekapProduk[namaProd].totalHPP += Number(item.hpp || 0);
+            rekapProduk[namaProd].totalOwner += Number(item.jatahOwner || 0);
+            rekapProduk[namaProd].totalInvs += Number(item.jatahInvs || 0);
+
+            sumHPP += Number(item.hpp || 0);
+            sumOwner += Number(item.jatahOwner || 0);
+            sumInvs += Number(item.jatahInvs || 0);
+        });
+
+        // 🎨 RENDER KERTAS (PENGGUNAAN TAG <TBODY> BERLAPIS BIAR GAK TERPOTONG)
+        let theadHtml = `
+            <thead class="bg-slate-200 border-b-2 border-black text-slate-900">
+                <tr>
+                    <th class="border-r border-slate-400 p-2 text-left text-xs font-bold w-1/3">PRODUK & PLATFORM</th>
+                    <th class="border-r border-slate-400 p-2 text-center text-xs font-bold">QTY</th>
+                    <th class="border-r border-slate-400 p-2 text-right text-xs font-bold text-red-600">MODAL (HPP)</th>
+                    <th class="border-r border-slate-400 p-2 text-right text-xs font-bold">OWNER</th>
+                    <th class="p-2 text-right text-xs font-bold">INVESTOR</th>
+                </tr>
+            </thead>
+        `;
+        
+        let seluruhTbodyHtml = "";
+        
+        Object.keys(rekapProduk).sort().forEach(namaProd => {
+            let prod = rekapProduk[namaProd];
+            
+            // 🔥 KUNCI UTAMA: Bungkus 1 Produk dan Anak-anaknya ke dalam 1 <tbody class="cegah-potong">
+            seluruhTbodyHtml += `<tbody class="cegah-potong border-b-2 border-black">`;
+
+            // --- A. BARIS INDUK (TOTAL PRODUK) ---
+            seluruhTbodyHtml += `<tr class="bg-slate-100 border-b border-slate-300">
+                <td class="border-r border-slate-300 p-2 text-xs font-bold text-slate-800 uppercase">📦 ${namaProd}</td>
+                <td class="border-r border-slate-300 p-2 text-center text-xs font-bold text-slate-800">${prod.totalQty}</td>
+                <td class="border-r border-slate-300 p-2 text-right text-xs font-bold text-red-600">${formatRupiah(prod.totalHPP)}</td>
+                <td class="border-r border-slate-300 p-2 text-right text-xs font-bold text-slate-800">${formatRupiah(prod.totalOwner)}</td>
+                <td class="p-2 text-right text-xs font-bold text-slate-800">${formatRupiah(prod.totalInvs)}</td>
+            </tr>`;
+
+            // --- B. BARIS ANAK (BREAKDOWN PER TOKO) ---
+            Object.values(prod.listToko).forEach(toko => {
+                let teksResi = toko.resi.join(", ");
+                seluruhTbodyHtml += `<tr class="bg-white">
+                    <td colspan="5" class="p-2 pl-4 border-b border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-[11px] ${toko.meta.warna} uppercase">${toko.meta.icon} ${toko.meta.nama} <span class="text-slate-500">(${toko.subQty} Pcs)</span></span>
+                            <span class="text-[11px] font-bold text-slate-700">
+                                Sub-HPP: <span class="text-red-600">${formatRupiah(toko.subHPP)}</span> | Owner: ${formatRupiah(toko.subOwner)}
+                            </span>
+                        </div>
+                        <div class="text-[10px] text-slate-600 leading-relaxed text-justify mt-1 pb-1">
+                            <span class="font-bold text-slate-800">RESI TERKAIT:</span> ${teksResi}
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            
+            seluruhTbodyHtml += `</tbody>`;
+        });
+
+        let totalSemua = sumHPP + sumOwner + sumInvs;
+        
+        // 3. TEMBAK ANGKA TOTAL ATAS
+        if(document.getElementById("tf-print-tanggal")) document.getElementById("tf-print-tanggal").innerText = new Date().toLocaleString('id-ID');
+        if(document.getElementById("tf-print-total")) document.getElementById("tf-print-total").innerText = formatRupiah(totalSemua);
+        if(document.getElementById("tf-print-hpp")) document.getElementById("tf-print-hpp").innerText = formatRupiah(sumHPP);
+        if(document.getElementById("tf-print-owner")) document.getElementById("tf-print-owner").innerText = formatRupiah(sumOwner);
+        if(document.getElementById("tf-print-invs")) document.getElementById("tf-print-invs").innerText = formatRupiah(sumInvs);
+        
+        // 4. TIMPA TABEL SECARA KESELURUHAN BIAR STRUKTUR HALAMAN GAK ANCUR
+        let tabelBodyLama = document.getElementById("tf-print-table-body");
+        if(tabelBodyLama) {
+            let tabelUtama = tabelBodyLama.closest('table');
+            tabelUtama.innerHTML = theadHtml + seluruhTbodyHtml;
+        }
+
+        // Hapus sisa lampiran kalau masih ada dari tes sebelumnya
+        let divLampiran = document.getElementById("tf-print-lampiran-resi");
+        if (divLampiran) divLampiran.remove();
+
+        // 5. BUKA KACA PRINT
+        document.getElementById("app-layar").style.display = "none"; 
+        document.getElementById("print-area-transfer").classList.remove("hidden");
+        
+        window.print();
+        
+        document.getElementById("print-area-transfer").classList.add("hidden"); 
+        document.getElementById("app-layar").style.display = "flex";
+        
+        if(typeof addAuditLog === 'function') addAuditLog("PRINT_TRANSFER", "Mencetak Surat Perintah Mutasi Internal", "info");
+    };
+    // =========================================================
+    // 🖨️ OVERRIDE: CETAK CLOSING FORMAL (CORPORATE + KLAUSUL TGL 31)
+    // =========================================================
+
+    if (!document.getElementById("css-printer-sakti")) {
+        let style = document.createElement('style');
+        style.id = "css-printer-sakti";
+        style.innerHTML = `
+            @media print {
+                .cegah-potong { page-break-inside: avoid !important; break-inside: avoid !important; }
+                #print-area-closing-dinamis * { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif !important; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    window.prosesCetakClosingFormal = function() {
+        if (typeof filteredData === 'undefined' || filteredData.length === 0) {
+            alert("Belum ada data transaksi di periode ini untuk dicetak.");
+            return;
+        }
+
+        let st = {
+            paid: { vol: 0, settle: 0, hpp: 0, laba: 0, owner: 0, invs: 0, items: {} },
+            ready: { vol: 0, settle: 0, hpp: 0, laba: 0, owner: 0, invs: 0, items: {} },
+            waiting: { vol: 0, settle: 0, hpp: 0, laba: 0, owner: 0, invs: 0, items: {} },
+            retur: { vol: 0, settle: 0, hpp: 0, laba: 0, owner: 0, invs: 0, items: {} },
+            perf: {} 
+        };
+
+        let totalTransaksi = 0;
+
+        filteredData.forEach(item => {
+            let status = String(item.status || "WAITING").toUpperCase();
+            let prod = item.namaProduk ? String(item.namaProduk).trim().toUpperCase() : "PRODUK LAINNYA";
+            let qty = Number(item.qty || 0);
+            let hpp = Number(item.hpp || item.HPP || 0); 
+            
+            let k = "waiting";
+            if (status === "PAID") k = "paid";
+            else if (status === "READY") k = "ready";
+            else if (status === "CANCELED" || status === "RETUR" || status === "FAILED" || status === "REFUND" || status === "BATAL") k = "retur";
+
+            let settle = (k === "retur") ? 0 : (Number(item.settlement || item.Settlement || 0) * qty);
+            let labaReal = (k === "retur") ? 0 : Number(item.labaKotor || item.LabaKotor || 0);
+            let invs = (k === "retur") ? 0 : (labaReal * 0.3);
+            let owner = (k === "retur") ? 0 : (labaReal * 0.7);
+
+            totalTransaksi++;
+
+            st[k].vol += qty; st[k].settle += settle; st[k].hpp += hpp; 
+            st[k].laba += labaReal; st[k].owner += owner; st[k].invs += invs;
+
+            if (!st[k].items[prod]) st[k].items[prod] = { vol: 0, settle: 0, hpp: 0, laba: 0, owner: 0, invs: 0 };
+            st[k].items[prod].vol += qty; st[k].items[prod].settle += settle; st[k].items[prod].hpp += hpp;
+            st[k].items[prod].laba += labaReal; st[k].items[prod].owner += owner; st[k].items[prod].invs += invs;
+
+            if (k === "paid" || k === "ready") {
+                if (!st.perf[prod]) st.perf[prod] = { vol: 0, settle: 0, hpp: 0, laba: 0 };
+                st.perf[prod].vol += qty; st.perf[prod].settle += settle; 
+                st.perf[prod].hpp += hpp; st.perf[prod].laba += labaReal;
+            }
+        });
+
+        function renderTabelRincian(dataItems, isRetur = false) {
+            let html = "";
+            let keys = Object.keys(dataItems).sort((a,b) => dataItems[b].vol - dataItems[a].vol);
+            if (keys.length === 0) {
+                return `<tr><td colspan="6" class="p-3 text-center text-xs text-gray-500 font-medium">TIDAK ADA DATA PADA KATEGORI INI</td></tr>`;
+            }
+            keys.forEach(nama => {
+                let d = dataItems[nama];
+                html += `<tr class="border-b border-gray-300">
+                    <td class="p-2 border-r border-gray-400 text-xs font-semibold">${nama}</td>
+                    <td class="p-2 border-r border-gray-400 text-center text-xs">${d.vol}</td>
+                    <td class="p-2 border-r border-gray-400 text-right text-xs">${isRetur ? '-' : formatRupiah(d.settle)}</td>
+                    <td class="p-2 border-r border-gray-400 text-right text-xs ${isRetur ? 'text-red-600' : ''}">${formatRupiah(d.hpp)}</td>
+                    <td class="p-2 border-r border-gray-400 text-right text-xs">${isRetur ? '-' : formatRupiah(d.owner)}</td>
+                    <td class="p-2 text-right text-xs">${isRetur ? '-' : formatRupiah(d.invs)}</td>
+                </tr>`;
+            });
+            return html;
+        }
+
+        let totalSuksesVol = st.paid.vol + st.ready.vol;
+        let totalSuksesSettle = st.paid.settle + st.ready.settle;
+        let produkTerlaris = "Belum Ada";
+        let maxVol = 0;
+        Object.keys(st.perf).forEach(nama => {
+            if (st.perf[nama].vol > maxVol) { maxVol = st.perf[nama].vol; produkTerlaris = nama; }
+        });
+
+        let rasioRetur = totalTransaksi > 0 ? ((st.retur.vol / totalTransaksi) * 100).toFixed(1) : 0;
+        
+        // 🔥 TAMBAHAN PARAGRAF CUT-OFF TANGGAL 30 / 31
+        let teksPembuka = `Dokumen ini merupakan laporan penutupan buku (closing) resmi yang merangkum seluruh aktivitas operasional dan finansial perusahaan pada periode cetak. Laporan ini membagi status perputaran kas menjadi empat kategori utama (PAID, READY, WAITING, RETUR) guna memberikan transparansi penuh terhadap pencairan dana, nilai aset yang mengendap, serta basis perhitungan dividen pemodal.<br><br><b>KEBIJAKAN TUTUP BUKU (CUT-OFF):</b> Sesuai dengan ketetapan sistem operasional Manajemen, batas akhir rekapitulasi data adalah tanggal 30 pada setiap bulannya. Guna menjaga akurasi perhitungan dan menghindari selisih pencatatan (Human Error), seluruh transaksi yang terjadi pada tanggal 31 secara otomatis akan diakumulasikan ke dalam pembukuan periode bulan berikutnya.`;
+
+        let teksEvaluasi = `Berdasarkan konsolidasi data, volume penjualan efektif (Cair & Mengendap) mencapai ${totalSuksesVol} unit dengan taksiran omset kotor sebesar Rp ${totalSuksesSettle.toLocaleString('id-ID')}. Kinerja tertinggi dicetak oleh lini produk ${produkTerlaris}. `;
+        
+        if (st.retur.vol > 0) {
+            teksEvaluasi += `Tingkat pembatalan/pengembalian barang (retur) tercatat pada rasio ${rasioRetur}% (${st.retur.vol} unit). Seluruh nilai Harga Pokok Penjualan (HPP) atas barang retur tersebut telah diverifikasi dan dikembalikan ke dalam pencatatan persediaan gudang untuk mencegah kerugian finansial. `;
+        } else {
+            teksEvaluasi += `Operasional berjalan dengan efisiensi tinggi, ditandai dengan rasio retur/pembatalan 0%. Tidak ada penyusutan HPP akibat kegagalan pengiriman. `;
+        }
+
+        if (st.waiting.vol > 0) {
+            teksEvaluasi += `Diperlukan tindak lanjut operasional terhadap ${st.waiting.vol} unit pesanan yang masih dalam status pengiriman (WAITING) guna mempercepat konversi menjadi kas (Cash Flow).`;
+        }
+
+        let printDiv = document.getElementById("print-area-closing-dinamis");
+        if (!printDiv) {
+            printDiv = document.createElement("div");
+            printDiv.id = "print-area-closing-dinamis";
+            printDiv.className = "hidden bg-white text-black p-8 mx-auto w-full max-w-4xl";
+            document.body.appendChild(printDiv);
+        }
+
+        let tglStr = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }).toUpperCase();
+        let labelPeriode = document.getElementById("filter-bulan") ? document.getElementById("filter-bulan").options[document.getElementById("filter-bulan").selectedIndex].text.toUpperCase() : "SEMUA WAKTU";
+
+        printDiv.innerHTML = `
+            <div class="text-center border-b-2 border-black pb-4 mb-6">
+                <h1 class="text-xl font-bold uppercase tracking-wider text-black">LAPORAN CLOSING & KINERJA KEUANGAN</h1>
+                <h2 class="text-lg font-bold text-gray-800 uppercase mt-1">BOGA KARYA 86 ENTERPRISE</h2>
+                <div class="mt-2 text-xs text-gray-600 font-mono space-y-1">
+                    <p>PERIODE DATA: ${labelPeriode}</p>
+                    <p>WAKTU CETAK: ${tglStr}</p>
+                </div>
+            </div>
+
+            <div class="mb-6 text-xs text-justify leading-relaxed text-gray-800 bg-gray-50 border border-gray-300 p-4 rounded">
+                ${teksPembuka}
+            </div>
+
+            <div class="cegah-potong mb-8">
+                <h3 class="text-sm font-bold mb-2 uppercase border-l-4 border-black pl-2">I. REKAPITULASI KEUANGAN UTAMA</h3>
+                <table class="w-full border-collapse border border-black text-xs">
+                    <thead class="bg-gray-200 border-b-2 border-black">
+                        <tr>
+                            <th class="p-2 border-r border-black text-left">KATEGORI STATUS</th>
+                            <th class="p-2 border-r border-black text-center">VOLUME</th>
+                            <th class="p-2 border-r border-black text-right">SETTLEMENT (RP)</th>
+                            <th class="p-2 border-r border-black text-right">MODAL/HPP (RP)</th>
+                            <th class="p-2 border-r border-black text-right">LABA BERSIH (RP)</th>
+                            <th class="p-2 border-r border-black text-right">HAK OWNER 70%</th>
+                            <th class="p-2 text-right">HAK INVS 30%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-400">
+                            <td class="p-2 border-r border-black font-bold">PAID (DANA CAIR)</td>
+                            <td class="p-2 border-r border-black text-center font-bold">${st.paid.vol}</td>
+                            <td class="p-2 border-r border-black text-right">${formatRupiah(st.paid.settle)}</td>
+                            <td class="p-2 border-r border-black text-right">${formatRupiah(st.paid.hpp)}</td>
+                            <td class="p-2 border-r border-black text-right">${formatRupiah(st.paid.laba)}</td>
+                            <td class="p-2 border-r border-black text-right">${formatRupiah(st.paid.owner)}</td>
+                            <td class="p-2 text-right">${formatRupiah(st.paid.invs)}</td>
+                        </tr>
+                        <tr class="border-b border-gray-400">
+                            <td class="p-2 border-r border-black font-bold text-gray-700">READY (MENGENDAP)</td>
+                            <td class="p-2 border-r border-black text-center font-bold text-gray-700">${st.ready.vol}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-700">${formatRupiah(st.ready.settle)}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-700">${formatRupiah(st.ready.hpp)}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-700">${formatRupiah(st.ready.laba)}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-700">${formatRupiah(st.ready.owner)}</td>
+                            <td class="p-2 text-right text-gray-700">${formatRupiah(st.ready.invs)}</td>
+                        </tr>
+                        <tr class="border-b border-gray-400">
+                            <td class="p-2 border-r border-black font-bold text-gray-600">WAITING (PROSES)</td>
+                            <td class="p-2 border-r border-black text-center font-bold text-gray-600">${st.waiting.vol}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-600">${formatRupiah(st.waiting.settle)}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-600">${formatRupiah(st.waiting.hpp)}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-600">${formatRupiah(st.waiting.laba)}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-600">${formatRupiah(st.waiting.owner)}</td>
+                            <td class="p-2 text-right text-gray-600">${formatRupiah(st.waiting.invs)}</td>
+                        </tr>
+                        <tr>
+                            <td class="p-2 border-r border-black font-bold text-gray-500">RETUR / GAGAL</td>
+                            <td class="p-2 border-r border-black text-center font-bold text-gray-500">${st.retur.vol}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-500">-</td>
+                            <td class="p-2 border-r border-black text-right font-bold text-gray-800">${formatRupiah(st.retur.hpp)}</td>
+                            <td class="p-2 border-r border-black text-right text-gray-500">-</td>
+                            <td class="p-2 border-r border-black text-right text-gray-500">-</td>
+                            <td class="p-2 text-right text-gray-500">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cegah-potong mb-6">
+                <h3 class="text-sm font-bold mb-1 uppercase border-l-4 border-black pl-2">II. RINCIAN DISTRIBUSI - PAID (DANA CAIR)</h3>
+                <p class="text-[10px] text-gray-600 italic mb-2">Catatan: Tabel ini memuat dana tunai yang telah divalidasi masuk ke rekening perusahaan. Angka pada tabel ini merupakan basis final untuk transfer pencairan dividen Investor dan Hak Owner.</p>
+                <table class="w-full border-collapse border border-gray-400 text-xs">
+                    <thead class="bg-gray-100 border-b-2 border-gray-600">
+                        <tr>
+                            <th class="p-2 border-r border-gray-400 text-left w-1/3">NAMA PRODUK</th>
+                            <th class="p-2 border-r border-gray-400 text-center">QTY</th>
+                            <th class="p-2 border-r border-gray-400 text-right">SETTLEMENT</th>
+                            <th class="p-2 border-r border-gray-400 text-right">MODAL (HPP)</th>
+                            <th class="p-2 border-r border-gray-400 text-right">OWNER (70%)</th>
+                            <th class="p-2 text-right">INVESTOR (30%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>${renderTabelRincian(st.paid.items)}</tbody>
+                </table>
+            </div>
+
+            <div class="cegah-potong mb-6">
+                <h3 class="text-sm font-bold mb-1 uppercase border-l-4 border-black pl-2">III. RINCIAN POTENSI CAIR - READY (MENGENDAP)</h3>
+                <p class="text-[10px] text-gray-600 italic mb-2">Catatan: Dana berstatus aman namun masih mengendap di saldo pihak ketiga (Marketplace). Akan diakumulasikan ke jatah Investor setelah status tervalidasi menjadi PAID.</p>
+                <table class="w-full border-collapse border border-gray-400 text-xs">
+                    <thead class="bg-gray-100 border-b-2 border-gray-600">
+                        <tr>
+                            <th class="p-2 border-r border-gray-400 text-left w-1/3">NAMA PRODUK</th>
+                            <th class="p-2 border-r border-gray-400 text-center">QTY</th>
+                            <th class="p-2 border-r border-gray-400 text-right">EST. SETTLEMENT</th>
+                            <th class="p-2 border-r border-gray-400 text-right">MODAL (HPP)</th>
+                            <th class="p-2 border-r border-gray-400 text-right">EST. OWNER</th>
+                            <th class="p-2 text-right">EST. INVESTOR</th>
+                        </tr>
+                    </thead>
+                    <tbody>${renderTabelRincian(st.ready.items)}</tbody>
+                </table>
+            </div>
+
+            <div class="cegah-potong mb-6">
+                <h3 class="text-sm font-bold mb-1 uppercase border-l-4 border-black pl-2">IV. RINCIAN POTENSI OMSET - WAITING (PROSES)</h3>
+                <p class="text-[10px] text-gray-600 italic mb-2">Catatan: Barang masih dalam proses pengiriman oleh pihak logistik ekspedisi.</p>
+                <table class="w-full border-collapse border border-gray-400 text-xs">
+                    <thead class="bg-gray-50 border-b-2 border-gray-400 text-gray-600">
+                        <tr>
+                            <th class="p-2 border-r border-gray-400 text-left w-1/3">NAMA PRODUK</th>
+                            <th class="p-2 border-r border-gray-400 text-center">QTY</th>
+                            <th class="p-2 border-r border-gray-400 text-right">EST. SETTLEMENT</th>
+                            <th class="p-2 border-r border-gray-400 text-right">MODAL (HPP)</th>
+                            <th class="p-2 border-r border-gray-400 text-right">EST. OWNER</th>
+                            <th class="p-2 text-right">EST. INVESTOR</th>
+                        </tr>
+                    </thead>
+                    <tbody>${renderTabelRincian(st.waiting.items)}</tbody>
+                </table>
+            </div>
+
+            <div class="cegah-potong mb-8">
+                <h3 class="text-sm font-bold mb-1 uppercase border-l-4 border-black pl-2">V. RINCIAN PENGEMBALIAN BARANG - RETUR / GAGAL</h3>
+                <p class="text-[10px] text-gray-600 italic mb-2">Catatan: Transaksi batal. Nominal HPP pada tabel ini telah diamankan dan dikembalikan ke dalam nilai persediaan operasional.</p>
+                <table class="w-full border-collapse border border-gray-400 text-xs">
+                    <thead class="bg-gray-50 border-b-2 border-gray-400 text-gray-600">
+                        <tr>
+                            <th class="p-2 border-r border-gray-400 text-left w-1/3">NAMA PRODUK</th>
+                            <th class="p-2 border-r border-gray-400 text-center">QTY BATAL</th>
+                            <th class="p-2 border-r border-gray-400 text-right">SETTLEMENT</th>
+                            <th class="p-2 border-r border-gray-400 text-right text-gray-900">HPP DISELAMATKAN</th>
+                            <th class="p-2 border-r border-gray-400 text-right">OWNER</th>
+                            <th class="p-2 text-right">INVESTOR</th>
+                        </tr>
+                    </thead>
+                    <tbody>${renderTabelRincian(st.retur.items, true)}</tbody>
+                </table>
+            </div>
+
+            <div class="cegah-potong mb-6">
+                <h3 class="text-sm font-bold mb-2 uppercase border-l-4 border-black pl-2">VI. ANALISIS STRATEGIS PERFORMA PRODUK & MARGIN</h3>
+                <p class="text-[10px] text-gray-600 italic mb-2">Catatan: Menggabungkan nilai transaksi berstatus PAID dan READY untuk meninjau kesehatan rasio keuntungan.</p>
+                <table class="w-full border-collapse border border-gray-400 text-xs">
+                    <thead class="bg-gray-200 border-b-2 border-black">
+                        <tr>
+                            <th class="p-2 border-r border-black text-left w-1/3">NAMA PRODUK</th>
+                            <th class="p-2 border-r border-black text-center">TOTAL VOL</th>
+                            <th class="p-2 border-r border-black text-right">MODAL/HPP (RP)</th>
+                            <th class="p-2 border-r border-black text-right">SETTLEMENT (RP)</th>
+                            <th class="p-2 border-r border-black text-right">LABA KOTOR (RP)</th>
+                            <th class="p-2 text-center">GROSS MARGIN (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${Object.keys(st.perf).sort((a,b)=>st.perf[b].vol - st.perf[a].vol).map(nama => {
+                            let d = st.perf[nama];
+                            let marginPct = d.settle > 0 ? ((d.laba / d.settle) * 100).toFixed(1) : 0;
+                            return `<tr class="border-b border-gray-300">
+                                <td class="p-2 border-r border-gray-400 font-semibold">${nama}</td>
+                                <td class="p-2 border-r border-gray-400 text-center">${d.vol}</td>
+                                <td class="p-2 border-r border-gray-400 text-right">${formatRupiah(d.hpp)}</td>
+                                <td class="p-2 border-r border-gray-400 text-right">${formatRupiah(d.settle)}</td>
+                                <td class="p-2 border-r border-gray-400 text-right">${formatRupiah(d.laba)}</td>
+                                <td class="p-2 text-center font-bold text-gray-800">${marginPct}%</td>
+                            </tr>`;
+                        }).join('') || '<tr><td colspan="6" class="p-3 text-center text-gray-500">TIDAK ADA DATA</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cegah-potong mb-12">
+                <h3 class="text-sm font-bold mb-2 uppercase border-l-4 border-black pl-2">VII. EVALUASI OPERASIONAL (AUTO-GENERATED)</h3>
+                <div class="border border-gray-400 bg-gray-50 p-4 text-xs text-justify leading-relaxed">
+                    ${teksEvaluasi}
+                </div>
+            </div>
+
+            <div class="flex justify-between items-end mt-12 pt-6 border-t border-black cegah-potong px-8">
+                <div class="text-center w-48">
+                    <p class="text-xs mb-16 text-gray-600">Mengetahui,</p>
+                    <p class="text-xs font-bold border-b border-black pb-1 uppercase">Mitra Investor</p>
+                    <p class="text-[9px] text-gray-500 mt-1 uppercase">Pemodal & Stakeholder</p>
+                </div>
+                <div class="text-center w-48">
+                    <p class="text-xs mb-16 text-gray-600">Dibuat & Diverifikasi Oleh,</p>
+                    <p class="text-xs font-bold border-b border-black pb-1 uppercase">Management</p>
+                    <p class="text-[9px] text-gray-500 mt-1 uppercase">Boga Karya 86</p>
+                </div>
+            </div>
+        `;
+
+        let appLayar = document.getElementById("app-layar");
+        if(appLayar) appLayar.style.display = "none";
+        printDiv.classList.remove("hidden");
+
+        window.print();
+
+        printDiv.classList.add("hidden");
+        if(appLayar) appLayar.style.display = "flex";
+
+        if(typeof addAuditLog === 'function') addAuditLog("PRINT_CLOSING", "Mencetak Laporan Closing Formal (Internal & Investor)", "info");
+    };
     </script>
 </body>
 </html>
