@@ -2452,13 +2452,13 @@
         // 4. Bungkus data buat dikirim ke Supabase
         let payload = {
             tanggal: tgl,
-            id_pesanan: idResi,
-            nama_produk: produk,
+            idPesanan: idResi,
+            namaProduk: produk,
             status: status,
             qty: qty,
             settlement: settleSatuan,
             hpp: hppTotal,
-            laba_kotor: labaKotorTotal
+            labaKotor: labaKotorTotal
         };
 
         let loadingInstance = toast.loading("Merekam ke Database Transaksi...");
