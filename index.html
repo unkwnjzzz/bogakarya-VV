@@ -1190,11 +1190,14 @@
         localStorage.setItem(DARK_MODE_KEY, isDark ? "1" : "0");
     }
     function initDarkMode() {
-        const saved = localStorage.getItem(DARK_MODE_KEY);
-        if (saved !== null) { applyDarkMode(saved === "1"); } 
-        else { const hour = new Date().getHours(); applyDarkMode(hour >= 18 || hour < 6); }
+        // MODE DIKTATOR: Bodo amat sama memori browser lama. Tiap refresh/buka web, cek jam real-time!
+        const hour = new Date().getHours();
+        const isNight = hour >= 18 || hour < 6;
+        applyDarkMode(isNight);
+        localStorage.setItem(DARK_MODE_KEY, isNight ? "1" : "0");
     }
 
+    let lastHourTheme = new Date().getHours();
     function mulaiJamLive() {
         const elJam = document.getElementById("live-clock");
         if (!elJam) return;
@@ -1203,27 +1206,26 @@
             const now = new Date();
             elJam.innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB"; 
 
-            // --- ROBOT AUTO DARK MODE (Pengecekan Tiap Detik) ---
-            const jam = now.getHours();
-            const menit = now.getMinutes();
-            const detik = now.getSeconds();
+            // --- ROBOT AUTO DARK MODE (ANTI-SLEEP / ANTI-MELeset) ---
+            const currentHour = now.getHours();
 
-            // Pemicu tepat jam 18:00:00 (Otomatis Gelap)
-            if (jam === 18 && menit === 0 && detik === 0) {
+            // Pemicu transisi dari Sore ke Malam (Menyentuh Jam 18:00)
+            if (currentHour >= 18 && lastHourTheme < 18) {
                 applyDarkMode(true);
                 localStorage.setItem(DARK_MODE_KEY, "1");
-                toast.info("🌙 Memasuki waktu malam, Auto Dark Mode diaktifkan.");
+                toast.info("🌙 Waktu malam tiba, Auto Dark Mode diaktifkan.");
             }
             
-            // Pemicu tepat jam 06:00:00 (Otomatis Terang)
-            if (jam === 6 && menit === 0 && detik === 0) {
+            // Pemicu transisi dari Subuh ke Pagi (Menyentuh Jam 06:00)
+            if (currentHour >= 6 && currentHour < 18 && (lastHourTheme < 6 || lastHourTheme >= 18)) {
                 applyDarkMode(false);
                 localStorage.setItem(DARK_MODE_KEY, "0");
-                toast.info("☀️ Selamat pagi, mode terang diaktifkan otomatis.");
+                toast.info("☀️ Pagi Bos! Mode terang diaktifkan otomatis.");
             }
+
+            lastHourTheme = currentHour;
         }, 1000);
     }
-
     function buildCurrentUser(user) {
         const meta = user.user_metadata || {};
         return { email: user.email, nama: meta.nama || meta.full_name || (user.email ? user.email.split("@")[0] : "User"), role: String(meta.role || "ADMIN").toUpperCase() };
@@ -1298,20 +1300,7 @@
             setTimeout(() => toast.success(`👑 Selamat datang Bos ${namaPanggilan}! Dashboard VVIP siap digunakan. ☕💸`), 700);
         }
     }
-
-    function mapTransaksiRow(row) {
-        return {
-            tanggal: row.tanggal ?? row.Tanggal ?? "",
-            idPesanan: row.id_pesanan ?? row.idPesanan ?? row.id ?? "",
-            namaProduk: row.nama_produk ?? row.namaProduk ?? row.produk ?? "",
-            status: row.status ?? row.Status ?? "WAITING",
-            qty: Number(row.qty ?? row.Qty ?? row.volume ?? 0),
-            settlement: Number(row.settlement ?? row.Settlement ?? 0),
-            hpp: Number(row.hpp ?? row.HPP ?? 0),
-            labaKotor: Number(row.laba_kotor ?? row.labaKotor ?? row.LabaKotor ?? 0)
-        };
-    }
-
+    
     function getPeriodeLaporan(tglRaw) {
         if (!tglRaw) return null;
         let d = new Date(tglRaw);
@@ -1974,24 +1963,7 @@
             tbody.appendChild(tr);
         });
     }
-
-    function cetakLaporanInternal() {
-        let sb=document.getElementById("filter-bulan"); document.getElementById("internal-print-periode").innerText=sb.options[sb.selectedIndex].text.toUpperCase();
-        let opexAktif = bulanAktif === "ALL" ? masterOpex : masterOpex.filter(o => o.periode === bulanAktif);
-        let totalOpex=0, opexListHtml="";
-        opexAktif.forEach(item => { totalOpex+=Number(item.nominal); opexListHtml+=`<li>${item.note}: Rp ${Number(item.nominal).toLocaleString('id-ID')}</li>`; });
-        if (opexAktif.length===0) opexListHtml="<li>Tidak ada catatan biaya operasional khusus di periode ini.</li>";
-        
-        document.getElementById("print-int-omset").innerText=formatRupiah(currentSettleGlobal); document.getElementById("print-int-hpp").innerText=formatRupiah(currentHPPGlobal);
-        document.getElementById("print-int-laba-kotor").innerText=formatRupiah(currentLabaKotorGlobal); document.getElementById("print-int-invs").innerText=formatRupiah(currentInvsGlobal);
-        document.getElementById("print-int-owner-gross").innerText=formatRupiah(currentOwnerGross); document.getElementById("print-int-opex").innerText="- "+formatRupiah(totalOpex);
-        document.getElementById("print-int-opex-list").innerHTML=opexListHtml; document.getElementById("print-int-net").innerText=formatRupiah(currentOwnerGross-totalOpex);
-        
-        document.getElementById("app-layar").style.display="none"; document.getElementById("print-area-internal").classList.remove("hidden");
-        window.print();
-        document.getElementById("print-area-internal").classList.add("hidden"); document.getElementById("app-layar").style.display="flex";
-    }
-
+    
     function bukaModal(index) {
         let item=filteredData[index]; if (!item) return; currentModalItem=item;
         let statusUpper=String(item.status||"WAITING").toUpperCase(), qty=Number(item.qty||0);
@@ -2210,37 +2182,7 @@
         document.getElementById("page-info").innerText=`Halaman ${currentPage} (${start+1}-${Math.min(end,filteredData.length)} dari ${filteredData.length})`;
         document.getElementById("btn-prev").disabled=currentPage===1; document.getElementById("btn-next").disabled=end>=filteredData.length;
     }
-
-    window.cetakSuratTransfer = function() {
-        if (listHPPCleared.length === 0) { alert("Belum ada data History Transfer (Cleared) untuk dicetak."); return; }
-        let sumHPP = 0, sumOwner = 0, sumInvs = 0, tbodyHtml = "";
-        listHPPCleared.forEach(item => {
-            sumHPP += item.hpp; sumOwner += item.jatahOwner; sumInvs += item.jatahInvs;
-            let resi = (item.idPesanan && String(item.idPesanan).trim() !== "") ? item.idPesanan : "Tanpa Resi";
-            tbodyHtml += `<tr>
-                <td class="border border-black p-2 font-mono text-xs">${resi}</td>
-                <td class="border border-black p-2 text-xs">${item.namaProduk}</td>
-                <td class="border border-black p-2 text-center text-xs">${item.qty}</td>
-                <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.hpp)}</td>
-                <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.jatahOwner)}</td>
-                <td class="border border-black p-2 text-right text-xs">${formatRupiah(item.jatahInvs)}</td>
-            </tr>`;
-        });
-        let totalSemua = sumHPP + sumOwner + sumInvs;
-        document.getElementById("tf-print-tanggal").innerText = new Date().toLocaleString('id-ID');
-        document.getElementById("tf-print-total").innerText = formatRupiah(totalSemua);
-        document.getElementById("tf-print-hpp").innerText = formatRupiah(sumHPP);
-        document.getElementById("tf-print-owner").innerText = formatRupiah(sumOwner);
-        document.getElementById("tf-print-invs").innerText = formatRupiah(sumInvs);
-        document.getElementById("tf-print-table-body").innerHTML = tbodyHtml;
-        document.getElementById("app-layar").style.display = "none";
-        document.getElementById("print-area-transfer").classList.remove("hidden");
-        window.print();
-        document.getElementById("print-area-transfer").classList.add("hidden");
-        document.getElementById("app-layar").style.display = "flex";
-        addAuditLog("PRINT_TRANSFER", "Mencetak Surat Perintah Mutasi Internal", "info");
-    }
-
+    
     window.toggleNotifikasi = function(e) {
         if (e) e.stopPropagation();
         const dd = document.getElementById("dropdown-notif");
@@ -2545,99 +2487,7 @@
             console.error(error);
         }
     }
-    // ==========================================
-// 🔥 OTAK CENAYANG BELANJA (KEBAL FILTER UI)
-// ==========================================
-function renderProcurement() {
-    const tbody = document.getElementById("tabel-procurement");
-    const infoUmur = document.getElementById("info-umur-toko");
-    if (!tbody) return;
-    
-    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 animate-pulse">Menghitung masa depan... 🔮</td></tr>`;
-    let totalBudget = 0;
-    
-    // ASUMSI DATA GLOBAL LU NAMANYA 'allData'
-    let sumberDataGlobal = typeof allData !== 'undefined' ? allData : [];
-    
-    if (sumberDataGlobal.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">⚠️ Data Transaksi Belum Terload / Kosong!</td></tr>`;
-        return;
-    }
 
-    let rekapLakuAllTime = {};
-    
-    // 1. CARI UMUR TOKO (Dari orderan paling purba sampai detik ini)
-    let waktuPertama = new Date(sumberDataGlobal[0].created_at).getTime();
-    sumberDataGlobal.forEach(item => {
-        let waktuItem = new Date(item.created_at).getTime();
-        if (waktuItem < waktuPertama) waktuPertama = waktuItem;
-    });
-
-    let selisihWaktu = Math.abs(new Date().getTime() - waktuPertama);
-    let totalHariOperasional = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24)); 
-    if (totalHariOperasional < 1) totalHariOperasional = 1; // Minimal 1 hari biar gak error
-
-    infoUmur.innerHTML = `Dianalisis dari total <span class="font-bold text-slate-200">${totalHariOperasional} hari</span> operasional toko. Kebal filter UI.`;
-
-    // 2. SEDOT SEMUA PENJUALAN (Abaikan Filter)
-    sumberDataGlobal.forEach(item => {
-        let status = String(item.status || "").toUpperCase();
-        if (status === "READY" || status === "PAID") {
-            let nama = String(item.namaProduk).trim().toUpperCase();
-            rekapLakuAllTime[nama] = (rekapLakuAllTime[nama] || 0) + Number(item.qty || 0);
-        }
-    });
-
-    // 3. KALKULASI DEWA KE DATA GUDANG
-    tbody.innerHTML = ""; // Bersihin loading
-    if (typeof masterGudang !== 'undefined') {
-        masterGudang.forEach(g => {
-            let nama = String(g.nama_produk).trim().toUpperCase();
-            let totalTerjualAllTime = rekapLakuAllTime[nama] || 0;
-            
-            // Logika Sisa Stok Fisik
-            let sisaFisik = Number(g.stok_masuk) - totalTerjualAllTime;
-            
-            // True Velocity (Barang laku per hari secara total)
-            let jualPerHari = totalTerjualAllTime / totalHariOperasional; 
-            
-            // Kebutuhan 35 Hari (30 Hari Jualan + 5 Hari Buffer Aman)
-            let kebutuhanBulanDepan = Math.ceil(jualPerHari * 35); 
-            
-            // Berapa yang harus disetok?
-            let saranBeli = Math.max(0, kebutuhanBulanDepan - sisaFisik);
-            let hpp = Number(g.hpp_satuan) || 0;
-            let budget = saranBeli * hpp;
-            
-            totalBudget += budget;
-
-            // HANYA TAMPILKAN BARANG YANG HARUS DIBELI!
-            if (saranBeli > 0) {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/40 transition-colors border-b border-slate-800/50">
-                        <td class="p-4 font-bold text-slate-200">${g.nama_produk}</td>
-                        <td class="p-4 text-center font-medium text-slate-400">${sisaFisik}</td>
-                        <td class="p-4 text-center font-medium text-slate-400">${jualPerHari.toFixed(2)}</td>
-                        <td class="p-4 text-center">
-                            <span class="bg-yellow-900/30 text-yellow-500 border border-yellow-700/50 px-3 py-1 rounded-lg font-black text-sm shadow-sm">${saranBeli} <span class="text-[10px] font-normal">Pcs</span></span>
-                        </td>
-                        <td class="p-4 text-right font-black text-emerald-400 tracking-wide">Rp ${budget.toLocaleString('id-ID')}</td>
-                    </tr>`;
-            }
-        });
-    }
-
-    // 4. MUNCULIN TOTAL BUDGET LUAR BIASA
-    if (totalBudget > 0) {
-        tbody.innerHTML += `
-            <tr class="bg-slate-900 border-t-4 border-slate-800">
-                <td colspan="4" class="p-5 text-right font-black text-slate-400 uppercase tracking-widest text-xs">Total Dana Modal Disiapkan:</td>
-                <td class="p-5 text-right font-black text-emerald-400 text-xl drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]">Rp ${totalBudget.toLocaleString('id-ID')}</td>
-            </tr>`;
-    } else {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">🎉 STOK LUAR BIASA AMAN! Belum ada proyeksi belanja vendor untuk 35 hari ke depan. Duit lu aman Bos! 🍻</td></tr>`;
-    }
-}
 // =====================================================================
     // 🚀 EXECUTIVE OVERRIDE V2.9.4 (VERCEL READY - FULL BUG FIXES)
     // =====================================================================
@@ -3010,56 +2860,7 @@ function renderProcurement() {
             toast.error("Gagal menyimpan stok ke Supabase!");
         }
     };
-
-    // 2. MESIN AUTO HPP UNTUK FORM PENJUALAN
-    window.autoFillHPPJual = function() {
-        let elProduk = document.getElementById("input-jual-produk");
-        let elQty = document.getElementById("input-jual-qty");
-        let inputHpp = document.getElementById("input-jual-hpp");
         
-        if(!elProduk || !elQty || !inputHpp) return;
-        
-        let produk = elProduk.value;
-        let qty = parseInt(elQty.value) || 1;
-        
-        if (!produk) { inputHpp.value = ""; return; }
-
-        let hppSatuan = 0;
-        if (typeof masterGudang !== 'undefined') {
-            for (let i = 0; i < masterGudang.length; i++) {
-                if (String(masterGudang[i].nama_produk).trim().toUpperCase() === produk) {
-                    hppSatuan = Number(masterGudang[i].hpp_satuan); break;
-                }
-            }
-        }
-        if (hppSatuan === 0 && typeof masterData !== 'undefined') {
-            for (let i = masterData.length - 1; i >= 0; i--) {
-                if (String(masterData[i].namaProduk).trim().toUpperCase() === produk) {
-                    let hRaw = Number(masterData[i].hpp || 0); let qRaw = Number(masterData[i].qty || 1);
-                    if (hRaw > 0) { hppSatuan = hRaw / qRaw; break; }
-                }
-            }
-        }
-
-        // Otomatis isi & kali kolom HPP
-        if (hppSatuan > 0) {
-            inputHpp.value = hppSatuan * qty; 
-        } else {
-            inputHpp.value = ""; 
-        }
-    };
-
-    // 3. PASANG SENSOR OTOMATIS KE HTML TRANSAKSI SECARA GAIB
-    setTimeout(() => {
-        let elProduk = document.getElementById("input-jual-produk");
-        let elQty = document.getElementById("input-jual-qty");
-        if(elProduk) elProduk.addEventListener("change", window.autoFillHPPJual);
-        if(elQty) {
-            elQty.addEventListener("change", window.autoFillHPPJual);
-            elQty.addEventListener("keyup", window.autoFillHPPJual);
-        }
-    }, 1500);
-    
     // =========================================================
     // 🧠 OVERRIDE: FIX DROPDOWN KOSONG & AUTO-HPP (100% WORK)
     // =========================================================
@@ -3771,429 +3572,374 @@ function renderProcurement() {
         if (typeof window.buildExecutiveCharts === 'function') window.buildExecutiveCharts();
     }, 1500);
     // =========================================================
-    // 🚀 V3 PRE-RELEASE UPGRADE (FULL & BUG FREE)
-    // Fitur: Modal Print Center, Native Custom Date, Opex AI
+    // 🚀 MEGA UPGRADE V4.1: ALL-IN-ONE (ADMIN + PRINT + QUICK PICK)
     // =========================================================
-    
-    // 1. INJECT SETTINGS MENU & TAB (PANEL EKSEKUTIF)
+
+    // 1. INJECT UI: SETTINGS, OPEX KATEGORI, RADAR CHART
     const menuContainer = document.getElementById("restricted-menus");
     if(menuContainer && !document.getElementById("btn-tab-settings")) {
-        menuContainer.insertAdjacentHTML('beforeend', `
-            <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-4 mb-2 block mt-6">Eksekutif</span>
-            <button id="btn-tab-settings" onclick="switchTab('settings', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 opacity-70"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.528.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                System Settings
-            </button>
-        `);
+        menuContainer.insertAdjacentHTML('beforeend', `<span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-4 mb-2 block mt-6">Eksekutif</span><button id="btn-tab-settings" onclick="switchTab('settings', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">⚙️ System Settings</button>`);
     }
-
     const mainContent = document.querySelector("#main-content-scroll > div");
     if(mainContent && !document.getElementById("settings")) {
-        mainContent.insertAdjacentHTML('beforeend', `
-            <div id="settings" class="tab-content space-y-6 hidden">
-                <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6">
-                    <h2 class="text-xl font-bold text-slate-200 mb-5 border-b border-slate-800 pb-3">⚙️ Konfigurasi Sistem (V3)</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Target Penjualan (Pcs)</label>
-                            <div class="flex gap-2">
-                                <input type="number" id="set-target-vol" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none">
-                                <button onclick="simpanSetting('TARGET_BULANAN', 'set-target-vol')" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold px-4 py-2 rounded-lg cursor-pointer">Simpan</button>
-                            </div>
-                        </div>
-                        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Target Laba Bersih (Rp)</label>
-                            <div class="flex gap-2">
-                                <input type="number" id="set-target-profit" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-emerald-500 focus:outline-none">
-                                <button onclick="simpanSetting('TARGET_PROFIT_BULANAN', 'set-target-profit')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-lg cursor-pointer">Simpan</button>
-                            </div>
-                        </div>
-                        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50 md:col-span-2">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Ubah PIN Finance</label>
-                            <div class="flex gap-2">
-                                <input type="password" id="set-pin" class="w-full max-w-xs bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-rose-500 focus:outline-none" placeholder="PIN Baru (Misal: 1234)">
-                                <button onclick="simpanSetting('PIN_RAHASIA', 'set-pin')" class="bg-rose-500 hover:bg-rose-400 text-white font-bold px-4 py-2 rounded-lg cursor-pointer">Update PIN</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `);
+        mainContent.insertAdjacentHTML('beforeend', `<div id="settings" class="tab-content space-y-6 hidden"><div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6"><h2 class="text-xl font-bold text-slate-200 mb-5 border-b border-slate-800 pb-3">⚙️ Konfigurasi Sistem</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50"><label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Target Penjualan (Pcs)</label><div class="flex gap-2"><input type="number" id="set-target-vol" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none"><button onclick="simpanSetting('TARGET_BULANAN', 'set-target-vol')" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold px-4 py-2 rounded-lg cursor-pointer">Simpan</button></div></div><div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50"><label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Target Laba (Rp)</label><div class="flex gap-2"><input type="number" id="set-target-profit" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-emerald-500 focus:outline-none"><button onclick="simpanSetting('TARGET_PROFIT_BULANAN', 'set-target-profit')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-lg cursor-pointer">Simpan</button></div></div><div class="bg-slate-950 p-5 rounded-xl border border-slate-800/50 md:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Ubah PIN Finance</label><div class="flex gap-2"><input type="password" id="set-pin" class="w-full max-w-xs bg-slate-900 border border-slate-700 text-slate-200 text-sm px-4 py-2.5 rounded-lg focus:border-rose-500 focus:outline-none" placeholder="PIN Baru (Misal: 1234)"><button onclick="simpanSetting('PIN_RAHASIA', 'set-pin')" class="bg-rose-500 hover:bg-rose-400 text-white font-bold px-4 py-2 rounded-lg cursor-pointer">Update PIN</button></div></div></div></div></div>`);
     }
-
-    // 2. INJECT KATEGORI OPEX
     const opexNoteInput = document.getElementById("input-opex-panel-note");
     if(opexNoteInput && !document.getElementById("input-opex-kategori")) {
-        opexNoteInput.insertAdjacentHTML('beforebegin', `
-            <select id="input-opex-kategori" class="bg-slate-900 border border-slate-700 text-slate-300 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none w-full lg:w-40 cursor-pointer font-bold">
-                <option value="LOGISTIK">📦 Logistik</option>
-                <option value="MARKETING">📢 Marketing</option>
-                <option value="OPERASIONAL">⚙️ Operasional</option>
-                <option value="GAJI">👥 Gaji & Fee</option>
-                <option value="LAINNYA">📝 Lainnya</option>
-            </select>
-        `);
+        opexNoteInput.insertAdjacentHTML('beforebegin', `<select id="input-opex-kategori" class="bg-slate-900 border border-slate-700 text-slate-300 text-sm px-4 py-2.5 rounded-lg focus:border-yellow-500 focus:outline-none w-full lg:w-40 cursor-pointer font-bold"><option value="LOGISTIK">📦 Logistik</option><option value="MARKETING">📢 Marketing</option><option value="OPERASIONAL">⚙️ Operasional</option><option value="GAJI">👥 Gaji</option><option value="LAINNYA">📝 Lainnya</option></select>`);
     }
-
-    // 3. INJECT CHART OPEX DI INTERNAL FINANCE
     const radarModal = document.querySelector("#internal > div:nth-child(2)"); 
     if(radarModal && !document.getElementById("chartOpexKategori")) {
-        radarModal.insertAdjacentHTML('afterend', `
-            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6 flex flex-col md:flex-row gap-6 items-center">
-                <div class="w-full md:w-1/3 relative h-48">
-                    <canvas id="chartOpexKategori"></canvas>
-                </div>
-                <div class="w-full md:w-2/3 w-full">
-                    <h3 class="text-sm font-bold uppercase tracking-widest text-rose-400 mb-4 flex items-center gap-2"><span>📉</span> Radar Kebocoran Kas (OPEX)</h3>
-                    <div id="opex-breakdown-list" class="space-y-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs">
-                        <!-- Auto generated by JS -->
-                    </div>
-                </div>
-            </div>
-        `);
+        radarModal.insertAdjacentHTML('afterend', `<div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-sm mb-6 flex flex-col md:flex-row gap-6 items-center"><div class="w-full md:w-1/3 relative h-48"><canvas id="chartOpexKategori"></canvas></div><div class="w-full md:w-2/3 w-full"><h3 class="text-sm font-bold uppercase tracking-widest text-rose-400 mb-4 flex items-center gap-2"><span>📉</span> Radar Kebocoran Kas (OPEX)</h3><div id="opex-breakdown-list" class="space-y-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs"></div></div></div>`);
     }
 
-    // 4. INJECT MODAL PRINT CENTER (DENGAN FIX BUG KALENDER WARNA HITAM)
+    // 2. INJECT PRINT CENTER MODAL
     if(!document.getElementById("modal-print-center")) {
-        document.body.insertAdjacentHTML('beforeend', `
-            <div id="modal-print-center" class="modal no-print" style="display: none; align-items: center; justify-content: center; z-index: 9999;">
-                <div class="bg-slate-900/95 backdrop-blur-2xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-md shadow-[0_0_50px_rgba(0,0,0,0.7)] relative">
-                    <button onclick="tutupModalPrintCenter()" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button>
-                    <h2 class="text-xl font-bold text-slate-100 mb-1 tracking-tight flex items-center gap-2"><span>🖨️</span> Print Center</h2>
-                    <p class="text-xs text-slate-400 mb-6 border-b border-slate-800 pb-3">Pilih parameter penarikan Laporan Closing & Keuangan.</p>
+        document.body.insertAdjacentHTML('beforeend', `<div id="modal-print-center" class="modal no-print" style="display: none; align-items: center; justify-content: center; z-index: 9999;"><div class="bg-slate-900/95 backdrop-blur-2xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-md shadow-[0_0_50px_rgba(0,0,0,0.7)] relative"><button onclick="tutupModalPrintCenter()" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button><h2 class="text-xl font-bold text-slate-100 mb-1 tracking-tight flex items-center gap-2"><span>🖨️</span> Print Center</h2><p class="text-xs text-slate-400 mb-6 border-b border-slate-800 pb-3">Pilih parameter penarikan Laporan.</p><div class="space-y-5 mb-6"><label class="flex items-start gap-3 cursor-pointer group p-3 rounded-xl hover:bg-slate-800/50 transition"><div class="flex items-center h-5 mt-0.5"><input type="radio" name="print_mode" value="default" checked class="w-4 h-4 text-yellow-500 bg-slate-950 border-slate-700 focus:ring-yellow-500 cursor-pointer" onchange="togglePrintCustomDate()"></div><div class="text-sm"><span class="font-bold text-slate-200 block group-hover:text-yellow-500 transition">Sesuai Filter Saat Ini</span><span class="text-xs text-slate-500">Mencetak data yang tampil di layar.</span></div></label><label class="flex items-start gap-3 cursor-pointer group p-3 rounded-xl hover:bg-slate-800/50 transition"><div class="flex items-center h-5 mt-0.5"><input type="radio" name="print_mode" value="custom" class="w-4 h-4 text-yellow-500 bg-slate-950 border-slate-700 focus:ring-yellow-500 cursor-pointer" onchange="togglePrintCustomDate()"></div><div class="text-sm"><span class="font-bold text-slate-200 block group-hover:text-yellow-500 transition">Tanggal Kustom</span><span class="text-xs text-slate-500">Tarik data dari tanggal spesifik.</span></div></label><div id="print-custom-date-box" class="hidden pl-11 space-y-3"><div><label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Mulai Dari</label><input type="date" id="print-tgl-mulai" style="color-scheme: dark;" class="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:border-yellow-500 cursor-pointer shadow-inner"></div><div><label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Sampai</label><input type="date" id="print-tgl-akhir" style="color-scheme: dark;" class="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:border-yellow-500 cursor-pointer shadow-inner"></div></div></div><button onclick="eksekusiCetakDariModal()" class="w-full bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-slate-950 font-black tracking-widest uppercase text-sm py-3.5 rounded-xl transition shadow-[0_0_20px_rgba(234,179,8,0.2)] cursor-pointer">Buat Laporan</button></div></div>`);
+        const btnPrintLama = document.querySelector('button[onclick*="prosesCetakClosingFormal"]');
+        if (btnPrintLama) { btnPrintLama.removeAttribute('onclick'); btnPrintLama.addEventListener('click', (e) => { e.preventDefault(); window.bukaModalPrintCenter(); }); }
+    }
 
-                    <div class="space-y-5 mb-6">
-                        <label class="flex items-start gap-3 cursor-pointer group p-3 rounded-xl hover:bg-slate-800/50 transition">
-                            <div class="flex items-center h-5 mt-0.5">
-                                <input type="radio" name="print_mode" value="default" checked class="w-4 h-4 text-yellow-500 bg-slate-950 border-slate-700 focus:ring-yellow-500 cursor-pointer" onchange="togglePrintCustomDate()">
-                            </div>
-                            <div class="text-sm">
-                                <span class="font-bold text-slate-200 block group-hover:text-yellow-500 transition">Sesuai Filter Saat Ini</span>
-                                <span class="text-xs text-slate-500">Mencetak data sesuai bulan yang tampil di layar.</span>
-                            </div>
-                        </label>
-
-                        <label class="flex items-start gap-3 cursor-pointer group p-3 rounded-xl hover:bg-slate-800/50 transition">
-                            <div class="flex items-center h-5 mt-0.5">
-                                <input type="radio" name="print_mode" value="custom" class="w-4 h-4 text-yellow-500 bg-slate-950 border-slate-700 focus:ring-yellow-500 cursor-pointer" onchange="togglePrintCustomDate()">
-                            </div>
-                            <div class="text-sm">
-                                <span class="font-bold text-slate-200 block group-hover:text-yellow-500 transition">Rentang Tanggal Kustom</span>
-                                <span class="text-xs text-slate-500">Tarik data dari tanggal spesifik pilihan Anda.</span>
-                            </div>
-                        </label>
-
-                        <div id="print-custom-date-box" class="hidden pl-11 space-y-3">
-                            <div>
-                                <label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Mulai Dari</label>
-                                <!-- FIX BUG: Tambah color-scheme: dark biar ikon kalender putih -->
-                                <input type="date" id="print-tgl-mulai" class="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:border-yellow-500 cursor-pointer shadow-inner" style="color-scheme: dark;">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Sampai Dengan</label>
-                                <!-- FIX BUG: Tambah color-scheme: dark biar ikon kalender putih -->
-                                <input type="date" id="print-tgl-akhir" class="w-full bg-slate-950 border border-slate-800 text-slate-300 text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:border-yellow-500 cursor-pointer shadow-inner" style="color-scheme: dark;">
-                            </div>
-                        </div>
-                    </div>
-
-                    <button onclick="eksekusiCetakDariModal()" class="w-full bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-slate-950 font-black tracking-widest uppercase text-sm py-3.5 rounded-xl transition shadow-[0_0_20px_rgba(234,179,8,0.2)] cursor-pointer">
-                        Buat Laporan
-                    </button>
+    // 3. INJECT FITUR ADMIN (UPDATE STATUS DI MODAL & BULK CHECKBOX)
+    const txHeader = document.querySelector("#transactions .border-b border-slate-800");
+    if(txHeader && !document.getElementById("admin-bulk-action")) {
+        txHeader.insertAdjacentHTML('afterend', `
+            <div id="admin-bulk-action" class="hidden mt-4 p-3 bg-slate-800/80 border border-slate-700 rounded-xl flex items-center justify-between shadow-inner">
+                <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Aksi Massal:</span>
+                    <span id="bulk-count" class="text-xs font-bold text-yellow-500 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">0 Dipilih</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="prosesBulkUpdate('READY')" class="text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-lg transition cursor-pointer">Ubah ke READY</button>
+                    <button onclick="prosesBulkUpdate('PAID')" class="text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white px-4 py-1.5 rounded-lg transition cursor-pointer">Ubah ke PAID</button>
                 </div>
             </div>
         `);
     }
 
-    // 5. BAJAK TOMBOL PRINT DI SIDEBAR
-    const btnPrintLama = document.querySelector('button[onclick*="prosesCetakClosingFormal"]');
-    if (btnPrintLama) {
-        btnPrintLama.removeAttribute('onclick');
-        btnPrintLama.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.bukaModalPrintCenter();
-        });
+    const modalWa = document.getElementById("modal-btn-wa-container");
+    if(modalWa && !document.getElementById("admin-update-box")) {
+        modalWa.insertAdjacentHTML('beforebegin', `
+            <div id="admin-update-box" class="hidden bg-slate-950/80 p-4 rounded-xl border border-slate-800 mt-5 space-y-3">
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Update Status Resi</label>
+                <div class="flex gap-2">
+                    <select id="modal-edit-status" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm px-3 py-2 rounded-lg focus:border-yellow-500 focus:outline-none cursor-pointer">
+                        <option value="WAITING">WAITING (Diproses)</option>
+                        <option value="READY">READY (Terkirim)</option>
+                        <option value="PAID">PAID (Cair)</option>
+                        <option value="RETUR">RETUR / GAGAL</option>
+                    </select>
+                    <button onclick="simpanUpdateStatusSingle()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold px-4 py-2 rounded-lg cursor-pointer whitespace-nowrap transition shadow-sm">💾 Update</button>
+                </div>
+            </div>
+        `);
+    }
+
+    // 4. INJECT KOSMETIK OPEX (QUICK-PICK)
+    if(opexNoteInput && opexNoteInput.parentElement && !document.getElementById("quick-pick-opex")) {
+        opexNoteInput.parentElement.insertAdjacentHTML('afterend', `
+            <div id="quick-pick-opex" class="flex flex-wrap items-center gap-2 mt-4 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mr-1">⚡ Jalan Pintas:</span>
+                <button onclick="setOpexPintas('LOGISTIK', 'Lakban & Plastik Packing')" class="text-[10px] font-bold bg-slate-800 hover:bg-blue-500 hover:text-white text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">📦 Lakban/Packing</button>
+                <button onclick="setOpexPintas('LOGISTIK', 'Ongkir / Retur Ekspedisi')" class="text-[10px] font-bold bg-slate-800 hover:bg-blue-500 hover:text-white text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">🚚 Ongkir/Retur</button>
+                <button onclick="setOpexPintas('MARKETING', 'Topup Saldo Ads / Iklan')" class="text-[10px] font-bold bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">📢 Saldo Ads</button>
+                <button onclick="setOpexPintas('OPERASIONAL', 'Bensin Operasional Kurir')" class="text-[10px] font-bold bg-slate-800 hover:bg-yellow-500 hover:text-slate-900 text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">🛵 Bensin Kurir</button>
+                <button onclick="setOpexPintas('OPERASIONAL', 'Konsumsi / Kopi Staf')" class="text-[10px] font-bold bg-slate-800 hover:bg-yellow-500 hover:text-slate-900 text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">☕ Konsumsi</button>
+            </div>
+        `);
     }
 
     // =========================================================
-    // ⚙️ MESIN LOGIKA OTAK V3 (FILTER, AI OPEX, SETTINGS)
+    // ⚙️ MESIN LOGIKA (ROLE AKSES, BULK UPDATE, FILTER, OPEX)
     // =========================================================
 
-    window.customStartDate = null;
-    window.customEndDate = null;
+    // A. PEMBATASAN HAK AKSES STAF (SECURITY PATCH)
+    const old_aturTampilan = window.aturTampilanBerdasarkanRole || function(){};
+    window.aturTampilanBerdasarkanRole = function() {
+        old_aturTampilan();
+        if(currentUser) {
+            let isStaffOrOwner = (currentUser.role === "ADMIN" || currentUser.role === "OWNER" || currentUser.role === "SUPERADMIN");
+            let boxAdmin = document.getElementById('admin-update-box'); if(boxAdmin) boxAdmin.style.display = isStaffOrOwner ? 'block' : 'none';
+            let bulkAdmin = document.getElementById('admin-bulk-action'); if(bulkAdmin) bulkAdmin.classList.remove('hidden');
 
-    // A. LOGIKA MODAL PRINT CENTER
-    window.bukaModalPrintCenter = function() {
-        let mod = document.getElementById('modal-print-center');
-        mod.style.display = 'flex';
-        mod.classList.add('active');
+            if(currentUser.role === "ADMIN") {
+                let tabsRahasia = ['rapor-investor', 'budget-target', 'tab-btn-internal', 'procurement-panel', 'btn-tab-settings'];
+                tabsRahasia.forEach(id => {
+                    let el = document.querySelector(`button[onclick*="${id}"]`) || document.getElementById(id);
+                    if(el) el.style.display = 'none';
+                });
+            }
+        }
     };
-    
-    window.tutupModalPrintCenter = function() {
-        let mod = document.getElementById('modal-print-center');
-        mod.style.display = 'none';
-        mod.classList.remove('active');
+    if(currentUser) window.aturTampilanBerdasarkanRole();
+
+    // B. LOGIKA CHECKBOX MASSAL DI TABEL
+    const old_renderTabel = window.renderTabel;
+    window.renderTabel = function() {
+        old_renderTabel();
+        let theadTr = document.querySelector("#transactions thead tr");
+        if(theadTr && !document.getElementById("th-check")) {
+            theadTr.insertAdjacentHTML('afterbegin', '<th id="th-check" class="p-4 w-10 text-center"><input type="checkbox" id="check-all-resi" onclick="toggleCheckAll(this)" class="w-4 h-4 cursor-pointer accent-yellow-500"></th>');
+        }
+        let rows = document.querySelectorAll("#tabel-body tr");
+        rows.forEach((tr, index) => {
+            if(tr.children.length >= 6 && tr.children[0].colSpan !== 6) { 
+                let dataIndex = (currentPage - 1) * rowsPerPage + index;
+                let item = filteredData[dataIndex];
+                if(item) {
+                    let td = document.createElement("td"); td.className = "p-4 text-center border-r border-slate-800/30";
+                    td.innerHTML = `<input type="checkbox" value="${item.idPesanan}" class="row-check w-4 h-4 cursor-pointer accent-yellow-500" onclick="updateBulkCount(event)">`;
+                    tr.insertBefore(td, tr.firstChild);
+                    tr.removeAttribute("onclick"); 
+                    tr.children[2].classList.add("cursor-pointer", "hover:text-yellow-400", "underline", "decoration-dashed");
+                    tr.children[2].setAttribute("onclick", `bukaModal(${dataIndex})`);
+                }
+            }
+        });
     };
 
-    window.togglePrintCustomDate = function() {
-        let val = document.querySelector('input[name="print_mode"]:checked').value;
-        let box = document.getElementById('print-custom-date-box');
-        if(val === 'custom') { box.classList.remove('hidden'); } else { box.classList.add('hidden'); }
+    window.toggleCheckAll = function(el) {
+        let checks = document.querySelectorAll('.row-check');
+        checks.forEach(c => c.checked = el.checked);
+        updateBulkCount();
     };
+
+    window.updateBulkCount = function(e) {
+        if(e) e.stopPropagation();
+        let count = document.querySelectorAll('.row-check:checked').length;
+        document.getElementById('bulk-count').innerText = `${count} Dipilih`;
+    };
+
+    // C. LOGIKA UPDATE KE SUPABASE
+    window.simpanUpdateStatusSingle = async function() {
+        if(!currentModalItem || !currentModalItem.idPesanan) return toast.error("Gagal mendeteksi ID Pesanan!");
+        let newStatus = document.getElementById('modal-edit-status').value;
+        let idResi = currentModalItem.idPesanan;
+        
+        let loading = toast.loading(`Mengubah status ${idResi}...`);
+        const { error } = await supabaseClient.from('transaksi').update({ status: newStatus }).eq('id_pesanan', idResi);
+        if(!error) {
+            addAuditLog("UPDATE_STATUS", `Ubah ${idResi} ke ${newStatus}`, "info");
+            loading.dismiss(); toast.success("Status berhasil diupdate!");
+            tutupModal(); handleUpload();
+        } else {
+            loading.dismiss(); toast.error("Koneksi DB gagal!");
+        }
+    };
+
+    window.prosesBulkUpdate = async function(newStatus) {
+        let checks = document.querySelectorAll('.row-check:checked');
+        if(checks.length === 0) return toast.warning("Pilih minimal 1 resi untuk diupdate!");
+        let ids = Array.from(checks).map(c => c.value);
+        if(!confirm(`Yakin ubah ${ids.length} resi menjadi ${newStatus}?`)) return;
+
+        let loading = toast.loading(`Memproses update massal...`);
+        const { error } = await supabaseClient.from('transaksi').update({ status: newStatus }).in('id_pesanan', ids);
+        if(!error) {
+            addAuditLog("BULK_UPDATE", `Update massal ${ids.length} resi ke ${newStatus}`, "warning");
+            document.getElementById('check-all-resi').checked = false;
+            document.getElementById('bulk-count').innerText = `0 Dipilih`;
+            loading.dismiss(); toast.success(`${ids.length} Status berhasil diupdate!`);
+            handleUpload(); 
+        } else {
+            loading.dismiss(); toast.error("Koneksi DB gagal!");
+        }
+    };
+
+    const old_bukaModal = window.bukaModal;
+    window.bukaModal = function(index) {
+        old_bukaModal(index);
+        let statusEdit = document.getElementById('modal-edit-status');
+        if(statusEdit && currentModalItem) {
+            let s = String(currentModalItem.status || "WAITING").toUpperCase();
+            if(s === "CANCELED" || s === "FAILED" || s === "BATAL") s = "RETUR";
+            statusEdit.value = s;
+        }
+    };
+
+    // D. MESIN FILTER TANGGAL NATIVE & MODAL PRINT
+    window.customStartDate = null; window.customEndDate = null;
+    window.bukaModalPrintCenter = function() { let m = document.getElementById('modal-print-center'); m.style.display='flex'; m.classList.add('active'); };
+    window.tutupModalPrintCenter = function() { let m = document.getElementById('modal-print-center'); m.style.display='none'; m.classList.remove('active'); };
+    window.togglePrintCustomDate = function() { let val = document.querySelector('input[name="print_mode"]:checked').value; document.getElementById('print-custom-date-box').classList.toggle('hidden', val !== 'custom'); };
 
     window.eksekusiCetakDariModal = function() {
         let val = document.querySelector('input[name="print_mode"]:checked').value;
-        let dropBulan = document.getElementById("filter-bulan");
-
         if(val === 'custom') {
             let startStr = document.getElementById('print-tgl-mulai').value;
             let endStr = document.getElementById('print-tgl-akhir').value;
-            if(!startStr || !endStr) { toast.warning('Pilih tanggal mulai & akhir!'); return; }
-            
+            if(!startStr || !endStr) return toast.warning('Pilih tanggal!');
             window.customStartDate = new Date(startStr); window.customStartDate.setHours(0,0,0,0);
             window.customEndDate = new Date(endStr); window.customEndDate.setHours(23,59,59,999);
-            
-            let optCustom = document.getElementById("opt-custom");
-            let textLabel = `KUSTOM: ${startStr} s/d ${endStr}`;
-            if(!optCustom) {
-                dropBulan.insertAdjacentHTML('afterbegin', `<option id="opt-custom" value="CUSTOM">🗓️ ${textLabel}</option>`);
-            } else {
-                optCustom.innerText = `🗓️ ${textLabel}`;
-            }
-            dropBulan.value = "CUSTOM";
-            bulanAktif = "CUSTOM";
-
             aplikasikanFilter();
-            
-            setTimeout(() => { 
-                tutupModalPrintCenter(); 
-                if(typeof prosesCetakClosingFormal === 'function') prosesCetakClosingFormal();
-            }, 800);
-
+            setTimeout(() => { tutupModalPrintCenter(); if(typeof prosesCetakClosingFormal === 'function') prosesCetakClosingFormal(); }, 800);
         } else {
-            window.customStartDate = null; 
-            window.customEndDate = null;
-            let optCustom = document.getElementById("opt-custom");
-            if(optCustom && dropBulan.value === "CUSTOM") {
-                dropBulan.value = "ALL";
-                bulanAktif = "ALL";
-            }
-            if(optCustom) optCustom.remove();
-            
+            window.customStartDate = null; window.customEndDate = null;
             aplikasikanFilter();
-            
-            setTimeout(() => { 
-                tutupModalPrintCenter(); 
-                if(typeof prosesCetakClosingFormal === 'function') prosesCetakClosingFormal();
-            }, 800);
+            setTimeout(() => { tutupModalPrintCenter(); if(typeof prosesCetakClosingFormal === 'function') prosesCetakClosingFormal(); }, 800);
         }
     };
 
-    // B. LOGIKA FILTER MESIN NATIVE
-    const prev_aplikasikanFilter = aplikasikanFilter;
-    aplikasikanFilter = function() {
-        prev_aplikasikanFilter(); // Jalanin aslinya dulu
-        
-        // TIMPA FILTER JIKA TANGGAL KUSTOM AKTIF (100% NATIVE)
+    const prev_aplikasikanFilter = window.aplikasikanFilter;
+    window.aplikasikanFilter = function() {
+        prev_aplikasikanFilter(); 
         if (window.customStartDate && window.customEndDate) {
             filteredData = masterData.filter(item => {
-                let d = new Date(item.tanggal);
-                if(isNaN(d.getTime())) return false;
-                return d >= window.customStartDate && d <= window.customEndDate;
+                let d = new Date(item.tanggal); return !isNaN(d.getTime()) && d >= window.customStartDate && d <= window.customEndDate;
             });
-            
-            filteredData.sort((a, b) => {
-                let tglA = new Date(a.tanggal).getTime();
-                let tglB = new Date(b.tanggal).getTime();
-                if (isNaN(tglA) || isNaN(tglB)) return String(a.tanggal).localeCompare(String(b.tanggal));
-                return tglA - tglB; 
-            });
-
-            // PAKSA SEMUA DASHBOARD RENDER ULANG PAKE DATA BARU
+            filteredData.sort((a, b) => { let tA=new Date(a.tanggal).getTime(), tB=new Date(b.tanggal).getTime(); return isNaN(tA)||isNaN(tB) ? String(a.tanggal).localeCompare(String(b.tanggal)) : tA-tB; });
             currentPage = 1; 
             if(typeof renderTabel === 'function') renderTabel(); 
             if(typeof hitungDashboard === 'function') hitungDashboard(); 
-            if(typeof renderRekapVarian === 'function') renderRekapVarian(); 
-            if(typeof cariProdukTerlaris === 'function') cariProdukTerlaris();
-            if(typeof buildTrendChart === 'function') buildTrendChart(); 
-            if(typeof buildExecutiveCharts === 'function') buildExecutiveCharts();
-            if(typeof checkSystemAlerts === 'function') checkSystemAlerts(); 
-            if(typeof hitungRadarModal === 'function') hitungRadarModal();
             if(typeof renderOpexSystem === 'function') renderOpexSystem();
-            if(isInternalUnlocked) {
-                if(typeof renderHPPPaidList === 'function') renderHPPPaidList(); 
-                if(typeof renderOpexDariPanel === 'function') renderOpexDariPanel(); 
-            }
-            if(typeof renderBudgetTarget === "function") renderBudgetTarget();
         }
     };
 
-    // C. SETTINGS PANEL LOGIC
-    window.simpanSetting = async function(kunci, inputId) {
-        let val = document.getElementById(inputId).value;
-        if(!val) { toast.error("Nilai tidak boleh kosong!"); return; }
-        
-        let loading = toast.loading("Menyimpan ke Cloud...");
-        const { error } = await supabaseClient.from('pengaturan').upsert([{ kunci: kunci, nilai: val.toString() }]);
-        
-        if(!error) {
-            if(kunci === 'TARGET_BULANAN') { targetBulanan = parseInt(val); hitungDashboard(); if(typeof window.buildExecutiveCharts === 'function') window.buildExecutiveCharts(); }
-            if(kunci === 'TARGET_PROFIT_BULANAN') { targetProfitBulanan = parseFloat(val); if(typeof renderBudgetTarget === 'function') renderBudgetTarget(); }
-            if(kunci === 'PIN_RAHASIA') { PIN_RAHASIA = val; document.getElementById(inputId).value = ""; }
-            if(typeof addAuditLog === 'function') addAuditLog("SETTINGS_UPDATED", `Mengubah konfigurasi: ${kunci}`, "warning");
-            loading.dismiss(); toast.success("Konfigurasi berhasil disimpan!");
-        } else {
-            loading.dismiss(); toast.error("Gagal update konfigurasi!");
-        }
-    };
-
-    const prev_switchTab = switchTab;
-    switchTab = function(tabName, event) {
-        prev_switchTab(tabName, event);
-        if(tabName === 'settings') {
-            let setVol = document.getElementById('set-target-vol');
-            let setProf = document.getElementById('set-target-profit');
-            if(setVol) setVol.value = targetBulanan;
-            if(setProf) setProf.value = targetProfitBulanan;
-        }
-    };
-
-    // D. KATEGORI OPEX & AI TEXT DETECTOR
-    const prev_tambahOpex = window.tambahOpexDariPanel;
-    window.tambahOpexDariPanel = async function() {
-        let kat = document.getElementById("input-opex-kategori");
-        let noteInput = document.getElementById("input-opex-panel-note");
-        if(kat && noteInput && noteInput.value.trim() !== "") {
-            let originalNote = noteInput.value;
-            noteInput.value = `[${kat.value}] ${originalNote}`;
-            await prev_tambahOpex();
-            noteInput.value = originalNote;
-        } else {
-            await prev_tambahOpex();
-        }
-    };
-
-    const prev_renderOpexSystem = renderOpexSystem;
-    renderOpexSystem = function() {
-        prev_renderOpexSystem();
-        
-        let opexAktif = masterOpex;
-        if (window.customStartDate && window.customEndDate) {
-            opexAktif = masterOpex.filter(o => {
-                let d = new Date(o.tanggal || o.created_at);
-                if(isNaN(d.getTime())) return false;
-                return d >= window.customStartDate && d <= window.customEndDate;
-            });
-        } else if (bulanAktif !== "ALL" && bulanAktif !== "CUSTOM") { 
-            opexAktif = masterOpex.filter(o => o.periode === bulanAktif); 
-        }
-
-        let opexMap = {};
-        opexAktif.forEach(item => {
-            let note = String(item.note || "");
-            let cat = "LAINNYA"; 
-            
-            let match = note.match(/^\[(.*?)\]/); 
-            if(match) {
-                cat = match[1].toUpperCase();
-            } else {
-                // 🤖 AI TEXT DETECTOR UNTUK DATA LAMA
-                let nLow = note.toLowerCase();
-                if(nLow.includes('ads') || nLow.includes('iklan') || nLow.includes('promo') || nLow.includes('tiktok') || nLow.includes('meta') || nLow.includes('endorse')) cat = 'MARKETING';
-                else if(nLow.includes('lakban') || nLow.includes('kardus') || nLow.includes('plastik') || nLow.includes('resi') || nLow.includes('ongkir') || nLow.includes('kirim') || nLow.includes('kurir')) cat = 'LOGISTIK';
-                else if(nLow.includes('gaji') || nLow.includes('fee') || nLow.includes('bonus') || nLow.includes('thr') || nLow.includes('komisi')) cat = 'GAJI';
-                else cat = 'OPERASIONAL';
-            }
-            opexMap[cat] = (opexMap[cat] || 0) + Number(item.nominal);
-        });
-
-        let ctxOpex = document.getElementById('chartOpexKategori');
-        if(ctxOpex) {
-            if(window.opexChartInstance) window.opexChartInstance.destroy();
-            
-            let labels = Object.keys(opexMap);
-            let dataVals = Object.values(opexMap);
-            let colors = {'LOGISTIK': '#3b82f6', 'MARKETING': '#f43f5e', 'OPERASIONAL': '#eab308', 'GAJI': '#8b5cf6', 'LAINNYA': '#64748b'};
-            let bgColors = labels.map(l => colors[l] || '#cbd5e1');
-
-            window.opexChartInstance = new Chart(ctxOpex.getContext('2d'), {
-                type: 'doughnut',
-                data: { labels: labels, datasets: [{ data: dataVals, backgroundColor: bgColors, borderWidth: 0, hoverOffset: 5 }] },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, cutout: '70%',
-                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)' } }
-                }
-            });
-
-            let listContainer = document.getElementById('opex-breakdown-list');
-            if(listContainer) {
-                listContainer.innerHTML = "";
-                labels.forEach((l, idx) => {
-                    listContainer.innerHTML += `
-                        <div class="flex justify-between items-center p-2.5 bg-slate-950 rounded-xl border border-slate-800 shadow-sm">
-                            <span class="flex items-center gap-2 text-slate-300 font-bold text-[11px]"><span class="w-3 h-3 rounded-full" style="background:${bgColors[idx]}"></span> ${l}</span>
-                            <span class="text-rose-400 font-mono font-bold">Rp ${dataVals[idx].toLocaleString('id-ID')}</span>
-                        </div>
-                    `;
-                });
-                if(labels.length === 0) listContainer.innerHTML = "<span class='text-slate-500 col-span-2 p-3 bg-slate-950 rounded-xl border border-dashed border-slate-800 text-center'>Belum ada pengeluaran dicatat.</span>";
-            }
-        }
-    };
-    // =========================================================
-    // 💡 KOSMETIK OPEX: Tombol Pintas Anti-Ngetik (Quick-Pick)
-    // =========================================================
+    // E. SETTINGS & AI OPEX (Compressed)
+    window.simpanSetting = async function(k, id) { let v = document.getElementById(id).value; if(!v) return toast.error("Kosong!"); let l = toast.loading("Saving..."); const {error} = await supabaseClient.from('pengaturan').upsert([{kunci:k, nilai:v}]); if(!error){ if(k==='TARGET_BULANAN'){targetBulanan=parseInt(v); hitungDashboard();} if(k==='PIN_RAHASIA') PIN_RAHASIA=v; l.dismiss(); toast.success("Tersimpan!"); handleUpload();} else l.dismiss(); toast.error("Gagal!"); };
+    const prev_swTab = window.switchTab; window.switchTab = function(t, e) { prev_swTab(t, e); if(t==='settings'){ document.getElementById('set-target-vol').value=targetBulanan; document.getElementById('set-target-profit').value=targetProfitBulanan; } };
+    const prev_Opex = window.renderOpexSystem; window.renderOpexSystem = function() { prev_Opex(); let op = masterOpex; if(window.customStartDate && window.customEndDate) { op = masterOpex.filter(o=>{let d=new Date(o.tanggal); return d>=window.customStartDate && d<=window.customEndDate}); } else if(bulanAktif!=="ALL") op=masterOpex.filter(o=>o.periode===bulanAktif); let mp={}; op.forEach(i=>{ let n=String(i.note).toLowerCase(), c="LAINNYA"; let m=String(i.note).match(/^\[(.*?)\]/); if(m) c=m[1].toUpperCase(); else if(n.includes('ads')||n.includes('iklan')) c='MARKETING'; else if(n.includes('lakban')||n.includes('ongkir')||n.includes('resi')) c='LOGISTIK'; else if(n.includes('gaji')||n.includes('fee')) c='GAJI'; else c='OPERASIONAL'; mp[c]=(mp[c]||0)+Number(i.nominal); }); let cx=document.getElementById('chartOpexKategori'); if(cx){ if(window.opexChartInstance) window.opexChartInstance.destroy(); let lb=Object.keys(mp), dt=Object.values(mp), cl={'LOGISTIK':'#3b82f6','MARKETING':'#f43f5e','OPERASIONAL':'#eab308','GAJI':'#8b5cf6','LAINNYA':'#64748b'}, bg=lb.map(l=>cl[l]||'#cbd5e1'); window.opexChartInstance=new Chart(cx.getContext('2d'),{type:'doughnut',data:{labels:lb,datasets:[{data:dt,backgroundColor:bg,borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}}); let lc=document.getElementById('opex-breakdown-list'); if(lc){ lc.innerHTML=""; lb.forEach((l,i)=>{ lc.innerHTML+=`<div class="flex justify-between items-center p-2.5 bg-slate-950 rounded-xl border border-slate-800 shadow-sm"><span class="flex items-center gap-2 text-slate-300 font-bold text-[11px]"><span class="w-3 h-3 rounded-full" style="background:${bg[i]}"></span> ${l}</span><span class="text-rose-400 font-mono font-bold">Rp ${dt[i].toLocaleString('id-ID')}</span></div>`;}); }}};
     
-    // Cari baris form input opex
-    const opexInputRow = document.getElementById("input-opex-panel-note");
-    if(opexInputRow && opexInputRow.parentElement && !document.getElementById("quick-pick-opex")) {
-        // Suntik deretan tombol pintas tepat di bawah barisan input
-        opexInputRow.parentElement.insertAdjacentHTML('afterend', `
-            <div id="quick-pick-opex" class="flex flex-wrap items-center gap-2 mt-4 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80">
-                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mr-1">⚡ Jalan Pintas:</span>
-                
-                <button onclick="setOpexPintas('LOGISTIK', 'Lakban & Plastik Packing')" class="text-[10px] font-bold bg-slate-800 hover:bg-blue-500 hover:text-white text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">
-                    📦 Lakban/Packing
-                </button>
-                
-                <button onclick="setOpexPintas('LOGISTIK', 'Ongkir / Retur Ekspedisi')" class="text-[10px] font-bold bg-slate-800 hover:bg-blue-500 hover:text-white text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">
-                    🚚 Ongkir/Retur
-                </button>
-                
-                <button onclick="setOpexPintas('MARKETING', 'Topup Saldo Ads / Iklan')" class="text-[10px] font-bold bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">
-                    📢 Saldo Ads
-                </button>
-                
-                <button onclick="setOpexPintas('OPERASIONAL', 'Bensin Operasional Kurir')" class="text-[10px] font-bold bg-slate-800 hover:bg-yellow-500 hover:text-slate-900 text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">
-                    🛵 Bensin Kurir
-                </button>
-                
-                <button onclick="setOpexPintas('OPERASIONAL', 'Konsumsi / Kopi Staf')" class="text-[10px] font-bold bg-slate-800 hover:bg-yellow-500 hover:text-slate-900 text-slate-300 px-3 py-1.5 rounded-lg transition cursor-pointer border border-slate-700 shadow-sm">
-                    ☕ Konsumsi
-                </button>
-            </div>
-        `);
-    }
-
-    // Mesin logikanya: Otomatis isi kategori & tulisan, lalu fokus ke Nominal
+    // F. LOGIKA OPEX QUICK-PICK
     window.setOpexPintas = function(kategori, rincianText) {
         let elKat = document.getElementById("input-opex-kategori");
         let elNote = document.getElementById("input-opex-panel-note");
         let elNominal = document.getElementById("input-opex-panel-nominal");
-        
         if(elKat) elKat.value = kategori;
         if(elNote) elNote.value = rincianText;
-        
-        // Kasih efek glow sebentar biar staf tau udah keisi
         if(elNote) {
             elNote.classList.add("border-yellow-500", "ring-1", "ring-yellow-500");
-            setTimeout(() => {
-                elNote.classList.remove("border-yellow-500", "ring-1", "ring-yellow-500");
-            }, 500);
+            setTimeout(() => { elNote.classList.remove("border-yellow-500", "ring-1", "ring-yellow-500"); }, 500);
+        }
+        if(elNominal) elNominal.focus();
+    };
+    // =========================================================
+    // 🛡️ SECURITY PATCH: UI INVESTOR & ADMIN RESTRUCTURE
+    // =========================================================
+
+    // Fungsi untuk merombak susunan tombol di Sidebar Kiri
+    function rombakMenuSidebar() {
+        const btnRapor = document.querySelector('button[onclick*="rapor-investor"]');
+        const btnTransaction = document.querySelector('button[onclick*="transactions"]');
+        const restrictedMenu = document.getElementById("restricted-menus");
+        
+        // Cari header teks biar rapi
+        const spans = document.querySelectorAll('span');
+        let opexHeader, logsHeader;
+        spans.forEach(span => {
+            if(span.innerText.includes('Store Operations')) opexHeader = span;
+            if(span.innerText.includes('System Tracking')) logsHeader = span;
+        });
+        
+        const btnOpex = document.querySelector('button[onclick*="opex-panel"]');
+        const btnLogs = document.querySelector('button[onclick*="logs"]');
+
+        // 1. Tarik Rapor Investor ke Luar Gembok (Di bawah Transaction)
+        if (btnRapor && btnTransaction && btnRapor.parentElement === restrictedMenu) {
+            btnTransaction.insertAdjacentElement('afterend', btnRapor);
+        }
+
+        // 2. Masukkan Opex & Logs ke Dalam Gembok
+        if (restrictedMenu) {
+            if (opexHeader && opexHeader.parentElement !== restrictedMenu) restrictedMenu.appendChild(opexHeader);
+            if (btnOpex && btnOpex.parentElement !== restrictedMenu) restrictedMenu.appendChild(btnOpex);
+            if (logsHeader && logsHeader.parentElement !== restrictedMenu) restrictedMenu.appendChild(logsHeader);
+            if (btnLogs && btnLogs.parentElement !== restrictedMenu) restrictedMenu.appendChild(btnLogs);
+        }
+    }
+
+    // Eksekusi perombakan menu dalam 0.5 detik setelah web dimuat
+    setTimeout(() => {
+        rombakMenuSidebar();
+        if(currentUser) window.aturTampilanBerdasarkanRole();
+    }, 500);
+
+    // 3. OVERRIDE HAK AKSES STAF (Biar makin ketat)
+    const prev_aturTampilanV4 = window.aturTampilanBerdasarkanRole;
+    window.aturTampilanBerdasarkanRole = function() {
+        if(typeof prev_aturTampilanV4 === 'function') prev_aturTampilanV4();
+        
+        if(currentUser) {
+            // Jika yang login ADMIN (Staf) -> Sembunyikan juga System Logs & Rapor Investor
+            if(currentUser.role === "ADMIN") {
+                let tabsRahasiaStaf = ['rapor-investor', 'budget-target', 'tab-btn-internal', 'procurement-panel', 'btn-tab-settings', 'logs'];
+                tabsRahasiaStaf.forEach(id => {
+                    let el = document.querySelector(`button[onclick*="${id}"]`) || document.getElementById(id);
+                    if(el) el.style.display = 'none';
+                });
+                
+                // Pastikan Opex tetap muncul buat Staf
+                let btnOpex = document.querySelector('button[onclick*="opex-panel"]');
+                if(btnOpex) btnOpex.style.display = 'flex';
+            }
+        }
+    };
+    // =========================================================
+    // 👑 GOD MODE: TOMBOL HAPUS TRANSAKSI KHUSUS OWNER
+    // =========================================================
+
+    // 1. INJECT TOMBOL KE DALAM MODAL TRANSAKSI
+    const modalContainerBox = document.querySelector("#modal-transaksi > div");
+    if(modalContainerBox && !document.getElementById("btn-hapus-transaksi")) {
+        const btnTutup = modalContainerBox.querySelector("button[onclick='tutupModal()']:last-child");
+        if(btnTutup) {
+            btnTutup.insertAdjacentHTML('beforebegin', `
+                <button id="btn-hapus-transaksi" onclick="hapusTransaksiPermanen()" class="w-full mt-3 bg-rose-950/80 hover:bg-rose-900 text-rose-500 font-bold py-3 rounded-xl border border-rose-800/50 transition cursor-pointer hidden shadow-inner">
+                    🗑️ Hapus Pesanan Permanen
+                </button>
+            `);
+        }
+    }
+
+    // 2. LOGIKA HAK AKSES (CUMA OWNER YANG BISA LIHAT)
+    const prev_aturHapus = window.aturTampilanBerdasarkanRole;
+    window.aturTampilanBerdasarkanRole = function() {
+        if(typeof prev_aturHapus === 'function') prev_aturHapus();
+        
+        if(currentUser) {
+            let btnHapus = document.getElementById("btn-hapus-transaksi");
+            if(btnHapus) {
+                if(currentUser.role === "OWNER" || currentUser.role === "SUPERADMIN") {
+                    btnHapus.classList.remove("hidden"); // Munculkan buat Bos
+                } else {
+                    btnHapus.classList.add("hidden"); // Sembunyikan dari Staf/Investor
+                }
+            }
+        }
+    };
+    if(currentUser) window.aturTampilanBerdasarkanRole();
+
+    // 3. MESIN PENGHAPUS KE DATABASE CLOUD (SUPABASE)
+    window.hapusTransaksiPermanen = async function() {
+        if(!currentModalItem || !currentModalItem.idPesanan) {
+            return toast.error("Gagal mendeteksi ID Pesanan!");
         }
         
-        // Kursor otomatis lompat ke kotak duit
-        if(elNominal) elNominal.focus();
+        let idResi = currentModalItem.idPesanan;
+        let konfirmasi = confirm(`⚠️ PERINGATAN KERAS ⚠️\n\nAnda yakin ingin MENGHAPUS pesanan [ ${idResi} ] secara permanen dari Database?\n\nAksi ini tidak bisa dibatalkan!`);
+        
+        if(konfirmasi) {
+            let loading = toast.loading(`Membumihanguskan data ${idResi}...`);
+            
+            // Eksekusi hapus ke Supabase
+            const { error } = await supabaseClient.from('transaksi').delete().eq('id_pesanan', idResi);
+            
+            if(!error) {
+                if(typeof addAuditLog === 'function') {
+                    addAuditLog("DELETE_TRANSACTION", `Menghapus pesanan ${idResi} secara permanen`, "danger");
+                }
+                loading.dismiss(); 
+                toast.success("Pesanan berhasil dimusnahkan!");
+                tutupModal();
+                
+                // Refresh data layar otomatis biar barisnya langsung hilang
+                handleUpload(); 
+            } else {
+                loading.dismiss(); 
+                toast.error("Gagal menghapus dari Supabase!");
+                console.error("Error Delete:", error);
+            }
+        }
     };
     </script>
 </body>
