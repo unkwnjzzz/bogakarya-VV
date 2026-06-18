@@ -956,7 +956,38 @@
             </div> <!-- PENUTUP main-content-scroll -->
         </main>
     </div> <!-- PENUTUP app-layar -->
-                    
+
+    <!-- MODAL CATAT DIVIDEN INVESTOR (MODERN) -->
+    <div id="modal-tambah-dividen" class="modal no-print">
+        <div class="bg-slate-900/95 backdrop-blur-xl border border-slate-700 p-8 rounded-2xl w-11/12 max-w-md shadow-[0_0_50px_rgba(0,0,0,0.7)] relative">
+            <button onclick="document.getElementById('modal-tambah-dividen').classList.remove('active')" class="absolute top-5 right-5 text-slate-500 hover:text-slate-200 transition font-bold text-xl cursor-pointer">&times;</button>
+            <h2 class="text-xl font-bold text-violet-400 mb-1 tracking-tight flex items-center gap-2"><span>💎</span> Catat Pencairan Dividen</h2>
+            <p class="text-xs text-slate-400 mb-6 border-b border-slate-800 pb-3">Rekam jejak transfer bagi hasil mitra investor.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Tanggal Cair</label>
+                    <input type="date" id="dividen-input-tgl" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-violet-500 transition cursor-pointer" style="color-scheme: dark;">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Periode Bagi Hasil</label>
+                    <input type="text" id="dividen-input-periode" placeholder="Misal: Bagi Hasil Juni 2026" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-violet-500 transition">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Nominal Dividen (Rp)</label>
+                    <input type="number" id="dividen-input-nominal" placeholder="Misal: 1500000" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-violet-500 transition">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Keterangan / Via Transfer</label>
+                    <input type="text" id="dividen-input-ket" placeholder="Misal: Transfer via Mandiri" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm px-4 py-3 rounded-xl focus:outline-none focus:border-violet-500 transition">
+                </div>
+            </div>
+            
+            <button onclick="simpanDividenModal()" class="w-full mt-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold tracking-widest uppercase text-sm py-3.5 rounded-xl transition shadow-[0_0_20px_rgba(139,92,246,0.3)] cursor-pointer">
+                Simpan Histori Transaksi
+            </button>
+        </div>
+    </div>                
 
     <!-- MODAL TRANSAKSI -->
     <div id="modal-transaksi" class="modal no-print">
@@ -4126,6 +4157,62 @@
 
     // Pancing auto-render setelah kode dipaste
     setTimeout(() => { if(typeof renderOpexDariPanel === 'function') renderOpexDariPanel(); }, 1000);
+
+    // =========================================================
+    // 💎 UPGRADE: UI INPUT DIVIDEN INVESTOR (MODERN MODAL)
+    // =========================================================
+    
+    // OVERRIDE FUNGSI LAMA
+    window.tambahDividen = function() {
+        // Otomatis isi tanggal hari ini
+        document.getElementById("dividen-input-tgl").value = new Date().toISOString().split('T')[0];
+        
+        // Cerdas dikit: Coba ambil nama bulan dari dropdown filter saat ini
+        let selectBulan = document.getElementById("filter-bulan");
+        let labelBulan = selectBulan ? selectBulan.options[selectBulan.selectedIndex].text : "";
+        document.getElementById("dividen-input-periode").value = (labelBulan !== "Semua Waktu") ? "Bagi Hasil " + labelBulan : "";
+        
+        document.getElementById("dividen-input-nominal").value = "";
+        document.getElementById("dividen-input-ket").value = "Transfer Dividen via BCA";
+        
+        // Panggil si cantik muncul
+        document.getElementById("modal-tambah-dividen").classList.add("active");
+    };
+
+    // FUNGSI PENYIMPANAN BARU DARI MODAL
+    window.simpanDividenModal = async function() {
+        let tgl = document.getElementById("dividen-input-tgl").value;
+        let periode = document.getElementById("dividen-input-periode").value.trim();
+        let nominal = parseFloat(document.getElementById("dividen-input-nominal").value);
+        let ket = document.getElementById("dividen-input-ket").value.trim();
+
+        if (!tgl || !periode || isNaN(nominal) || nominal <= 0 || !ket) {
+            toast.error("Mohon lengkapi semua form dengan benar!");
+            return;
+        }
+
+        let payload = {
+            tanggal: tgl,
+            periode: periode,
+            nominal: nominal,
+            keterangan: ket
+        };
+
+        let loadingInstance = toast.loading("Menyimpan rekam jejak investor...");
+        const { error } = await supabaseClient.from('rapor_investor').insert([payload]);
+        
+        if (!error) {
+            if(typeof addAuditLog === 'function') addAuditLog("DIVIDEN_PAID", `Mencatat dividen cair: ${periode} (Rp ${nominal.toLocaleString('id-ID')})`, "success");
+            if(typeof loadRaporInvestor === 'function') await loadRaporInvestor();
+            
+            document.getElementById("modal-tambah-dividen").classList.remove("active");
+            loadingInstance.dismiss();
+            toast.success("Histori dividen berhasil dicatat dengan elegan!");
+        } else {
+            loadingInstance.dismiss(); 
+            toast.error("Gagal mencatat dividen ke Supabase!");
+        }
+    };
     </script>
 </body>
 </html>
