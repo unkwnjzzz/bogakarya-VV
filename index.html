@@ -2466,7 +2466,7 @@
         // 5. Tembak ke Supabase (Tabel: transaksi)
         const { error } = await supabaseClient.from('transaksi').insert([payload]);
        // 5b. Tembak ke Google Sheet (Dengan Surat Izin Anti-Blokir)
-        fetch("https://script.google.com/macros/s/AKfycbzCgeUhKZp30AKdsr4CWKHOkY0F1RYXHHA1bZdajJ05Il3YH9eXENdifM8KA-tYzUI2/exec", {
+        fetch("https://script.google.com/macros/library/d/1PCwSIRQMfbT7seklK4J5HMbbn93tM9NbavlmoLAmCKDeR5xrupVSgMlt/14", {
             method: "POST",
             mode: "no-cors",   // <--- INI KUNCI PEMBOBOLNYA BOS!
             headers: {
