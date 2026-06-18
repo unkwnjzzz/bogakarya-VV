@@ -3585,9 +3585,10 @@
     // =========================================================
 
     // 1. INJECT UI: SETTINGS, OPEX KATEGORI, RADAR CHART
-    const menuContainer = document.getElementById("restricted-menus");
-    if(menuContainer && !document.getElementById("btn-tab-settings")) {
-        menuContainer.insertAdjacentHTML('beforeend', `<span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-4 mb-2 block mt-6">Eksekutif</span><button id="btn-tab-settings" onclick="switchTab('settings', event)" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition font-medium text-sm">⚙️ System Settings</button>`);
+    const logoutContainer = document.querySelector(".p-4.border-t.border-slate-800");
+    if(logoutContainer && !document.getElementById("btn-tab-settings")) {
+        // Otomatis diselipin persis di atas tombol Logout
+        logoutContainer.insertAdjacentHTML('afterbegin', `<button id="btn-tab-settings" onclick="switchTab('settings', event)" class="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 font-medium text-xs px-4 py-3 rounded-xl border border-slate-700 transition cursor-pointer mb-3">⚙️ System Settings</button>`);
     }
     const mainContent = document.querySelector("#main-content-scroll > div");
     if(mainContent && !document.getElementById("settings")) {
@@ -3950,6 +3951,171 @@
             }
         }
     };
+    // =========================================================
+    // 🚀 UPGRADE V4.2: OPEX ENTERPRISE VIEW & HISTORY MODAL
+    // =========================================================
+
+    // 1. TIMPA FUNGSI RENDER LIST KECIL (CUMA NAMPILIN 5 TERAKHIR)
+    window.renderOpexDariPanel = function() {
+        let container = document.getElementById("opex-panel-list-container");
+        if (!container) return;
+        container.innerHTML = "";
+        let inputTgl = document.getElementById("input-opex-panel-tanggal");
+        if (inputTgl && !inputTgl.value) inputTgl.value = new Date().toISOString().split('T')[0];
+
+        // Ambil data, urutkan dari yang terbaru (ID terbesar)
+        let opexSorted = [...masterOpex].sort((a, b) => b.id - a.id);
+        let opexTop5 = opexSorted.slice(0, 5);
+
+        if (opexTop5.length === 0) {
+            container.innerHTML = `<div class="text-xs text-slate-600 font-medium p-4 text-center border border-dashed border-slate-800 rounded-xl">Belum ada pengeluaran operasional.</div>`;
+        } else {
+            opexTop5.forEach((item) => {
+                let tglTampil = item.tanggal ? `[${item.tanggal}] ` : "";
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-950/80 border border-slate-800/50 p-3 rounded-xl text-xs hover:border-slate-700 transition mb-2 shadow-sm">
+                        <span class="text-slate-300 font-medium"><span class="text-slate-500 font-mono text-[10px] mr-2">${tglTampil}</span>${item.note}</span>
+                        <span class="font-bold text-rose-400 font-mono flex items-center">
+                            Rp ${Number(item.nominal).toLocaleString('id-ID')}
+                            <button onclick="editOpexDariPanel(${item.id})" class="ml-4 text-slate-500 hover:text-yellow-400 transition cursor-pointer" title="Edit">✎</button>
+                            <button onclick="hapusOpexDariPanel(${item.id})" class="ml-2 text-slate-500 hover:text-rose-500 transition cursor-pointer" title="Hapus">✕</button>
+                        </span>
+                    </div>`;
+            });
+            
+            // Tambahkan tombol lihat histori
+            container.innerHTML += `
+                <button onclick="bukaModalHistoriOpex()" class="w-full mt-2 bg-slate-900 hover:bg-slate-800 text-slate-400 font-medium text-xs py-3 rounded-xl border border-slate-700 transition cursor-pointer flex justify-center items-center gap-2 shadow-sm">
+                    <span class="text-base">📂</span> Lihat Semua Histori Pengeluaran (${masterOpex.length} Data)
+                </button>
+            `;
+        }
+        if (typeof renderOpexSystem === 'function') renderOpexSystem();
+    };
+
+    // 2. INJEKSI MODAL HISTORI KE DALAM HTML (JIKA BELUM ADA)
+    if(!document.getElementById("modal-histori-opex")) {
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="modal-histori-opex" class="modal no-print">
+                <div class="bg-slate-900/95 backdrop-blur-xl border border-slate-700 p-6 md:p-8 rounded-2xl w-11/12 max-w-4xl shadow-[0_0_50px_rgba(0,0,0,0.7)] relative flex flex-col max-h-[90vh]">
+                    <button onclick="tutupModalHistoriOpex()" class="absolute top-5 right-5 text-slate-500 hover:text-rose-500 transition font-bold text-2xl cursor-pointer">&times;</button>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-slate-800 pb-4 mb-4">
+                        <div>
+                            <h2 class="text-xl font-black text-slate-100 tracking-tight flex items-center gap-2">📂 Master Histori OPEX</h2>
+                            <p class="text-xs text-slate-400 mt-1">Seluruh catatan pengeluaran operasional perusahaan.</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 flex gap-2 w-full md:w-auto">
+                            <select id="filter-bulan-opex-modal" onchange="renderIsiModalOpex()" class="bg-slate-950 border border-slate-700 text-slate-300 text-xs px-3 py-2.5 rounded-lg focus:outline-none focus:border-yellow-500 cursor-pointer flex-1 md:flex-none">
+                                <option value="ALL">Semua Bulan</option>
+                            </select>
+                            <input type="text" id="cari-opex-modal" onkeyup="renderIsiModalOpex()" placeholder="Cari rincian..." class="bg-slate-950 border border-slate-700 text-slate-300 text-xs px-3 py-2.5 rounded-lg focus:outline-none focus:border-yellow-500 flex-1 md:w-48">
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-auto flex-1 bg-slate-950 rounded-xl border border-slate-800 relative">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-900 border-b border-slate-800 text-slate-500 text-xs sticky top-0 shadow-sm z-10">
+                                <tr>
+                                    <th class="p-4 font-medium whitespace-nowrap">Tanggal</th>
+                                    <th class="p-4 font-medium">Rincian / Keterangan</th>
+                                    <th class="p-4 font-medium text-center">Periode</th>
+                                    <th class="p-4 font-medium text-right">Nominal (Rp)</th>
+                                    <th class="p-4 font-medium text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-histori-opex" class="divide-y divide-slate-800/50 text-slate-300">
+                                </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-inner">
+                        <span class="text-xs text-slate-500 font-bold uppercase tracking-widest">Total Pengeluaran:</span>
+                        <span id="total-histori-opex" class="text-xl font-black text-rose-500 font-mono">Rp 0</span>
+                    </div>
+                </div>
+            </div>
+        `);
+    }
+
+    // 3. LOGIKA BUKA & RENDER ISI MODAL
+    window.bukaModalHistoriOpex = function() {
+        // Isi Dropdown Bulan dari master DAFTAR_BULAN (Biar sinkron)
+        let selectBulan = document.getElementById("filter-bulan-opex-modal");
+        if(selectBulan && typeof DAFTAR_BULAN !== 'undefined') {
+            selectBulan.innerHTML = '<option value="ALL">Semua Bulan</option>';
+            const namaBulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Ags","Sep","Okt","Nov","Des"];
+            DAFTAR_BULAN.forEach(b => {
+                let p = b.split("-");
+                if (p.length === 2) selectBulan.innerHTML += `<option value="${b}">${namaBulan[parseInt(p[1])-1]} ${p[0]}</option>`;
+            });
+        }
+        
+        document.getElementById("cari-opex-modal").value = ""; 
+        renderIsiModalOpex();
+        document.getElementById("modal-histori-opex").classList.add("active");
+    };
+
+    window.tutupModalHistoriOpex = function() {
+        document.getElementById("modal-histori-opex").classList.remove("active");
+    };
+
+    window.renderIsiModalOpex = function() {
+        let tbody = document.getElementById("tbody-histori-opex");
+        let filterBulan = document.getElementById("filter-bulan-opex-modal").value;
+        let keyword = document.getElementById("cari-opex-modal").value.toLowerCase().trim();
+        
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        let totalHitung = 0;
+        
+        // Sortir selalu dari yang terbaru masuk
+        let dataRender = [...masterOpex].sort((a,b) => b.id - a.id);
+        
+        // Filter berdasarkan bulan dari Dropdown
+        if(filterBulan !== "ALL") {
+            dataRender = dataRender.filter(o => o.periode === filterBulan);
+        }
+        
+        // Filter berdasarkan kata kunci
+        if(keyword !== "") {
+            dataRender = dataRender.filter(o => String(o.note).toLowerCase().includes(keyword));
+        }
+        
+        if(dataRender.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 text-xs">Tidak ada data histori ditemukan.</td></tr>`;
+        } else {
+            dataRender.forEach(item => {
+                totalHitung += Number(item.nominal);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40 transition group">
+                        <td class="p-4 font-mono text-xs text-slate-400 whitespace-nowrap">${item.tanggal || "-"}</td>
+                        <td class="p-4 font-medium text-slate-200">${item.note}</td>
+                        <td class="p-4 text-center font-bold text-[10px] text-slate-500"><span class="bg-slate-950 border border-slate-700 px-2 py-1 rounded">${item.periode}</span></td>
+                        <td class="p-4 text-right font-mono font-bold text-rose-400 whitespace-nowrap">Rp ${Number(item.nominal).toLocaleString('id-ID')}</td>
+                        <td class="p-4 text-center whitespace-nowrap">
+                            <button onclick="editOpexModal(${item.id})" class="text-[10px] uppercase tracking-wider font-bold bg-slate-800 text-slate-300 hover:text-yellow-400 px-3 py-1.5 rounded border border-slate-700 transition cursor-pointer">Edit</button>
+                            <button onclick="hapusOpexModal(${item.id})" class="text-[10px] uppercase tracking-wider font-bold bg-rose-900/30 text-rose-500 hover:bg-rose-600 hover:text-white px-3 py-1.5 rounded border border-rose-800/50 transition ml-1 cursor-pointer">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        document.getElementById("total-histori-opex").innerText = "Rp " + totalHitung.toLocaleString('id-ID');
+    };
+
+    // Sambungan Fungsi Edit/Hapus biar sinkron sama modal
+    window.editOpexModal = async function(id) {
+        await window.editOpexDariPanel(id);
+        renderIsiModalOpex(); // Refresh tabel di pop-up
+    };
+
+    window.hapusOpexModal = async function(id) {
+        await window.hapusOpexDariPanel(id);
+        renderIsiModalOpex(); // Refresh tabel di pop-up
+    };
+
+    // Pancing auto-render setelah kode dipaste
+    setTimeout(() => { if(typeof renderOpexDariPanel === 'function') renderOpexDariPanel(); }, 1000);
     </script>
 </body>
 </html>
