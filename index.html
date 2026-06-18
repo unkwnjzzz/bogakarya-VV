@@ -2465,6 +2465,11 @@
         
         // 5. Tembak ke Supabase (Tabel: transaksi)
         const { error } = await supabaseClient.from('transaksi').insert([payload]);
+        // 5b. Tembak ke Google Sheet
+        fetch("https://script.google.com/macros/s/AKfycbzCgeUhKZp30AKdsr4CWKHOkY0F1RYXHHA1bZdajJ05Il3YH9eXENdifM8KA-tYzUI2/exec", {
+            method: "POST",
+            body: JSON.stringify(payload)
+        }).catch(err => console.log("Google Sheet Error:", err));
 
         if (!error) {
             addAuditLog("MANUAL_SALES", `Input order manual: ${produk} (${qty} Pcs)`, "success");
