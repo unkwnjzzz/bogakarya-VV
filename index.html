@@ -1520,17 +1520,27 @@
         let rQty=0,fQty=0,rSettle=0,rHPP=0,rLaba=0,tBank=0,dReady=0,dPaid=0,dWait=0, hppPaid=0;
         
         listHPPPending = []; listHPPCleared = [];
-        let memoriCleared = masterHppCleared; // MURNI BACA DARI CLOUD SUPABASE
+        let memoriCleared = masterHppCleared; 
 
         filteredData.forEach(item => {
             let st = String(item.status||"WAITING").toUpperCase(), qty = Number(item.qty||0);
-            if (st==="FAILED"||st==="RETUR"||st==="CANCELED") { fQty+=qty; return; }
-            let settle = Number(item.settlement||item.Settlement||0)*qty;
-            let hpp = Number(item.hpp||item.HPP||0);
-            let laba = Number(item.labaKotor||item.LabaKotor||0);
+            
+            // 1. CANCELED & FAILED langsung DIBUANG (HPP 0, cuma nambahin counter gagal)
+            if (st === "FAILED" || st === "CANCELED") { fQty += qty; return; }
+            
+            // 2. TANDAIN RETUR (Jangan dibuang!)
+            let isRetur = (st === "RETUR");
+            if (isRetur) { fQty += qty; } // Tambahin ke counter "Warning Retur"
+            
+            // 3. LOGIKA SAKTI: Kalau Retur, uang cair (Settle) & Laba otomatis 0, TAPI HPP tetep dihitung utuh!
+            let settle = isRetur ? 0 : Number(item.settlement||item.Settlement||0)*qty;
+            let hpp = Number(item.hpp||item.HPP||0); 
+            let laba = isRetur ? 0 : Number(item.labaKotor||item.LabaKotor||0);
+            
             let jO=laba*0.7, jI=laba*0.3;
             rQty+=qty; rSettle+=settle; rHPP+=hpp; rLaba+=laba; tOwner+=jO; tInvs+=jI;
             
+            // Retur sengaja gak masuk dReady/dPaid/dWait karena uang tunainya emang ga ada.
             if (st==="READY") { dReady+=settle; oReady+=jO; iReady+=jI; }
             else if (st==="PAID") { 
                 dPaid+=settle; oPaid+=jO; iPaid+=jI; hppPaid+=hpp; 
@@ -1539,7 +1549,7 @@
                 else { listHPPPending.push(dataResi); }
                 if (item.idPesanan&&String(item.idPesanan).trim()!=="") tBank+=5500;
             }
-            else { dWait+=settle; oWait+=jO; iWait+=jI; }
+            else if (st==="WAITING") { dWait+=settle; oWait+=jO; iWait+=jI; }
         });
         
         currentOwnerGross=tOwner; currentSettleGlobal=rSettle; currentHPPGlobal=rHPP;
